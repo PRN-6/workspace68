@@ -11,6 +11,7 @@ const server = await preview({
     host: '0.0.0.0',
     port,
     strictPort: true,
+    allowedHosts: true,
   },
 })
 
