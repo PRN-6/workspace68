@@ -1,62 +1,129 @@
 # workspace68
 
-workspace68 is a browser-based visual website builder. Create and edit responsive pages with drag-and-drop blocks, style controls, animations, and configurable element actions, then export the result as a React project.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Live Demo](https://img.shields.io/badge/Demo-workspace68.onrender.com-brightgreen)](https://workspace68.onrender.com)
 
-## Features
+**workspace68** is a modern, browser-based visual website builder. Design responsive pages effortlessly with drag-and-drop components, full styling controls, animations, interactive actions, and AI-assisted generation from reference screenshots—then export production-ready React source code.
 
-- Drag-and-drop page builder with editable sections, containers, text, buttons, images, and other blocks.
-- Move and resize elements directly on the canvas, or edit their properties in the side panel.
-- Desktop, tablet, and mobile canvas viewports, plus a preview mode.
-- Multiple workspaces with browser autosave and portable project-file import/export.
-- AI website generation from a reference image and a text prompt, with chat-based refinement.
-- Export generated websites as downloadable React source-code ZIP files.
-- Dark and light editor themes.
+---
 
-## Requirements
+## 🚀 Live Demo
 
-- Node.js 18 or newer
-- npm
+- **Render:** [https://workspace68.onrender.com](https://workspace68.onrender.com)
+- **Vercel:** [https://workspace68.vercel.app/](https://workspace68.vercel.app/)
 
-## Run locally
+---
+
+## ✨ Features
+
+- **Visual Drag & Drop Builder:** Easily arrange sections, cards, grids, buttons, typography, media, and interactive blocks using `@dnd-kit`.
+- **In-Canvas Resizing & Positioning:** Manipulate layout and sizing directly on the canvas or fine-tune exact styles in the properties sidebar.
+- **Responsive Viewport Previews:** Seamlessly switch between Desktop, Tablet, and Mobile canvas modes, plus an interactive full-screen Preview mode.
+- **AI-Powered Website Generation:** Generate full page layouts and components directly from reference screenshots and prompts using any OpenAI-compatible vision model.
+- **Production React Export:** One-click download of your visual layout as a clean, modular React + Tailwind CSS project in a `.zip` archive.
+- **Workspace Autosave & Portability:** Browser-local autosave with support for exporting and importing `.json` project files across devices.
+- **Dark & Light Themes:** Native dark and light mode support for both the editor UI and canvas preview.
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+| ---------- | ------- |
+| **React 18** | UI component architecture and state-driven rendering |
+| **Vite 6** | Lightning-fast development tooling and optimized production bundling |
+| **Tailwind CSS** | Utility-first styling with comprehensive responsive design support |
+| **Zustand** | Centralized, reactive editor state management |
+| **@dnd-kit** | Accessible, performant drag-and-drop toolkit |
+| **JSZip** | Client-side ZIP compilation for instant React project downloads |
+
+---
+
+## 💻 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 18 or higher recommended)
+- `npm` or `yarn`
+
+### Installation
+
+Clone the repository and install dependencies:
 
 ```bash
+git clone https://github.com/PRN-6/workspace68.git
+cd workspace68
 npm install
+```
+
+### Development Server
+
+Start the local development server:
+
+```bash
 npm run dev
 ```
 
-Open the local URL printed by Vite (usually `http://localhost:5173`).
+Open `http://localhost:5173` in your browser.
 
-## Production build
+### Production Build
+
+Create an optimized build and test it locally:
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## Deploy on Render
+---
 
-Create a **Web Service** for this repository and configure:
+## 🤖 AI Website Generator Setup
 
-- **Build command:** `npm ci && npm run build`
-- **Start command:** `npm start`
+1. Open the editor and select **AI Builder** from the top toolbar.
+2. Provide your preferred LLM provider details:
+   - **Base URL:** (e.g. `https://api.openai.com/v1` or an OpenAI-compatible endpoint)
+   - **Model Name:** (e.g. `gpt-4o`, `gpt-4-vision-preview`, or compatible vision models)
+   - **API Key:** Your provider API key
+3. Upload a reference screenshot or mock-up and provide prompt instructions.
+4. The builder will generate an interactive page structure that you can inspect, edit, and refine.
 
-The production server binds to Render's `PORT` environment variable.
+> **Security Note:** API keys are stored only in volatile browser memory during your active session and are never included in project files or exported packages.
 
-## AI website builder
+---
 
-Select **AI builder** in the editor toolbar. Enter an API base URL, model name, and API key for a provider that supports OpenAI-compatible chat completions with image input. Add a reference image and describe the website you want.
+## 🚀 Deployment
 
-AI support depends on the selected model's vision capabilities and the provider's browser CORS configuration. The browser sends the API key, prompt, and reference image directly to the configured provider endpoint. The API key is kept in memory and is not saved with the workspace. Do not use this client-side setup to distribute a private API key to untrusted users; a production, multi-user deployment should proxy requests through a protected server.
+### Deploying to Render
 
-## Workspace storage
+This project includes a production preview runner ([scripts/serve.js](scripts/serve.js)) configured for Render web services:
 
-Workspaces autosave in the current browser's local storage. Use the workspace controls to save a portable project file if you want to keep a backup or move the project to another browser or device.
+1. Create a new **Web Service** on Render and link this repository.
+2. Configure settings:
+   - **Environment:** `Node`
+   - **Build Command:** `npm ci && npm run build`
+   - **Start Command:** `npm start`
+3. Render binds the server automatically to the allocated `$PORT`.
 
-## Tech stack
+### Deploying to Vercel
 
-- React 18
-- Vite
-- Zustand
-- Tailwind CSS
-- dnd-kit
-- JSZip
+1. Import the repository in [Vercel](https://vercel.com).
+2. Framework Preset: **Vite**.
+3. Build Command: `npm run build`.
+4. Output Directory: `dist`.
+
+---
+
+## 🔒 Security
+
+For vulnerability disclosures and reporting guidelines, please review our [Security Policy](SECURITY.md).
+
+---
+
+## 📄 License
+
+This project is open-source software licensed under the [MIT License](LICENSE).
+
+Copyright (c) 2026 [Prinson R N](https://github.com/PRN-6).
