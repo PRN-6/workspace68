@@ -33,6 +33,15 @@ npm run build
 npm run preview
 ```
 
+## Deploy on Render
+
+Create a **Web Service** for this repository and configure:
+
+- **Build command:** `npm ci && npm run build`
+- **Start command:** `npm start`
+
+The production server binds to Render's `PORT` environment variable.
+
 ## AI website builder
 
 Select **AI builder** in the editor toolbar. Enter an API base URL, model name, and API key for a provider that supports OpenAI-compatible chat completions with image input. Add a reference image and describe the website you want.
