@@ -12,7 +12,6 @@
 
 ## 🚀 Live Demo
 
-- **Render:** [https://workspace68.onrender.com](https://workspace68.onrender.com)
 - **Vercel:** [https://workspace68.vercel.app/](https://workspace68.vercel.app/)
 
 ---
