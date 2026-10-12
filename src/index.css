@@ -1,0 +1,353 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #eef1f6;
+  color: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.ws-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.ws-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.ws-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  background-clip: content-box;
+}
+
+[contenteditable]:focus {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.ws-resize-handle {
+  touch-action: none;
+}
+
+.ws-input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: #fff;
+  color: #0f172a;
+}
+.ws-input:focus {
+  outline: none;
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.ws-dark {
+  color-scheme: dark;
+  background: #090909;
+}
+
+.ws-dark .ws-toolbar,
+.ws-dark .ws-sidebar,
+.ws-dark .ws-properties,
+.ws-dark .ws-pages-bar {
+  color: #e5e5e5;
+  background-color: #111111;
+  border-color: #292929;
+}
+
+.ws-dark .ws-canvas-workspace {
+  background-color: #090909;
+}
+
+.ws-dark .ws-toolbar input {
+  color: #e5e5e5;
+}
+
+.ws-dark .ws-toolbar .text-slate-800,
+.ws-dark .ws-toolbar .text-slate-700,
+.ws-dark .ws-toolbar .text-slate-600,
+.ws-dark .ws-sidebar .text-slate-700,
+.ws-dark .ws-sidebar .text-slate-600,
+.ws-dark .ws-sidebar .text-slate-500,
+.ws-dark .ws-properties .text-slate-700,
+.ws-dark .ws-properties .text-slate-600,
+.ws-dark .ws-properties .text-slate-500,
+.ws-dark .ws-pages-bar .text-slate-500 {
+  color: #d4d4d4;
+}
+
+.ws-dark .ws-sidebar .bg-white,
+.ws-dark .ws-properties .bg-white {
+  background-color: #181818;
+}
+
+.ws-dark .ws-sidebar .bg-slate-50,
+.ws-dark .ws-properties .bg-slate-50 {
+  background-color: #111111;
+}
+
+.ws-dark .ws-sidebar .bg-slate-100,
+.ws-dark .ws-properties .bg-slate-100 {
+  background-color: #242424;
+}
+
+.ws-dark .ws-sidebar .border-slate-100,
+.ws-dark .ws-sidebar .border-slate-200,
+.ws-dark .ws-properties .border-slate-100,
+.ws-dark .ws-properties .border-slate-200,
+.ws-dark .ws-pages-bar .border-slate-200 {
+  border-color: #292929;
+}
+
+.ws-dark .ws-sidebar .ws-scroll .border-slate-200 {
+  border-color: #292929;
+}
+
+.ws-dark .ws-properties .ws-input {
+  color: #e5e5e5;
+  background-color: #090909;
+  border-color: #3a3a3a;
+}
+
+.ws-dark .ws-properties .ws-input::placeholder {
+  color: #737373;
+}
+
+.ws-dark .ws-properties .bg-indigo-50,
+.ws-dark .ws-pages-bar .bg-indigo-50 {
+  background-color: #321416;
+}
+
+.ws-dark .ws-workspace-modal {
+  color: #e5e5e5;
+  background-color: #111111;
+  border-color: #292929;
+}
+
+.ws-dark .ws-workspace-modal h2,
+.ws-dark .ws-workspace-modal h3 {
+  color: #f5f5f5;
+}
+
+.ws-dark .ws-workspace-modal .text-slate-700,
+.ws-dark .ws-workspace-modal .text-slate-600,
+.ws-dark .ws-workspace-modal .text-slate-500 {
+  color: #d4d4d4;
+}
+
+.ws-dark .ws-workspace-modal .border-slate-200 {
+  border-color: #292929;
+}
+
+.ws-dark .ws-workspace-modal .hover\:bg-slate-50:hover,
+.ws-dark .ws-workspace-modal .hover\:bg-slate-100:hover {
+  background-color: #242424;
+}
+
+.ws-dark .ws-ai-modal {
+  color: #e5e5e5;
+  background-color: #111111;
+  border-color: #292929;
+}
+
+.ws-dark .ws-ai-modal h2,
+.ws-dark .ws-ai-modal summary,
+.ws-dark .ws-ai-modal label {
+  color: #f5f5f5;
+}
+
+.ws-dark .ws-ai-modal .border-slate-200,
+.ws-dark .ws-ai-modal .border-slate-300 {
+  border-color: #404040;
+}
+
+.ws-dark .ws-ai-modal .bg-slate-50,
+.ws-dark .ws-ai-modal .bg-white {
+  background-color: #181818;
+}
+
+.ws-dark .ws-ai-modal .text-slate-800,
+.ws-dark .ws-ai-modal .text-slate-700,
+.ws-dark .ws-ai-modal .text-slate-600,
+.ws-dark .ws-ai-modal .text-slate-500 {
+  color: #d4d4d4;
+}
+
+.ws-dark .ws-ai-modal .ws-input {
+  color: #e5e5e5;
+  background-color: #090909;
+  border-color: #404040;
+}
+
+.ws-dark .ws-ai-modal .ws-input::placeholder {
+  color: #737373;
+}
+
+.ws-dark .ws-ai-modal .hover\:bg-slate-50:hover {
+  background-color: #242424;
+}
+
+.ws-dark .ws-workspace-modal .bg-indigo-50\/50 {
+  background-color: #201314;
+}
+
+.ws-dark .ws-properties .text-indigo-700,
+.ws-dark .ws-pages-bar .text-indigo-700 {
+  color: #fca5a5;
+}
+
+.ws-dark .ws-sidebar .hover\:bg-slate-100:hover,
+.ws-dark .ws-properties .hover\:bg-slate-100:hover,
+.ws-dark .ws-pages-bar .hover\:bg-slate-100:hover {
+  background-color: #242424;
+}
+
+.ws-dark .bg-indigo-600,
+.ws-dark .hover\:bg-indigo-700:hover {
+  background-color: #dc2626;
+}
+
+.ws-dark .bg-indigo-500,
+.ws-dark .hover\:bg-indigo-500:hover {
+  background-color: #ef4444;
+}
+
+.ws-dark .text-indigo-500,
+.ws-dark .text-indigo-600,
+.ws-dark .text-indigo-700,
+.ws-dark .hover\:text-indigo-600:hover,
+.ws-dark .hover\:text-indigo-700:hover {
+  color: #f87171;
+}
+
+.ws-dark .border-indigo-200,
+.ws-dark .border-indigo-300,
+.ws-dark .hover\:border-indigo-300:hover,
+.ws-dark .hover\:border-indigo-400:hover {
+  border-color: #7f1d1d;
+}
+
+.ws-dark .bg-indigo-100 {
+  background-color: #451a1a;
+}
+
+.ws-dark .bg-indigo-50,
+.ws-dark .group-hover\:bg-indigo-50:hover {
+  background-color: #321416;
+}
+
+.ws-dark .accent-indigo-600 {
+  accent-color: #ef4444;
+}
+
+.ws-dark .ws-sidebar .text-slate-400,
+.ws-dark .ws-properties .text-slate-400,
+.ws-dark .ws-pages-bar .text-slate-400 {
+  color: #a3a3a3;
+}
+
+.ws-dark .ws-sidebar .border-slate-300,
+.ws-dark .ws-pages-bar .border-slate-300 {
+  border-color: #404040;
+}
+
+.ws-app .bg-indigo-600 {
+  background-color: #dc2626;
+}
+
+.ws-app .hover\:bg-indigo-700:hover {
+  background-color: #b91c1c;
+}
+
+.ws-app .bg-indigo-500,
+.ws-app .hover\:bg-indigo-500:hover {
+  background-color: #ef4444;
+}
+
+.ws-app .text-indigo-500,
+.ws-app .text-indigo-600,
+.ws-app .text-indigo-700,
+.ws-app .hover\:text-indigo-600:hover,
+.ws-app .hover\:text-indigo-700:hover {
+  color: #dc2626;
+}
+
+.ws-app .border-indigo-200,
+.ws-app .border-indigo-300,
+.ws-app .border-indigo-500,
+.ws-app .hover\:border-indigo-300:hover,
+.ws-app .hover\:border-indigo-400:hover {
+  border-color: #fca5a5;
+}
+
+.ws-app .bg-indigo-100 {
+  background-color: #fee2e2;
+}
+
+.ws-app .bg-indigo-50,
+.ws-app .group-hover\:bg-indigo-50:hover {
+  background-color: #fef2f2;
+}
+
+.ws-app .bg-indigo-50\/50 {
+  background-color: rgba(254, 242, 242, 0.5);
+}
+
+.ws-app .accent-indigo-600 {
+  accent-color: #dc2626;
+}
+
+.ws-app .focus\:border-indigo-400:focus {
+  border-color: #f87171;
+}
+
+.ws-dark .bg-indigo-100 {
+  background-color: #451a1a;
+}
+
+.ws-dark .bg-indigo-50,
+.ws-dark .group-hover\:bg-indigo-50:hover {
+  background-color: #321416;
+}
+
+.ws-dark .bg-indigo-50\/50 {
+  background-color: rgba(50, 20, 22, 0.5);
+}
+
+.ws-dark .text-indigo-500,
+.ws-dark .text-indigo-600,
+.ws-dark .text-indigo-700,
+.ws-dark .hover\:text-indigo-600:hover,
+.ws-dark .hover\:text-indigo-700:hover {
+  color: #f87171;
+}
+
+.ws-dark .border-indigo-200,
+.ws-dark .border-indigo-300,
+.ws-dark .border-indigo-500,
+.ws-dark .hover\:border-indigo-300:hover,
+.ws-dark .hover\:border-indigo-400:hover {
+  border-color: #7f1d1d;
+}
