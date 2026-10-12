@@ -17,9 +17,8 @@ function IconButton({ children, onClick, disabled, title, active }) {
       title={title}
       disabled={disabled}
       onClick={onClick}
-      className={`flex h-8 items-center gap-1 rounded-lg px-2.5 text-xs font-medium transition ${
-        active ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'
-      } disabled:cursor-not-allowed disabled:opacity-40`}
+      className={`flex h-8 items-center gap-1 rounded-lg px-2.5 text-xs font-medium transition ${active ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+        } disabled:cursor-not-allowed disabled:opacity-40`}
     >
       {children}
     </button>
@@ -83,6 +82,16 @@ export default function Toolbar() {
         >
           Workspaces
         </button>
+        <a
+          href="https://prinson.is-a.dev/"
+          target="_blank"
+          rel="noreferrer"
+          className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-indigo-600"
+          title="Developer Portfolio"
+        >
+          <span>👨‍💻</span>
+          <span className="hidden sm:inline">Developer</span>
+        </a>
       </div>
 
       <div className="flex items-center gap-1">
@@ -124,9 +133,8 @@ export default function Toolbar() {
         <button
           type="button"
           onClick={togglePreview}
-          className={`h-9 rounded-lg px-3 text-sm font-medium transition ${
-            previewMode ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-700 hover:bg-slate-50'
-          }`}
+          className={`h-9 rounded-lg px-3 text-sm font-medium transition ${previewMode ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-700 hover:bg-slate-50'
+            }`}
         >
           {previewMode ? '← Back to editor' : '▶ Preview'}
         </button>
