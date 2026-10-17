@@ -97,12 +97,16 @@ function EditableElement({ element, containerId }) {
   const selected = selectedId === element.id
   const hovered = hoveredId === element.id
 
+  const isSection = element.type === 'section'
+  const isFree = !isSection && element.style.position === 'absolute'
+  const updateStyle = useEditorStore((s) => s.updateStyle)
+
   const Tag = canvasTagOf(element)
   const style = {
     ...element.style,
     ...(interactionStyle || {}),
-    position: interactionStyle?.position || element.style.position || 'relative',
-    cursor: element.style.cursor || (selected ? 'move' : undefined),
+    position: isSection ? 'relative' : (interactionStyle?.position || element.style.position || 'relative'),
+    cursor: element.style.cursor || (selected && isFree ? 'move' : undefined),
     transform: transform ? CSS.Transform.toString(transform) : undefined,
     transition,
     ...(isDragging ? { opacity: 0.35 } : {}),
@@ -117,17 +121,20 @@ function EditableElement({ element, containerId }) {
   }
 
   const beginInteraction = (event, kind) => {
+    if (isSection) return
     const ignoredTarget = event.target.closest('button:not(.ws-resize-handle), input, textarea, select, [contenteditable="true"]')
     if (event.button !== 0 || ignoredTarget) return
     const node = elementNode.current
     const parent = node?.parentElement
     if (!node || !parent) return
 
+    // Normal flow elements should NOT be converted into position: absolute on drag
+    if (kind === 'move' && !isFree) return
+
     event.stopPropagation()
     selectElement(element.id)
     const rect = node.getBoundingClientRect()
     const parentRect = parent.getBoundingClientRect()
-    const isFree = element.style.position === 'absolute'
     const startLeft = isFree
       ? Number.parseFloat(element.style.left) || 0
       : rect.left - parentRect.left - parent.clientLeft + parent.scrollLeft
@@ -155,7 +162,12 @@ function EditableElement({ element, containerId }) {
     if (event.isTrusted) node.setPointerCapture(event.pointerId)
   }
 
-  const onPointerDown = (event) => beginInteraction(event, 'move')
+  const onPointerDown = (event) => {
+    if (isFree && !isSection) {
+      beginInteraction(event, 'move')
+    }
+  }
+
   const onResizePointerDown = (event) => {
     event.stopPropagation()
     beginInteraction(event, 'resize')
@@ -170,23 +182,50 @@ function EditableElement({ element, containerId }) {
     current.moved = true
     event.preventDefault()
 
-    const nextStyle = {
-      position: 'absolute',
-      left: `${Math.round(current.startLeft + (current.kind === 'move' ? dx : 0))}px`,
-      top: `${Math.round(current.startTop + (current.kind === 'move' ? dy : 0))}px`,
-      width: `${Math.max(24, Math.round(current.startWidth + (current.kind === 'resize' ? dx : 0)))}px`,
-      height: `${Math.max(24, Math.round(current.startHeight + (current.kind === 'resize' ? dy : 0)))}px`,
-      margin: '0px',
+    if (current.kind === 'move' && isFree) {
+      const nextStyle = {
+        position: 'absolute',
+        left: `${Math.round(current.startLeft + dx)}px`,
+        top: `${Math.round(current.startTop + dy)}px`,
+        width: `${Math.max(24, Math.round(current.startWidth))}px`,
+        height: `${Math.max(24, Math.round(current.startHeight))}px`,
+        margin: '0px',
+      }
+      current.nextStyle = nextStyle
+      setInteractionStyle(nextStyle)
+    } else if (current.kind === 'resize') {
+      const nextWidth = Math.max(24, Math.round(current.startWidth + dx))
+      const nextHeight = Math.max(24, Math.round(current.startHeight + dy))
+      if (isFree) {
+        const nextStyle = {
+          position: 'absolute',
+          left: `${Math.round(current.startLeft)}px`,
+          top: `${Math.round(current.startTop)}px`,
+          width: `${nextWidth}px`,
+          height: `${nextHeight}px`,
+          margin: '0px',
+        }
+        current.nextStyle = nextStyle
+        setInteractionStyle(nextStyle)
+      } else {
+        const nextStyle = {
+          width: `${nextWidth}px`,
+        }
+        current.nextStyle = nextStyle
+        setInteractionStyle(nextStyle)
+      }
     }
-    current.nextStyle = nextStyle
-    setInteractionStyle(nextStyle)
   }
 
   const finishInteraction = (event) => {
     const current = interaction.current
     if (!current || current.pointerId !== event.pointerId) return
     if (current.moved && current.nextStyle) {
-      setElementLayout(element.id, current.nextStyle, { mode: 'free', flowStyle: current.flowStyle })
+      if (isFree) {
+        setElementLayout(element.id, current.nextStyle, { mode: 'free', flowStyle: current.flowStyle })
+      } else {
+        updateStyle(element.id, current.nextStyle)
+      }
     }
     interaction.current = null
     setInteractionStyle(null)
@@ -384,12 +423,24 @@ function PagesBar() {
   )
 }
 
-function resolveDrop(over, elements) {
+function resolveDrop(over, elements, draggedType) {
   const data = over.data?.current
   if (data?.type === 'container') {
+    if (draggedType && draggedType !== 'section' && data.containerId === 'root' && elements.root?.length > 0) {
+      const targetSec = elements.root.find((s) => s.type === 'section') || elements.root[0]
+      if (targetSec) {
+        const col = targetSec.children?.find((c) => COMPONENTS[c.type]?.canHaveChildren)
+        return { containerId: col ? col.id : targetSec.id, index: null }
+      }
+    }
     return { containerId: data.containerId, index: null }
   }
   if (data?.source === 'canvas') {
+    const overEl = T.findById(elements.root, over.id)
+    if (overEl && COMPONENTS[overEl.type]?.canHaveChildren && draggedType !== 'section') {
+      const col = overEl.children?.find((c) => COMPONENTS[c.type]?.canHaveChildren)
+      return { containerId: col ? col.id : overEl.id, index: null }
+    }
     const containerId = data.containerId
     const list = containerId === 'root' ? elements.root : T.findById(elements.root, containerId)?.children
     const index = list ? list.findIndex((x) => x.id === over.id) : null
@@ -423,14 +474,15 @@ function EditCanvas() {
     const activeData = active.data.current
 
     if (activeData?.source === 'palette') {
-      const dest = resolveDrop(over, page)
+      const dest = resolveDrop(over, page, activeData.elementType)
       if (!dest) return
       insertElement(activeData.elementType, dest.containerId, dest.index)
       return
     }
 
     const activeId = String(active.id)
-    const dest = resolveDrop(over, page)
+    const activeEl = T.findById(page.root, activeId)
+    const dest = resolveDrop(over, page, activeEl?.type)
     if (!dest) return
     if (dest.containerId === activeId) return
     moveElement(activeId, dest.containerId, dest.index)

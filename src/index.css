@@ -63,6 +63,22 @@ body {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 }
 
+.ws-preview-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+.ws-preview-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.ws-preview-btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.92);
+}
+
 .ws-dark {
   color-scheme: dark;
   background: #090909;

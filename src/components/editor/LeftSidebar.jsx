@@ -16,15 +16,41 @@ function PaletteCard({ type }) {
 
   const onClick = () => {
     let containerId = 'root'
-    if (selectedId) {
-      const sel = T.findById(root, selectedId)
-      if (sel && COMPONENTS[sel.type]?.canHaveChildren) containerId = sel.id
-      else {
-        const loc = T.findContainerList(root, selectedId)
-        if (loc) containerId = 'root'
+    let targetIndex = null
+
+    if (type === 'section') {
+      containerId = 'root'
+      if (selectedId) {
+        const info = T.findContainerInfo(root, selectedId)
+        if (info?.containerId === 'root') {
+          targetIndex = info.index + 1
+        }
+      }
+    } else {
+      if (selectedId) {
+        const sel = T.findById(root, selectedId)
+        if (sel && COMPONENTS[sel.type]?.canHaveChildren) {
+          containerId = sel.id
+          targetIndex = sel.children?.length ?? 0
+        } else {
+          const info = T.findContainerInfo(root, selectedId)
+          if (info && info.containerId) {
+            containerId = info.containerId
+            targetIndex = info.index + 1
+          }
+        }
+      }
+
+      if (containerId === 'root' && root.length > 0) {
+        const firstSection = root.find((n) => n.type === 'section') || root[0]
+        if (firstSection && COMPONENTS[firstSection.type]?.canHaveChildren) {
+          const col = firstSection.children?.find((c) => COMPONENTS[c.type]?.canHaveChildren)
+          containerId = col ? col.id : firstSection.id
+        }
       }
     }
-    insertElement(type, containerId)
+
+    insertElement(type, containerId, targetIndex)
   }
 
   return (

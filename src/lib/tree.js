@@ -31,6 +31,31 @@ export function findContainerList(nodes, id) {
   return null
 }
 
+export function findParent(nodes, id, parent = null) {
+  for (const node of nodes) {
+    if (node.id === id) return parent
+    if (node.children?.length) {
+      const found = findParent(node.children, id, node)
+      if (found !== undefined) return found
+    }
+  }
+  return undefined
+}
+
+export function findContainerInfo(nodes, id) {
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].id === id) return { parent: null, containerId: 'root', index: i }
+  }
+  let result = null
+  walk(nodes, (node, parent) => {
+    if (node.id === id && parent) {
+      const index = parent.children ? parent.children.findIndex((c) => c.id === id) : 0
+      result = { parent, containerId: parent.id, index }
+    }
+  })
+  return result
+}
+
 export function getList(root, containerId) {
   if (containerId === 'root') return root
   const c = findById(root, containerId)

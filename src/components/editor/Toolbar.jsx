@@ -106,8 +106,7 @@ export default function Toolbar() {
           <IconButton
             key={v.id}
             title={v.label}
-            active={viewport === v.id && !previewMode}
-            disabled={previewMode}
+            active={viewport === v.id}
             onClick={() => setViewport(v.id)}
           >
             <span>{v.icon}</span>

@@ -53,27 +53,89 @@ function migratePortfolioTheme(project) {
   return migrated
 }
 
+function sanitizeProjectLayout(project) {
+  if (!project || !Array.isArray(project.pages)) return project
+  let modified = false
+  const updated = structuredClone(project)
+
+  for (const page of updated.pages) {
+    if (!Array.isArray(page.root)) continue
+
+    // 1. Sections must NEVER have position: 'absolute' or fixed dimensions that break page flow
+    T.walk(page.root, (element) => {
+      if (element.type === 'section' && (element.style?.position === 'absolute' || element.layout?.mode === 'free')) {
+        modified = true
+        delete element.style.position
+        delete element.style.left
+        delete element.style.top
+        delete element.style.right
+        delete element.style.bottom
+        delete element.style.width
+        delete element.style.height
+        delete element.style.margin
+        delete element.layout
+      }
+    })
+
+    // 2. Prevent orphan non-section content blocks sitting naked at page.root
+    const sections = page.root.filter((el) => el.type === 'section')
+    if (sections.length > 0) {
+      const nonSections = page.root.filter((el) => el.type !== 'section')
+      if (nonSections.length > 0) {
+        modified = true
+        page.root = page.root.filter((el) => el.type === 'section')
+        const targetSection = sections[0]
+        const col = targetSection.children?.find((c) => COMPONENTS[c.type]?.canHaveChildren)
+        const targetList = col ? col.children : targetSection.children
+        if (targetList) {
+          for (const item of nonSections) {
+            if (item.style?.position === 'absolute') {
+              delete item.style.position
+              delete item.style.left
+              delete item.style.top
+              delete item.style.right
+              delete item.style.bottom
+              delete item.style.margin
+              delete item.layout
+            }
+            targetList.push(item)
+          }
+        }
+      }
+    }
+  }
+
+  return modified ? updated : project
+}
+
 function restoreWorkspaces() {
   try {
     const saved = JSON.parse(localStorage.getItem(WORKSPACES_KEY) || 'null')
     if (!Array.isArray(saved?.workspaces)) return null
-    let migratedTheme = false
-    const workspaces = saved.workspaces.filter(
-      (workspace) =>
-        workspace &&
-        typeof workspace.id === 'string' &&
-        typeof workspace.name === 'string' &&
-        isValidProject(workspace.project)
-    ).map((workspace) => {
-      if (workspace.project.name !== 'My Portfolio') return workspace
-      const project = migratePortfolioTheme(workspace.project)
-      if (project === workspace.project) return workspace
-      migratedTheme = true
-      return { ...workspace, project, updatedAt: new Date().toISOString() }
-    })
+    let hasChanges = false
+    const workspaces = saved.workspaces
+      .filter(
+        (workspace) =>
+          workspace &&
+          typeof workspace.id === 'string' &&
+          typeof workspace.name === 'string' &&
+          isValidProject(workspace.project)
+      )
+      .map((workspace) => {
+        let project = workspace.project
+        if (project.name === 'My Portfolio') {
+          project = migratePortfolioTheme(project)
+        }
+        project = sanitizeProjectLayout(project)
+        if (project !== workspace.project) {
+          hasChanges = true
+          return { ...workspace, project, updatedAt: new Date().toISOString() }
+        }
+        return workspace
+      })
     const active = workspaces.find((workspace) => workspace.id === saved.currentWorkspaceId)
     if (!workspaces.length || !active) return null
-    if (migratedTheme) {
+    if (hasChanges) {
       localStorage.setItem(WORKSPACES_KEY, JSON.stringify({ ...saved, workspaces }))
     }
     return { workspaces, currentWorkspaceId: active.id, project: active.project }
@@ -245,7 +307,8 @@ const useEditorStore = create((set, get) => ({
 
   importWorkspace: (project) =>
     set((s) => {
-      const workspace = newWorkspace(project.name || 'Imported project', structuredClone(project))
+      const sanitized = sanitizeProjectLayout(structuredClone(project))
+      const workspace = newWorkspace(project.name || 'Imported project', sanitized)
       return {
         workspaces: [...s.workspaces, workspace],
         currentWorkspaceId: workspace.id,
@@ -284,9 +347,22 @@ const useEditorStore = create((set, get) => ({
     const el = buildElement(type)
     set((s) => {
       const next = withCurrentPage(s, (page) => {
-        const list = containerId === 'root' ? page.root : T.findById(page.root, containerId)?.children
+        let destContainerId = containerId
+        let destIndex = index
+
+        // Prevent non-section content blocks from being placed naked at page.root
+        if (type !== 'section' && destContainerId === 'root' && page.root.length > 0) {
+          const firstSection = page.root.find((n) => n.type === 'section') || page.root[0]
+          if (firstSection && COMPONENTS[firstSection.type]?.canHaveChildren) {
+            const col = firstSection.children?.find((c) => COMPONENTS[c.type]?.canHaveChildren)
+            destContainerId = col ? col.id : firstSection.id
+            destIndex = null
+          }
+        }
+
+        const list = destContainerId === 'root' ? page.root : T.findById(page.root, destContainerId)?.children
         if (!list) return
-        list.splice(index == null ? list.length : index, 0, el)
+        list.splice(destIndex == null ? list.length : destIndex, 0, el)
       })
       if (!next) return s
       return { ...next, selectedId: el.id, editingId: null }
@@ -347,6 +423,7 @@ const useEditorStore = create((set, get) => ({
           delete el.style[key]
         }
         Object.assign(el.style, flowStyle)
+        delete el.style.position
         delete el.layout
       })
     ),

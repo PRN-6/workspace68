@@ -86,7 +86,8 @@ function StyleTab({ element }) {
   const updateStyle = useEditorStore((s) => s.updateStyle)
   const setElementLayout = useEditorStore((s) => s.setElementLayout)
   const restoreElementFlow = useEditorStore((s) => s.restoreElementFlow)
-  const isFree = element.style.position === 'absolute'
+  const isSection = element.type === 'section'
+  const isFree = !isSection && element.style.position === 'absolute'
 
   const enableFreePosition = () => {
     const node = document.getElementById(element.id)
@@ -115,50 +116,52 @@ function StyleTab({ element }) {
 
   return (
     <div>
-      <div className="mb-4">
-        <SectionTitle>Position</SectionTitle>
-        {!isFree ? (
-          <button
-            type="button"
-            onClick={enableFreePosition}
-            className="w-full rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
-          >
-            Enable free positioning
-          </button>
-        ) : (
-          <>
-            <div className="mb-2 grid grid-cols-2 gap-2">
-              {[
-                ['X', 'left'],
-                ['Y', 'top'],
-                ['Width', 'width'],
-                ['Height', 'height'],
-              ].map(([label, key]) => (
-                <label key={key} className="flex flex-col gap-1">
-                  <span className="text-[11px] font-medium text-slate-500">{label}</span>
-                  <input
-                    type="number"
-                    className="ws-input"
-                    value={Number.parseFloat(element.style[key]) || 0}
-                    min={key === 'width' || key === 'height' ? 24 : undefined}
-                    onChange={(event) => {
-                      const value = Number(event.target.value)
-                      if (Number.isFinite(value)) updateStyle(element.id, { [key]: `${value}px` })
-                    }}
-                  />
-                </label>
-              ))}
-            </div>
+      {!isSection && (
+        <div className="mb-4">
+          <SectionTitle>Position</SectionTitle>
+          {!isFree ? (
             <button
               type="button"
-              onClick={() => restoreElementFlow(element.id)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+              onClick={enableFreePosition}
+              className="w-full rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
             >
-              Return to responsive layout
+              Enable free positioning
             </button>
-          </>
-        )}
-      </div>
+          ) : (
+            <>
+              <div className="mb-2 grid grid-cols-2 gap-2">
+                {[
+                  ['X', 'left'],
+                  ['Y', 'top'],
+                  ['Width', 'width'],
+                  ['Height', 'height'],
+                ].map(([label, key]) => (
+                  <label key={key} className="flex flex-col gap-1">
+                    <span className="text-[11px] font-medium text-slate-500">{label}</span>
+                    <input
+                      type="number"
+                      className="ws-input"
+                      value={Number.parseFloat(element.style[key]) || 0}
+                      min={key === 'width' || key === 'height' ? 24 : undefined}
+                      onChange={(event) => {
+                        const value = Number(event.target.value)
+                        if (Number.isFinite(value)) updateStyle(element.id, { [key]: `${value}px` })
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => restoreElementFlow(element.id)}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+              >
+                Return to responsive layout
+              </button>
+            </>
+          )}
+        </div>
+      )}
       <ContentEditor element={element} />
       {STYLE_GROUPS.filter((g) => !g.when || g.when(element)).map((group) => (
         <div key={group.title} className="mb-4">
