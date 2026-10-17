@@ -121,6 +121,14 @@ For vulnerability disclosures and reporting guidelines, please review our [Secur
 
 ---
 
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+Please check out our [Contributing Guide](CONTRIBUTING.md) to get started with local development, architecture overview, and pull request guidelines. You can also explore open issues labeled [`good first issue`](https://github.com/PRN-6/workspace68/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+
+---
+
 ## 📄 License
 
 This project is open-source software licensed under the [MIT License](LICENSE).

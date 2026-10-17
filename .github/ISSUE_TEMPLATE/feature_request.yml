@@ -1,0 +1,46 @@
+name: Feature Request
+description: Suggest an idea, new component, or enhancement for workspace68
+title: "[FEAT] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a feature! Please describe your idea and how it will improve workspace68.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: Is your feature request related to a problem or workflow limitation?
+      placeholder: I'm always frustrated when...
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution or Feature
+      description: A clear and concise description of what you want to happen.
+      placeholder: Add a component or feature that allows...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative solutions or workarounds you've considered.
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Canvas & Layout Builder
+        - Component Library / Palette
+        - AI Generation / Prompts
+        - Code Export & Zip Bundling
+        - UI / Theme / UX
+        - Documentation & Testing
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context or References
+      description: Add any mockups, links, screenshots, or examples.
