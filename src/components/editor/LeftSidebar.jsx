@@ -62,7 +62,7 @@ function PaletteCard({ type }) {
       onClick={onClick}
       title={def.description}
       style={{ opacity: isDragging ? 0.4 : 1 }}
-      className="group flex w-full flex-col items-start gap-1 rounded-xl border border-slate-200 bg-white p-2.5 text-left transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md"
+      className="group flex w-full flex-col items-start gap-1 rounded-xl border border-slate-200 bg-white p-2.5 text-left transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md cursor-grab active:cursor-grabbing select-none"
     >
       <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-sm text-slate-600 group-hover:bg-indigo-50 group-hover:text-indigo-600">
         {def.icon}

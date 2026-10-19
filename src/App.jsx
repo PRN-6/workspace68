@@ -3,6 +3,7 @@ import Toolbar from './components/editor/Toolbar'
 import LeftSidebar from './components/editor/LeftSidebar'
 import Canvas from './components/editor/Canvas'
 import PropertiesPanel from './components/editor/PropertiesPanel'
+import { EditorDndProvider } from './components/editor/EditorDndContext'
 import { useEditorStore } from './store/editorStore'
 
 class ErrorBoundary extends Component {
@@ -54,11 +55,13 @@ export default function App() {
     <ErrorBoundary>
       <div className={`ws-app h-full flex flex-col overflow-hidden${darkMode ? ' ws-dark' : ''}`}>
         <Toolbar />
-        <div className="flex-1 flex min-h-0">
-          {!previewMode && <LeftSidebar />}
-          <Canvas />
-          {!previewMode && <PropertiesPanel />}
-        </div>
+        <EditorDndProvider>
+          <div className="flex-1 flex min-h-0">
+            {!previewMode && <LeftSidebar />}
+            <Canvas />
+            {!previewMode && <PropertiesPanel />}
+          </div>
+        </EditorDndProvider>
       </div>
     </ErrorBoundary>
   )
