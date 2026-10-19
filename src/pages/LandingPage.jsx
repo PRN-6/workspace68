@@ -73,11 +73,8 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-[1440px] items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-xs font-black tracking-wider text-white shadow-md shadow-red-600/30">
-                W
-              </div>
-              <span className="font-extrabold tracking-tight text-white text-base">WORKSPACE68</span>
+            <Link to="/" className="flex items-center gap-2">
+              <span className="font-black tracking-tight text-white text-base">WORKSPACE68</span>
             </Link>
             <span className="hidden text-xs text-zinc-400 font-medium md:inline">
               Visual Website Builder & Publishing
@@ -119,10 +116,10 @@ export default function LandingPage() {
               href="https://github.com/PRN-6/workspace68"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900/80 px-2.5 py-1 text-xs font-semibold text-zinc-200 transition hover:border-red-600/50 hover:text-white"
+              title="GitHub Repository"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/80 text-zinc-300 transition hover:border-zinc-700 hover:text-white"
             >
-              <GithubIcon className="h-3.5 w-3.5 text-zinc-300" />
-              <span>★ 1,280</span>
+              <GithubIcon className="h-4 w-4" />
             </a>
 
             <a
@@ -520,10 +517,7 @@ export default function LandingPage() {
       <footer className="border-t border-zinc-800 bg-[#050507] py-12 text-xs text-zinc-500">
         <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-6 px-6 sm:flex-row">
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-red-600 font-bold text-white text-[10px]">
-              W
-            </div>
-            <span className="font-semibold text-zinc-300">workspace68</span>
+            <span className="font-bold text-white tracking-tight">WORKSPACE68</span>
             <span>&copy; {new Date().getFullYear()} All rights reserved.</span>
           </div>
 
