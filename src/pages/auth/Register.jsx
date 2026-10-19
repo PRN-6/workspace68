@@ -15,6 +15,12 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanName = displayName.trim()
+
+    if (!cleanEmail) {
+      return setError('Please enter a valid email address')
+    }
     if (password !== confirmPassword) {
       return setError('Passwords do not match')
     }
@@ -23,7 +29,7 @@ export default function Register() {
     }
     setLoading(true)
     try {
-      await signUp(email, password, displayName)
+      await signUp(cleanEmail, password, cleanName)
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Registration failed')
@@ -36,10 +42,8 @@ export default function Register() {
     <div className="flex min-h-screen items-center justify-center bg-[#070709] px-4 text-white">
       <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-[#0e0e12] p-8 shadow-2xl">
         <div className="mb-6 text-center">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 font-bold shadow-lg shadow-red-600/30">
-            W
-          </div>
-          <h2 className="mt-3 text-2xl font-bold">Create Account</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-white">WORKSPACE68</h2>
+          <h3 className="mt-1 text-lg font-semibold text-zinc-300">Create Account</h3>
           <p className="text-xs text-zinc-400">Start building websites on Workspace68</p>
         </div>
 

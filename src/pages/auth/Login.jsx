@@ -13,9 +13,10 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    const cleanEmail = email.trim().toLowerCase()
     setLoading(true)
     try {
-      await signIn(email, password)
+      await signIn(cleanEmail, password)
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Failed to sign in')
@@ -28,10 +29,8 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-[#070709] px-4 text-white">
       <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-[#0e0e12] p-8 shadow-2xl">
         <div className="mb-6 text-center">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 font-bold shadow-lg shadow-red-600/30">
-            W
-          </div>
-          <h2 className="mt-3 text-2xl font-bold">Welcome back</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-white">WORKSPACE68</h2>
+          <h3 className="mt-1 text-lg font-semibold text-zinc-300">Welcome back</h3>
           <p className="text-xs text-zinc-400">Sign in to your Workspace68 account</p>
         </div>
 
