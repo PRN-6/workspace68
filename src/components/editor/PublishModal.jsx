@@ -121,14 +121,14 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl text-white">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-[#0e0e12] p-6 shadow-2xl text-white">
+        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
           <div className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-emerald-400" />
+            <Globe className="h-5 w-5 text-red-500" />
             <h3 className="text-base font-semibold">Publish & Share Website</h3>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1 text-slate-400 hover:bg-slate-800">
+          <button onClick={onClose} className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-800">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -141,10 +141,10 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
         )}
 
         {successUrl && (
-          <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-4">
-            <span className="text-xs font-semibold text-emerald-400">Website is live at:</span>
-            <div className="mt-2 flex items-center justify-between rounded-lg bg-slate-950 p-2 text-xs">
-              <span className="truncate text-slate-200">{successUrl}</span>
+          <div className="mt-4 rounded-xl border border-red-500/30 bg-red-950/20 p-4">
+            <span className="text-xs font-semibold text-red-400">Website is live at:</span>
+            <div className="mt-2 flex items-center justify-between rounded-lg bg-[#070709] p-2 text-xs border border-zinc-800">
+              <span className="truncate text-zinc-200 font-mono">{successUrl}</span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -153,11 +153,11 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
                     setCopied(true)
                     setTimeout(() => setCopied(false), 2000)
                   }}
-                  className="rounded p-1 hover:bg-slate-800"
+                  className="rounded p-1 hover:bg-zinc-800"
                 >
-                  {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                  {copied ? <Check className="h-4 w-4 text-red-500" /> : <Copy className="h-4 w-4 text-zinc-400" />}
                 </button>
-                <a href={successUrl} target="_blank" rel="noreferrer" className="rounded p-1 hover:bg-slate-800">
+                <a href={successUrl} target="_blank" rel="noreferrer" className="rounded p-1 hover:bg-zinc-800 text-zinc-400 hover:text-white">
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
@@ -167,9 +167,9 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
 
         <form onSubmit={handlePublish} className="mt-4 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300">Public URL Slug</label>
-            <div className="mt-1 flex items-center rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm">
-              <span className="text-slate-400">/publishers/</span>
+            <label className="block text-xs font-semibold text-zinc-300">Public URL Slug</label>
+            <div className="mt-1 flex items-center rounded-lg border border-zinc-800 bg-[#070709] px-3 py-2 text-sm focus-within:border-red-600">
+              <span className="text-zinc-500">/publishers/</span>
               <input
                 type="text"
                 required
@@ -179,8 +179,8 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
                 placeholder="myportfolio"
               />
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">
-              Only letters, numbers, and hyphens (e.g. <code>my-portfolio</code>).
+            <p className="mt-1 text-[11px] text-zinc-400">
+              Only letters, numbers, and hyphens (e.g. <code className="text-red-400">my-portfolio</code>).
             </p>
           </div>
 
@@ -200,14 +200,14 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg px-4 py-2 text-xs font-semibold text-slate-400 hover:bg-slate-800"
+                className="rounded-lg px-4 py-2 text-xs font-semibold text-zinc-400 hover:bg-zinc-800"
               >
                 Close
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+                className="rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-red-600/30 hover:bg-red-500 disabled:opacity-50"
               >
                 {loading ? 'Publishing…' : projectRecord?.status === 'published' ? 'Republish Changes' : 'Publish Now'}
               </button>

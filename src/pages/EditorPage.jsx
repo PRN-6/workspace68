@@ -113,15 +113,15 @@ export default function EditorPage() {
   return (
     <div className={`ws-app flex h-full flex-col overflow-hidden${darkMode ? ' ws-dark' : ''}`}>
       {/* Cloud Header / Status Bar */}
-      <div className="flex h-9 items-center justify-between border-b border-slate-800 bg-slate-900 px-4 text-xs text-slate-300">
+      <div className="flex h-9 items-center justify-between border-b border-zinc-800 bg-[#070709] px-4 text-xs text-zinc-300">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-1 font-medium text-slate-400 hover:text-white"
+            className="flex items-center gap-1 font-medium text-zinc-400 hover:text-white"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Dashboard
           </button>
-          <div className="h-3.5 w-px bg-slate-700" />
+          <div className="h-3.5 w-px bg-zinc-800" />
           <span className="font-semibold text-white">{project.name}</span>
         </div>
 
@@ -130,14 +130,14 @@ export default function EditorPage() {
           <div className="flex items-center gap-1.5 text-[11px]">
             {saveStatus === 'saving' && (
               <>
-                <Cloud className="h-3.5 w-3.5 animate-pulse text-indigo-400" />
-                <span className="text-slate-400">Saving…</span>
+                <Cloud className="h-3.5 w-3.5 animate-pulse text-red-500" />
+                <span className="text-zinc-400">Saving…</span>
               </>
             )}
             {saveStatus === 'saved' && (
               <>
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="text-slate-400">Saved</span>
+                <CheckCircle2 className="h-3.5 w-3.5 text-red-500" />
+                <span className="text-zinc-400">Saved</span>
               </>
             )}
             {saveStatus === 'error' && (
@@ -151,7 +151,7 @@ export default function EditorPage() {
           {/* Publish Trigger Button */}
           <button
             onClick={() => setPublishModalOpen(true)}
-            className="rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-emerald-500"
+            className="rounded-md bg-red-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm shadow-red-600/30 hover:bg-red-500 transition"
           >
             Publish Website
           </button>
