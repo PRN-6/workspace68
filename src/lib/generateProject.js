@@ -78,6 +78,7 @@ function genElement(el, level, cx) {
     delete exportedStyle.right
     delete exportedStyle.bottom
     exportedStyle.width = '100%'
+    exportedStyle.overflow = 'hidden'
     if (!exportedStyle.position) exportedStyle.position = 'relative'
   } else if (isContainer && exportedStyle.position !== 'absolute') {
     exportedStyle.position = 'relative'
@@ -87,13 +88,17 @@ function genElement(el, level, cx) {
 
   if (el.type === 'image') {
     const click = clickAttr(el)
-    if (click) attrs.push(click)
+    // Create a separate inner image style: remove layout props that belong on wrapper
+    const imgStyle = { ...el.style, display: 'block' }
+    for (const key of ['position', 'left', 'top', 'right', 'bottom', 'margin', 'flex', 'alignSelf']) {
+      delete imgStyle[key]
+    }
+    const wrapperAttrs = [...attrs]
+    if (click) wrapperAttrs.push(click)
     const s = `src={${JSON.stringify(el.props.src || '')}}`
     const a = `alt={${JSON.stringify(el.props.alt || 'Image')}}`
-    const idx = attrs.findIndex((x) => x.startsWith('style='))
-    if (idx >= 0) attrs.splice(idx + 1, 0, s, a)
-    else attrs.push(s, a)
-    return `${pad}<${TagName} ${attrs.join(' ')} />`
+    const imgAttrs = [`style={${styleToJsLiteral(imgStyle)}}`, s, a]
+    return `${pad}<${TagName} ${wrapperAttrs.join(' ')}>\n${pad}${IND}<img ${imgAttrs.join(' ')} />\n${pad}</${TagName}>`
   } else if (el.type === 'spacer' || el.type === 'divider') {
     return `${pad}<${TagName} ${attrs.join(' ')} />`
   } else if (el.type === 'button') {

@@ -54,7 +54,7 @@ function PreviewElement({ element }) {
     ...revealStyle,
     ...action.style,
     ...(position ? { position } : {}),
-    ...(isSection ? { width: '100%' } : {}),
+    ...(isSection ? { width: '100%', overflow: 'hidden' } : {}),
   }
 
   if (isSection) {
@@ -66,8 +66,25 @@ function PreviewElement({ element }) {
 
   const common = { id: element.id, style, onClick: action.onClick }
 
+  // Wrap images in a div container (matching canvas rendering behavior)
+  // Layout styles (flex, position, margin) go on the wrapper div,
+  // image-specific styles (objectFit, borderRadius) go on the <img>.
   if (element.type === 'image') {
-    return <img ref={ref} {...common} src={element.props.src} alt={element.props.alt} />
+    const imgStyle = { ...element.style, display: 'block' }
+    // Remove layout-level styles from <img> - they belong on the wrapper
+    for (const key of ['position', 'left', 'top', 'right', 'bottom', 'margin', 'flex', 'alignSelf']) {
+      delete imgStyle[key]
+    }
+    return (
+      <div ref={ref} {...common}>
+        <img
+          src={element.props.src}
+          alt={element.props.alt}
+          style={imgStyle}
+          draggable={false}
+        />
+      </div>
+    )
   }
   if (element.type === 'divider') return <hr ref={ref} {...common} />
   if (element.type === 'spacer') return <div ref={ref} {...common} />
@@ -132,7 +149,7 @@ export default function Preview() {
   return (
     <div className="ws-canvas-workspace ws-scroll flex-1 overflow-y-auto bg-slate-100 p-6">
       <div className="mx-auto overflow-hidden rounded-xl bg-white shadow-xl transition-all" style={{ maxWidth: widthFor(viewport) }}>
-        <div className="relative min-h-[70vh] w-full">
+        <div className="relative w-full" style={{ minHeight: '70vh' }}>
           {page.root.map((el) => (
             <PreviewElement key={el.id} element={el} />
           ))}

@@ -23,6 +23,10 @@ export default function EditorPage() {
   const project = useEditorStore((s) => s.project)
   const init = useEditorStore((s) => s.init)
   const setProjectName = useEditorStore((s) => s.setProjectName)
+  const leftSidebarOpen = useEditorStore((s) => s.leftSidebarOpen)
+  const rightSidebarOpen = useEditorStore((s) => s.rightSidebarOpen)
+  const toggleLeftSidebar = useEditorStore((s) => s.toggleLeftSidebar)
+  const toggleRightSidebar = useEditorStore((s) => s.toggleRightSidebar)
 
   const saveTimerRef = useRef(null)
   const isInitialLoad = useRef(true)
@@ -161,12 +165,63 @@ export default function EditorPage() {
       {/* Existing Toolbar */}
       <Toolbar />
 
-      {/* Existing Visual Canvas Layout */}
+      {/* Visual Canvas Layout with Collapsible Sidebars */}
       <EditorDndProvider>
-        <div className="flex flex-1 min-h-0">
-          {!previewMode && <LeftSidebar />}
+        <div className="relative flex flex-1 min-h-0 overflow-hidden">
+          {/* Left Sidebar (Collapsible) */}
+          {!previewMode && (
+            <div
+              className={`transition-all duration-300 ease-in-out shrink-0 overflow-hidden flex flex-col ${
+                leftSidebarOpen ? 'w-64 border-r border-slate-200' : 'w-0 border-r-0'
+              }`}
+            >
+              <div className="w-64 h-full flex flex-col">
+                <LeftSidebar />
+              </div>
+            </div>
+          )}
+
+          {/* Floating Expand Left Sidebar Button (when collapsed) */}
+          {!previewMode && !leftSidebarOpen && (
+            <button
+              type="button"
+              onClick={toggleLeftSidebar}
+              title="Expand Screens & Blocks Panel"
+              className="absolute left-3 top-3 z-30 flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur-xs hover:bg-slate-50 hover:text-indigo-600 transition active:scale-95"
+            >
+              <span>▶</span>
+              <span>Screens & Blocks</span>
+            </button>
+          )}
+
+          {/* Canvas Workspace */}
           <Canvas />
-          {!previewMode && <PropertiesPanel />}
+
+          {/* Floating Expand Right Sidebar Button (when collapsed) */}
+          {!previewMode && !rightSidebarOpen && (
+            <button
+              type="button"
+              onClick={toggleRightSidebar}
+              title="Expand Properties & Styles Panel"
+              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur-xs hover:bg-slate-50 hover:text-indigo-600 transition active:scale-95"
+            >
+              <span>Properties</span>
+              <span>◀</span>
+            </button>
+          )}
+
+          {/* Right Properties Sidebar (Collapsible) */}
+          {!previewMode && (
+            <div
+              className={`transition-all duration-300 ease-in-out shrink-0 overflow-hidden flex flex-col ${
+                rightSidebarOpen ? 'w-80 border-l border-slate-200' : 'w-0 border-l-0'
+              }`}
+            >
+              <div className="w-80 h-full flex flex-col">
+                <PropertiesPanel />
+              </div>
+            </div>
+          )}
         </div>
       </EditorDndProvider>
 

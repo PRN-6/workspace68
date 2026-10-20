@@ -14,7 +14,7 @@ function PublicElement({ element, onNavigatePage }) {
   const baseStyle = {
     ...element.style,
     ...(position ? { position } : {}),
-    ...(isSection ? { width: '100%' } : {}),
+    ...(isSection ? { width: '100%', overflow: 'hidden' } : {}),
     ...revealStyle,
   }
 
@@ -25,15 +25,23 @@ function PublicElement({ element, onNavigatePage }) {
     delete baseStyle.bottom
   }
 
+  // Wrap images in a div container (matching canvas rendering behavior)
+  // Layout styles (flex, position, margin) go on the wrapper div,
+  // image-specific styles (objectFit, borderRadius, width, height) go on the <img>.
   if (element.type === 'image') {
+    const imgStyle = { ...element.style, display: 'block' }
+    for (const key of ['position', 'left', 'top', 'right', 'bottom', 'margin', 'flex', 'alignSelf']) {
+      delete imgStyle[key]
+    }
     return (
-      <img
-        ref={ref}
-        id={element.id}
-        src={element.props?.src}
-        alt={element.props?.alt || ''}
-        style={baseStyle}
-      />
+      <div ref={ref} id={element.id} style={baseStyle}>
+        <img
+          src={element.props?.src}
+          alt={element.props?.alt || ''}
+          style={imgStyle}
+          draggable={false}
+        />
+      </div>
     )
   }
 
