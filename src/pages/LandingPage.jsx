@@ -53,7 +53,6 @@ export default function LandingPage() {
     { id: 'how-it-works', label: 'How it works' },
     { id: 'visual-builder', label: 'Visual drag & drop' },
     { id: 'publishing', label: 'Instant publishing' },
-    { id: 'ai-builder', label: 'AI generation' },
     { id: 'react-export', label: 'React 18 export' },
     { id: 'security', label: 'Security & RLS' },
   ]
@@ -165,7 +164,7 @@ export default function LandingPage() {
           {/* Left Column: Heading, Pitch & CTAs (5 cols) */}
           <div className="flex flex-col justify-center lg:col-span-5">
             <p className="text-xs font-semibold uppercase tracking-wider text-red-500">
-              Visual web building, with your team & AI
+              Visual web building, crafted for modern teams
             </p>
 
             <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-6xl sm:leading-[1.1]">
@@ -174,7 +173,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="mt-6 text-sm leading-relaxed text-zinc-400 sm:text-base">
-              Design visually with responsive drag-and-drop blocks or prompt AI. Workspace68 builds clean
+              Design visually with responsive drag-and-drop blocks, animations, and live styling. Workspace68 builds clean
               React layouts and publishes instantly to custom public URLs with zero devops.
             </p>
 

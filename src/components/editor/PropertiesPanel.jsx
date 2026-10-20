@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react'
 import { useEditorStore } from '../../store/editorStore'
 import { COMPONENTS } from '../../data/components'
 import { STYLE_GROUPS, ANIMATION_OPTIONS, EASING_OPTIONS, ACTION_TYPES } from '../../data/styleControls'
-import { TextField, SelectField, ColorField, SliderField, BoxField, ShadowField, Row } from './Field'
+import { TextField, SelectField, ColorField, SliderField, BoxField, RadiusField, AlignField, FontSizeField, ShadowField, Row } from './Field'
 import * as T from '../../lib/tree'
+import { ANIM_STYLES } from '../../lib/style'
 
 function SectionTitle({ children }) {
   return (
@@ -26,6 +28,12 @@ function ControlFor({ control, element, updateStyle }) {
       return <SliderField {...common} min={control.min} max={control.max} step={control.step} />
     case 'box':
       return <BoxField label={control.label} value={value} onChange={onChange} />
+    case 'radius':
+      return <RadiusField label={control.label} value={value} onChange={onChange} />
+    case 'align':
+      return <AlignField label={control.label} value={value} onChange={onChange} />
+    case 'fontSize':
+      return <FontSizeField label={control.label} value={value} onChange={onChange} />
     case 'shadow':
       return <ShadowField label={control.label} value={value} onChange={onChange} />
     default:
@@ -114,33 +122,153 @@ function StyleTab({ element }) {
     )
   }
 
+  const QUICK_THEMES = [
+    {
+      name: '🎉 Birthday Party',
+      style: {
+        backgroundColor: '#ec4899',
+        color: '#ffffff',
+        borderRadius: '9999px',
+        boxShadow: '0 0 20px rgba(236,72,153,0.45)',
+        fontWeight: '700',
+        padding: '12px 24px',
+        borderWidth: '0px',
+      },
+    },
+    {
+      name: '🎮 Quiz Choice',
+      style: {
+        backgroundColor: '#6366f1',
+        color: '#ffffff',
+        borderRadius: '12px',
+        boxShadow: '0 4px 14px rgba(99,102,241,0.3)',
+        fontWeight: '600',
+        padding: '12px 20px',
+        borderWidth: '0px',
+      },
+    },
+    {
+      name: '⚡ Neon Arcade',
+      style: {
+        backgroundColor: '#09090b',
+        color: '#06b6d4',
+        borderRadius: '8px',
+        borderWidth: '2px',
+        borderStyle: 'solid',
+        borderColor: '#06b6d4',
+        boxShadow: '0 0 16px rgba(6,182,212,0.4)',
+        fontWeight: '700',
+        padding: '10px 20px',
+      },
+    },
+    {
+      name: '⭐ Golden Winner',
+      style: {
+        backgroundColor: '#f59e0b',
+        color: '#0f172a',
+        borderRadius: '12px',
+        boxShadow: '0 4px 14px rgba(245,158,11,0.35)',
+        fontWeight: '700',
+        padding: '12px 24px',
+        borderWidth: '0px',
+      },
+    },
+  ]
+
   return (
     <div>
+      {/* Quick Fun Themes for buttons, cards, headings */}
+      {['button', 'heading', 'text', 'container'].includes(element.type) && (
+        <div className="mb-4">
+          <SectionTitle>Quick Fun Themes</SectionTitle>
+          <div className="grid grid-cols-2 gap-1.5">
+            {QUICK_THEMES.map((theme) => (
+              <button
+                key={theme.name}
+                type="button"
+                onClick={() => updateStyle(element.id, theme.style)}
+                className="rounded-lg border border-slate-200 bg-white p-2 text-left text-xs font-semibold text-slate-700 shadow-xs hover:border-indigo-400 hover:bg-indigo-50/50 transition active:scale-95"
+              >
+                {theme.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {!isSection && (
         <div className="mb-4">
-          <SectionTitle>Position</SectionTitle>
-          {!isFree ? (
+          <SectionTitle>Position & Placement</SectionTitle>
+          <div className="flex rounded-lg bg-slate-100 p-0.5 mb-2.5">
             <button
               type="button"
-              onClick={enableFreePosition}
-              className="w-full rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
+              onClick={() => {
+                if (isFree) restoreElementFlow(element.id)
+              }}
+              className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
+                !isFree
+                  ? 'bg-white text-indigo-600 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
             >
-              Enable free positioning
+              📌 In-Flow (Stack)
             </button>
-          ) : (
-            <>
-              <div className="mb-2 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (!isFree) enableFreePosition()
+              }}
+              className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
+                isFree
+                  ? 'bg-white text-indigo-600 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              🎯 Free Place (Anywhere)
+            </button>
+          </div>
+
+          {isFree ? (
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-2.5">
+              <p className="mb-2 text-[11px] text-indigo-900 leading-snug">
+                Drag this block anywhere on the page, or tap quick alignment:
+              </p>
+              <div className="flex items-center gap-1.5 mb-3">
+                <button
+                  type="button"
+                  onClick={() => updateStyle(element.id, { left: '24px' })}
+                  className="flex-1 rounded border border-indigo-200 bg-white py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-50 shadow-xs"
+                >
+                  ⬅ Left
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateStyle(element.id, { left: 'calc(50% - 80px)' })}
+                  className="flex-1 rounded border border-indigo-200 bg-white py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-50 shadow-xs"
+                >
+                  ↔ Center
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateStyle(element.id, { top: '24px' })}
+                  className="flex-1 rounded border border-indigo-200 bg-white py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-50 shadow-xs"
+                >
+                  ⬆ Top
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
                 {[
-                  ['X', 'left'],
-                  ['Y', 'top'],
+                  ['X (px)', 'left'],
+                  ['Y (px)', 'top'],
                   ['Width', 'width'],
                   ['Height', 'height'],
                 ].map(([label, key]) => (
                   <label key={key} className="flex flex-col gap-1">
-                    <span className="text-[11px] font-medium text-slate-500">{label}</span>
+                    <span className="text-[10px] font-medium text-slate-500">{label}</span>
                     <input
                       type="number"
-                      className="ws-input"
+                      className="ws-input text-xs"
                       value={Number.parseFloat(element.style[key]) || 0}
                       min={key === 'width' || key === 'height' ? 24 : undefined}
                       onChange={(event) => {
@@ -151,14 +279,11 @@ function StyleTab({ element }) {
                   </label>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={() => restoreElementFlow(element.id)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
-              >
-                Return to responsive layout
-              </button>
-            </>
+            </div>
+          ) : (
+            <p className="text-[11px] text-slate-400">
+              Element stays in normal responsive flow. Switch to <b>Free Place</b> to position anywhere.
+            </p>
           )}
         </div>
       )}
@@ -217,11 +342,14 @@ function ActionTab({ element }) {
       )}
       {action.type === 'page' && (
         <SelectField
-          label="Target page"
+          label="Target Screen / Step"
           value={action.value}
           options={[
-            { value: '', label: 'Choose a page…' },
-            ...project.pages.map((p) => ({ value: p.path, label: `${p.name} (${p.path})` })),
+            { value: '', label: 'Choose a screen…' },
+            ...project.pages.map((p, idx) => ({
+              value: p.path,
+              label: `Screen ${idx + 1}: ${p.name}`,
+            })),
           ]}
           onChange={(v) => updateAction(element.id, { value: v })}
         />
@@ -247,6 +375,30 @@ function ActionTab({ element }) {
 function AnimationTab({ element }) {
   const updateAnimation = useEditorStore((s) => s.updateAnimation)
   const anim = element.animation || {}
+
+  const [playing, setPlaying] = useState(false)
+  const [previewKey, setPreviewKey] = useState(0)
+
+  const replay = () => {
+    setPlaying(false)
+    setPreviewKey((k) => k + 1)
+    setTimeout(() => setPlaying(true), 40)
+  }
+
+  useEffect(() => {
+    if (anim.type && anim.type !== 'none') {
+      replay()
+    }
+  }, [anim.type, anim.duration, anim.easing, anim.delay])
+
+  const hidden = ANIM_STYLES[anim.type] || {}
+  const dur = Number(anim.duration) || 0.6
+  const delay = Number(anim.delay) || 0
+  const easing = anim.easing || 'ease-out'
+  const testStyle = {
+    ...(playing ? {} : hidden),
+    transition: `opacity ${dur}s ${easing} ${delay}s, transform ${dur}s ${easing} ${delay}s`,
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -289,6 +441,32 @@ function AnimationTab({ element }) {
             options={EASING_OPTIONS}
             onChange={(v) => updateAnimation(element.id, { easing: v })}
           />
+
+          {/* Interactive Live Animation Preview */}
+          <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div className="mb-2 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Live Preview
+              </span>
+              <button
+                type="button"
+                onClick={replay}
+                className="flex items-center gap-1 rounded-md bg-white px-2 py-1 text-xs font-semibold text-indigo-600 shadow-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95"
+              >
+                <span>▶</span> Replay
+              </button>
+            </div>
+            <div className="flex h-16 items-center justify-center overflow-hidden rounded-lg bg-white border border-dashed border-slate-200">
+              <div
+                key={previewKey}
+                style={testStyle}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-indigo-600/20"
+              >
+                {element.type === 'button' ? (element.props?.text || 'Button') : `${element.name || 'Block'}`}
+              </div>
+            </div>
+          </div>
         </>
       )}
     </div>

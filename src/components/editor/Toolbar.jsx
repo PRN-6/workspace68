@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useEditorStore } from '../../store/editorStore'
 import { downloadProject } from '../../lib/exportProject'
-import AiBuilder from './AiBuilder'
 import WorkspaceManager from './WorkspaceManager'
 
 const VIEWPORTS = [
@@ -42,12 +41,6 @@ export default function Toolbar() {
 
   const [exporting, setExporting] = useState(false)
   const [workspaceManagerOpen, setWorkspaceManagerOpen] = useState(false)
-  const [aiBuilderOpen, setAiBuilderOpen] = useState(false)
-  const [aiConfig, setAiConfig] = useState({
-    baseUrl: 'https://api.openai.com/v1',
-    model: 'gpt-4o-mini',
-    apiKey: '',
-  })
 
   const onExport = async () => {
     setExporting(true)
@@ -124,13 +117,6 @@ export default function Toolbar() {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => setAiBuilderOpen(true)}
-          className="h-9 rounded-lg bg-indigo-600 px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-        >
-          ✦ AI builder
-        </button>
-        <button
-          type="button"
           onClick={togglePreview}
           className={`h-9 rounded-lg px-3 text-sm font-medium transition ${previewMode ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-700 hover:bg-slate-50'
             }`}
@@ -141,19 +127,13 @@ export default function Toolbar() {
           type="button"
           onClick={onExport}
           disabled={exporting}
+          title="Download the full website project as a .zip file"
           className="h-9 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
         >
-          {exporting ? 'Packaging…' : '⬇ Download code'}
+          {exporting ? 'Creating ZIP…' : '⬇ Download ZIP'}
         </button>
       </div>
       {workspaceManagerOpen && <WorkspaceManager onClose={() => setWorkspaceManagerOpen(false)} />}
-      {aiBuilderOpen && (
-        <AiBuilder
-          config={aiConfig}
-          setConfig={setAiConfig}
-          onClose={() => setAiBuilderOpen(false)}
-        />
-      )}
     </header>
   )
 }

@@ -72,7 +72,16 @@ function genElement(el, level, cx) {
   if (reveal) cx.animated.add(tag)
 
   const exportedStyle = { ...el.style }
-  if (isContainer && exportedStyle.position !== 'absolute') exportedStyle.position = 'relative'
+  if (el.type === 'section') {
+    delete exportedStyle.left
+    delete exportedStyle.top
+    delete exportedStyle.right
+    delete exportedStyle.bottom
+    exportedStyle.width = '100%'
+    if (!exportedStyle.position) exportedStyle.position = 'relative'
+  } else if (isContainer && exportedStyle.position !== 'absolute') {
+    exportedStyle.position = 'relative'
+  }
   const attrs = [`id={${JSON.stringify(el.id)}}`, `style={${styleToJsLiteral(exportedStyle)}}`]
   if (reveal) attrs.push(revealAttr(el))
 
@@ -238,7 +247,91 @@ function escapeHtml(s) {
 }
 
 function animationsLib() {
-  return `import { useEffect, useRef, useState } from 'react'\n\nconst ANIM_STYLES = {\n${Object.values(ANIM_HIDDEN).join('')}}\n\nexport function useReveal({ type = 'none', trigger = 'scroll', duration = 0.6, delay = 0, easing = 'ease-out' } = {}) {\n  const ref = useRef(null)\n  const [shown, setShown] = useState(trigger !== 'scroll' || type === 'none')\n\n  useEffect(() => {\n    if (type === 'none' || trigger !== 'scroll') return\n    const el = ref.current\n    if (!el) return\n    const io = new IntersectionObserver(\n      (entries) => {\n        entries.forEach((entry) => {\n          if (entry.isIntersecting) {\n            setShown(true)\n            io.disconnect()\n          }\n        })\n      },\n      { threshold: 0.12 }\n    )\n    io.observe(el)\n    return () => io.disconnect()\n  }, [type, trigger])\n\n  const hidden = type === 'none' ? null : ANIM_STYLES[type] || null\n  const style = hidden\n    ? {\n        ...(shown ? {} : hidden),\n        transition: \`opacity \${duration}s \${easing} \${delay}s, transform \${duration}s \${easing} \${delay}s\`,\n      }\n    : {}\n\n  return { ref, style }\n}\n\nexport function createAnimated(tag) {\n  const El = tag\n  return function Animated({ reveal, children, ...rest }) {\n    const { ref, style } = useReveal(reveal || {})\n    return (\n      <El ref={ref} {...rest} style={{ ...(rest.style || {}), ...style }}>\n        {children}\n      </El>\n    )\n  }\n}\n`
+  return `import { useEffect, useRef, useState } from 'react'
+
+const ANIM_STYLES = {
+${Object.values(ANIM_HIDDEN).join('')}}
+
+export function useReveal({ type = 'none', trigger = 'scroll', duration = 0.6, delay = 0, easing = 'ease-out' } = {}) {
+  const ref = useRef(null)
+  const inactive = !type || type === 'none'
+  const [shown, setShown] = useState(Boolean(inactive))
+  const [animDone, setAnimDone] = useState(Boolean(inactive))
+
+  useEffect(() => {
+    if (inactive) {
+      setShown(true)
+      setAnimDone(true)
+      return
+    }
+    setShown(false)
+    setAnimDone(false)
+    if (trigger === 'load') {
+      const timer = setTimeout(() => {
+        setShown(true)
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+    const el = ref.current
+    if (!el) return
+    if (typeof IntersectionObserver === 'undefined') {
+      setShown(true)
+      return
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShown(true)
+            io.disconnect()
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [inactive, type, trigger])
+
+  useEffect(() => {
+    if (!shown || inactive) return
+    const dur = Number(duration) || 0.6
+    const del = Number(delay) || 0
+    const totalMs = Math.round((dur + del) * 1000) + 70
+    const timer = setTimeout(() => {
+      setAnimDone(true)
+    }, totalMs)
+    return () => clearTimeout(timer)
+  }, [shown, inactive, duration, delay])
+
+  if (inactive) return { ref, style: {} }
+  const hidden = ANIM_STYLES[type] || null
+  if (!hidden) return { ref, style: {} }
+  const dur = Number(duration) || 0.6
+  const del = Number(delay) || 0
+
+  const style = animDone
+    ? {}
+    : {
+        ...(shown ? {} : hidden),
+        transition: \`opacity \${dur}s \${easing} \${del}s, transform \${dur}s \${easing} \${del}s\`,
+      }
+
+  return { ref, style }
+}
+
+export function createAnimated(tag) {
+  const El = tag
+  return function Animated({ reveal, children, ...rest }) {
+    const { ref, style } = useReveal(reveal || {})
+    return (
+      <El ref={ref} {...rest} style={{ ...(rest.style || {}), ...style }}>
+        {children}
+      </El>
+    )
+  }
+}
+`
 }
 
 export function downloadBlob(blob, filename) {

@@ -382,43 +382,137 @@ function PagesBar() {
   const currentPageId = useEditorStore((s) => s.currentPageId)
   const setCurrentPage = useEditorStore((s) => s.setCurrentPage)
   const addPage = useEditorStore((s) => s.addPage)
+  const duplicatePage = useEditorStore((s) => s.duplicatePage)
   const removePage = useEditorStore((s) => s.removePage)
-  const setPageName = useEditorStore((s) => s.setPageName)
+  const [showAddMenu, setShowAddMenu] = useState(false)
+
+  const handleAdd = (type) => {
+    addPage(type)
+    setShowAddMenu(false)
+  }
 
   return (
-    <div className="ws-pages-bar flex shrink-0 items-center gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2">
-      {pages.map((p) => (
-        <div
-          key={p.id}
-          className={`group flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium ${
-            p.id === currentPageId ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'
-          }`}
-        >
-          <button type="button" onClick={() => setCurrentPage(p.id)} className="whitespace-nowrap">
-            {p.name}
-          </button>
-          <span className="text-[10px] opacity-50">{p.path}</span>
-          {pages.length > 1 && (
-            <button
-              type="button"
-              title="Delete page"
-              className="hidden text-slate-400 hover:text-rose-500 group-hover:block"
-              onClick={() => removePage(p.id)}
+    <div className="ws-pages-bar flex shrink-0 items-center justify-between border-b border-slate-200 bg-white/80 px-4 py-2 backdrop-blur-xs">
+      <div className="flex items-center gap-1.5 overflow-x-auto ws-scroll py-0.5">
+        <span className="mr-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          Screens:
+        </span>
+        {pages.map((p, idx) => {
+          const isCurrent = p.id === currentPageId
+          return (
+            <div
+              key={p.id}
+              className={`group flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                isCurrent
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
             >
-              ✕
-            </button>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(p.id)}
+                className="flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <span className={`inline-block h-1.5 w-1.5 rounded-full ${
+                  isCurrent ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'
+                }`} />
+                <span>{idx + 1}. {p.name}</span>
+              </button>
+
+              <button
+                type="button"
+                title="Duplicate screen"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  duplicatePage(p.id)
+                }}
+                className={`hidden rounded px-1 text-[10px] group-hover:inline-block ${
+                  isCurrent ? 'text-indigo-200 hover:text-white' : 'text-slate-400 hover:text-slate-700'
+                }`}
+              >
+                ⧉
+              </button>
+
+              {pages.length > 1 && (
+                <button
+                  type="button"
+                  title="Delete screen"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removePage(p.id)
+                  }}
+                  className={`hidden rounded px-1 text-[10px] group-hover:inline-block ${
+                    isCurrent ? 'text-indigo-200 hover:text-rose-200' : 'text-slate-400 hover:text-rose-500'
+                  }`}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          )
+        })}
+
+        {/* Add Screen Dropdown */}
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowAddMenu(!showAddMenu)}
+            className="flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 bg-indigo-50/50 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition active:scale-95"
+          >
+            <span>+</span> Add Screen
+          </button>
+
+          {showAddMenu && (
+            <div className="absolute left-0 top-9 z-40 w-52 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-100">
+              <button
+                type="button"
+                onClick={() => handleAdd('birthday')}
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition"
+              >
+                <span>🎂</span>
+                <div>
+                  <div className="font-semibold text-slate-800">Birthday Surprise</div>
+                  <div className="text-[10px] text-slate-400">Gift card flow</div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAdd('quiz')}
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition"
+              >
+                <span>🎮</span>
+                <div>
+                  <div className="font-semibold text-slate-800">Quiz Question</div>
+                  <div className="text-[10px] text-slate-400">Multiple choice card</div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAdd('winner')}
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition"
+              >
+                <span>🏆</span>
+                <div>
+                  <div className="font-semibold text-slate-800">Winner Screen</div>
+                  <div className="text-[10px] text-slate-400">Victory score screen</div>
+                </div>
+              </button>
+              <div className="my-1 border-t border-slate-100" />
+              <button
+                type="button"
+                onClick={() => handleAdd('blank')}
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
+              >
+                <span>📄</span>
+                <div>
+                  <div className="font-semibold text-slate-800">Blank Screen</div>
+                  <div className="text-[10px] text-slate-400">Start from scratch</div>
+                </div>
+              </button>
+            </div>
           )}
         </div>
-      ))}
-      <button
-        type="button"
-        onClick={addPage}
-        className="ml-1 shrink-0 rounded-lg border border-dashed border-slate-300 px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:border-indigo-400 hover:text-indigo-600"
-      >
-        + Page
-      </button>
-      {/* inline rename of current page lives in the properties panel */}
-      <input type="hidden" onChange={(e) => setPageName(currentPageId, e.target.value)} />
+      </div>
     </div>
   )
 }

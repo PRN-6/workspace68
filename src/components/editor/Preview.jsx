@@ -1,42 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { TAGS, ANIM_STYLES } from '../../lib/style'
+import { TAGS } from '../../lib/style'
+import { useReveal } from '../../lib/useReveal'
 import { useEditorStore } from '../../store/editorStore'
-
-function useReveal(anim) {
-  const ref = useRef(null)
-  const inactive = !anim || anim.type === 'none'
-  const [shown, setShown] = useState(inactive || anim.trigger !== 'scroll')
-  useEffect(() => {
-    if (inactive || anim.trigger !== 'scroll') return
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setShown(true)
-            io.disconnect()
-          }
-        })
-      },
-      { threshold: 0.12 }
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [inactive, anim?.trigger])
-
-  if (inactive) return { ref, style: {} }
-  const hidden = ANIM_STYLES[anim.type] || null
-  const dur = Number(anim.duration) || 0.6
-  const delay = Number(anim.delay) || 0
-  const style = hidden
-    ? {
-        ...(shown ? {} : hidden),
-        transition: `opacity ${dur}s ${anim.easing || 'ease-out'} ${delay}s, transform ${dur}s ${anim.easing || 'ease-out'} ${delay}s`,
-      }
-    : {}
-  return { ref, style }
-}
 
 function actionHandlers(action) {
   if (!action || action.type === 'none' || !action.value) return {}

@@ -2,45 +2,87 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { TAGS } from '../lib/style'
+import { useReveal } from '../lib/useReveal'
 
-function PublicElement({ element }) {
+function PublicElement({ element, onNavigatePage }) {
+  const { ref, style: revealStyle } = useReveal(element.animation)
   const Tag = TAGS[element.type] || 'div'
   const isSection = element.type === 'section'
   const isContainer = ['section', 'container', 'row', 'column'].includes(element.type)
   const position = isSection ? 'relative' : (element.style?.position || (isContainer ? 'relative' : undefined))
 
-  const style = {
+  const baseStyle = {
     ...element.style,
     ...(position ? { position } : {}),
     ...(isSection ? { width: '100%' } : {}),
+    ...revealStyle,
   }
 
   if (isSection) {
-    delete style.left
-    delete style.top
-    delete style.right
-    delete style.bottom
+    delete baseStyle.left
+    delete baseStyle.top
+    delete baseStyle.right
+    delete baseStyle.bottom
   }
 
   if (element.type === 'image') {
-    return <img src={element.props?.src} alt={element.props?.alt || ''} style={style} />
+    return (
+      <img
+        ref={ref}
+        id={element.id}
+        src={element.props?.src}
+        alt={element.props?.alt || ''}
+        style={baseStyle}
+      />
+    )
   }
 
-  if (element.type === 'divider') return <hr style={style} />
-  if (element.type === 'spacer') return <div style={style} />
+  if (element.type === 'divider') {
+    return <hr ref={ref} id={element.id} style={baseStyle} />
+  }
+
+  if (element.type === 'spacer') {
+    return <div ref={ref} id={element.id} style={baseStyle} />
+  }
 
   if (element.type === 'button') {
     const isUrl = element.action?.type === 'url'
-    const href = isUrl ? (element.action.value || '#') : '#'
+    const isScroll = element.action?.type === 'scroll'
+    const isPage = element.action?.type === 'page'
+    const href = isUrl
+      ? (element.action?.value || '#')
+      : isScroll
+      ? `#${element.action?.value}`
+      : '#'
+
+    const handleClick = (e) => {
+      if (isScroll && element.action?.value) {
+        e.preventDefault()
+        const target = document.getElementById(element.action.value)
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' })
+        }
+      } else if (isPage && onNavigatePage) {
+        e.preventDefault()
+        onNavigatePage(element.action?.value)
+      } else if (!isUrl) {
+        e.preventDefault()
+      }
+    }
+
     return (
       <a
+        ref={ref}
+        id={element.id}
         href={href}
         style={{
-          ...style,
+          ...baseStyle,
           cursor: 'pointer',
           textDecoration: 'none',
-          display: style.display || 'inline-block',
+          display: baseStyle.display || 'inline-block',
         }}
+        className="ws-preview-btn transition hover:brightness-110 active:scale-95"
+        onClick={handleClick}
         target={isUrl && element.action?.newTab !== false ? '_blank' : undefined}
         rel={isUrl ? 'noopener noreferrer' : undefined}
       >
@@ -49,7 +91,9 @@ function PublicElement({ element }) {
     )
   }
 
-  const children = element.children?.map((c) => <PublicElement key={c.id} element={c} />)
+  const children = element.children?.map((c) => (
+    <PublicElement key={c.id} element={c} onNavigatePage={onNavigatePage} />
+  ))
 
   let content = null
   if (element.type === 'heading' || element.type === 'text') {
@@ -57,7 +101,7 @@ function PublicElement({ element }) {
   }
 
   return (
-    <Tag style={style}>
+    <Tag ref={ref} id={element.id} style={baseStyle}>
       {content}
       {children}
     </Tag>
@@ -69,6 +113,7 @@ export default function PublicSite() {
   const [site, setSite] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [currentPageId, setCurrentPageId] = useState(null)
 
   useEffect(() => {
     async function fetchPublishedSite() {
@@ -86,6 +131,9 @@ export default function PublicSite() {
           setSite(data.published_document)
           if (data.published_document?.name) {
             document.title = data.published_document.name
+          }
+          if (data.published_document?.pages?.[0]?.id) {
+            setCurrentPageId(data.published_document.pages[0].id)
           }
         }
       } catch (err) {
@@ -127,12 +175,25 @@ export default function PublicSite() {
     )
   }
 
-  const homePage = site.pages[0]
+  const handleNavigatePage = (targetPathOrId) => {
+    if (!targetPathOrId || !site?.pages) return
+    const match = site.pages.find((p) => p.id === targetPathOrId || p.path === targetPathOrId)
+    if (match) {
+      setCurrentPageId(match.id)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const activePage = site.pages.find((p) => p.id === currentPageId) || site.pages[0]
 
   return (
     <div className="min-h-screen w-full bg-white">
-      {homePage.root.map((el) => (
-        <PublicElement key={el.id} element={el} />
+      {activePage.root.map((el) => (
+        <PublicElement
+          key={el.id}
+          element={el}
+          onNavigatePage={handleNavigatePage}
+        />
       ))}
     </div>
   )

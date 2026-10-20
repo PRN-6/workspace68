@@ -50,11 +50,11 @@ export const STYLE_GROUPS = [
     title: 'Typography',
     when: texty,
     controls: [
-      { key: 'fontSize', label: 'Size', type: 'text', placeholder: '16px' },
+      { key: 'fontSize', label: 'Size', type: 'fontSize' },
       { key: 'fontWeight', label: 'Weight', type: 'select', options: ['300', '400', '500', '600', '700', '800', '900'] },
       { key: 'lineHeight', label: 'Line height', type: 'text', placeholder: '1.5' },
       { key: 'letterSpacing', label: 'Letter spacing', type: 'text', placeholder: '0em' },
-      { key: 'textAlign', label: 'Align', type: 'select', options: ['left', 'center', 'right', 'justify'] },
+      { key: 'textAlign', label: 'Align', type: 'align' },
     ],
   },
   {
@@ -70,7 +70,7 @@ export const STYLE_GROUPS = [
       { key: 'borderWidth', label: 'Width', type: 'text', placeholder: '1px' },
       { key: 'borderStyle', label: 'Style', type: 'select', options: ['none', 'solid', 'dashed', 'dotted'] },
       { key: 'borderColor', label: 'Color', type: 'color' },
-      { key: 'borderRadius', label: 'Radius', type: 'text', placeholder: '0px' },
+      { key: 'borderRadius', label: 'Radius', type: 'radius' },
     ],
   },
   {
@@ -102,9 +102,9 @@ export const EASING_OPTIONS = [
 
 export const ACTION_TYPES = [
   { value: 'none', label: 'No action' },
-  { value: 'url', label: 'Open URL / link' },
-  { value: 'page', label: 'Go to page' },
-  { value: 'scroll', label: 'Scroll to element' },
+  { value: 'page', label: 'Go to screen / step (Quiz/Surprise/Story)' },
+  { value: 'url', label: 'Open external URL' },
+  { value: 'scroll', label: 'Scroll to section' },
 ]
 
 export function defaultStyle(style) {

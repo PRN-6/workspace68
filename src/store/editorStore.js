@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { uid, sanitizePath } from '../lib/id'
 import * as T from '../lib/tree'
 import { buildElement } from '../data/components'
-import { createPortfolioPage } from '../data/templates'
+import { createPortfolioPage, createBirthdayScreen, createQuizScreen, createWinnerScreen } from '../data/templates'
 import { isValidProject } from '../lib/workspaceFile'
 
 const WORKSPACES_KEY = 'workspace68.projects.v1'
@@ -177,7 +177,9 @@ const useEditorStore = create((set, get) => ({
   previewMode: false,
   previewPageId: null,
   rightTab: 'style', // style | action | animation
-  leftTab: 'blocks', // blocks | layers
+  leftTab: 'screens', // screens | blocks | layers
+  leftSidebarOpen: true,
+  rightSidebarOpen: true,
   past: [],
   future: [],
 
@@ -196,6 +198,10 @@ const useEditorStore = create((set, get) => ({
   setEditing: (id) => set({ editingId: id }),
   setViewport: (v) => set({ viewport: v }),
   toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
+  toggleLeftSidebar: () => set((s) => ({ leftSidebarOpen: !s.leftSidebarOpen })),
+  toggleRightSidebar: () => set((s) => ({ rightSidebarOpen: !s.rightSidebarOpen })),
+  setLeftSidebarOpen: (open) => set({ leftSidebarOpen: open }),
+  setRightSidebarOpen: (open) => set({ rightSidebarOpen: open }),
   setRightTab: (tab) => set({ rightTab: tab }),
   setLeftTab: (tab) => set({ leftTab: tab }),
 
@@ -212,19 +218,54 @@ const useEditorStore = create((set, get) => ({
 
   setCurrentPage: (id) => set({ currentPageId: id, selectedId: null, editingId: null }),
 
-  addPage: () =>
+  addPage: (templateType = 'blank') =>
     set((s) => {
-      const name = `Page ${s.project.pages.length + 1}`
-      const path = sanitizePath(name)
+      const count = s.project.pages.length + 1
+      let newPage
+      if (templateType === 'birthday') {
+        newPage = createBirthdayScreen(`Birthday Screen ${count}`, `/birthday-${count}`)
+      } else if (templateType === 'quiz') {
+        newPage = createQuizScreen(`Quiz Question ${count}`, `/quiz-${count}`)
+      } else if (templateType === 'winner') {
+        newPage = createWinnerScreen(`Winner Result ${count}`, `/winner-${count}`)
+      } else {
+        const name = `Screen ${count}`
+        const path = sanitizePath(name)
+        newPage = freshPage(name, path)
+      }
       const pages = snapshot(s)
-      pages.push(freshPage(name, path))
+      pages.push(newPage)
       const past = [...s.past, s.project.pages].slice(-60)
       return {
         project: { ...s.project, pages },
         past,
         future: [],
-        currentPageId: pages[pages.length - 1].id,
+        currentPageId: newPage.id,
         selectedId: null,
+      }
+    }),
+
+  duplicatePage: (id) =>
+    set((s) => {
+      const target = s.project.pages.find((p) => p.id === id)
+      if (!target) return s
+      const name = `${target.name} (Copy)`
+      const path = sanitizePath(name)
+      const cloned = JSON.parse(JSON.stringify(target))
+      cloned.id = uid('page')
+      cloned.name = name
+      cloned.path = path
+      const pages = snapshot(s)
+      const idx = pages.findIndex((p) => p.id === id)
+      pages.splice(idx + 1, 0, cloned)
+      const past = [...s.past, s.project.pages].slice(-60)
+      return {
+        project: { ...s.project, pages },
+        past,
+        future: [],
+        currentPageId: cloned.id,
+        selectedId: null,
+        editingId: null,
       }
     }),
 
