@@ -105,10 +105,10 @@ export default function EditorPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-slate-900 text-white">
+      <div className="flex h-screen w-full items-center justify-center bg-ink-950 text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
-          <span className="text-sm font-medium text-slate-400">Loading website workspace…</span>
+          <div className="h-9 w-9 animate-spin rounded-full border-4 border-crimson-500 border-t-transparent" />
+          <span className="font-display text-sm font-medium text-zinc-400">Loading website workspace…</span>
         </div>
       </div>
     )
@@ -117,16 +117,16 @@ export default function EditorPage() {
   return (
     <div className={`ws-app flex h-full flex-col overflow-hidden${darkMode ? ' ws-dark' : ''}`}>
       {/* Cloud Header / Status Bar */}
-      <div className="flex h-9 items-center justify-between border-b border-zinc-800 bg-[#070709] px-4 text-xs text-zinc-300">
+      <div className="flex h-10 items-center justify-between border-b border-zinc-800/80 bg-ink-950 px-4 text-xs text-zinc-300">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-1 font-medium text-zinc-400 hover:text-white"
+            className="flex items-center gap-1 font-medium text-zinc-400 transition hover:text-white"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Dashboard
           </button>
           <div className="h-3.5 w-px bg-zinc-800" />
-          <span className="font-semibold text-white">{project.name}</span>
+          <span className="font-display font-semibold text-white">{project.name}</span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -134,20 +134,20 @@ export default function EditorPage() {
           <div className="flex items-center gap-1.5 text-[11px]">
             {saveStatus === 'saving' && (
               <>
-                <Cloud className="h-3.5 w-3.5 animate-pulse text-red-500" />
+                <Cloud className="h-3.5 w-3.5 animate-pulse text-crimson-400" />
                 <span className="text-zinc-400">Saving…</span>
               </>
             )}
             {saveStatus === 'saved' && (
               <>
-                <CheckCircle2 className="h-3.5 w-3.5 text-red-500" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-crimson-500" />
                 <span className="text-zinc-400">Saved</span>
               </>
             )}
             {saveStatus === 'error' && (
               <>
-                <AlertCircle className="h-3.5 w-3.5 text-red-400" />
-                <span className="text-red-400">Save failed</span>
+                <AlertCircle className="h-3.5 w-3.5 text-crimson-400" />
+                <span className="text-crimson-400">Save failed</span>
               </>
             )}
           </div>
@@ -155,7 +155,7 @@ export default function EditorPage() {
           {/* Publish Trigger Button */}
           <button
             onClick={() => setPublishModalOpen(true)}
-            className="rounded-md bg-red-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm shadow-red-600/30 hover:bg-red-500 transition"
+            className="rounded-full bg-crimson-600 px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-glow-sm transition hover:bg-crimson-500 hover:shadow-glow active:scale-95"
           >
             Publish Website
           </button>
@@ -172,7 +172,7 @@ export default function EditorPage() {
           {!previewMode && (
             <div
               className={`transition-all duration-300 ease-in-out shrink-0 overflow-hidden flex flex-col ${
-                leftSidebarOpen ? 'w-64 border-r border-slate-200' : 'w-0 border-r-0'
+                leftSidebarOpen ? 'w-64' : 'w-0'
               }`}
             >
               <div className="w-64 h-full flex flex-col">
@@ -187,7 +187,7 @@ export default function EditorPage() {
               type="button"
               onClick={toggleLeftSidebar}
               title="Expand Screens & Blocks Panel"
-              className="absolute left-3 top-3 z-30 flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur-xs hover:bg-slate-50 hover:text-indigo-600 transition active:scale-95"
+              className="absolute left-3 top-3 z-30 flex items-center gap-1.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--ws-text-2)] shadow-panel backdrop-blur transition hover:text-[var(--ws-accent)] active:scale-95"
             >
               <span>▶</span>
               <span>Screens & Blocks</span>
@@ -203,7 +203,7 @@ export default function EditorPage() {
               type="button"
               onClick={toggleRightSidebar}
               title="Expand Properties & Styles Panel"
-              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur-xs hover:bg-slate-50 hover:text-indigo-600 transition active:scale-95"
+              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--ws-text-2)] shadow-panel backdrop-blur transition hover:text-[var(--ws-accent)] active:scale-95"
             >
               <span>Properties</span>
               <span>◀</span>
@@ -214,7 +214,7 @@ export default function EditorPage() {
           {!previewMode && (
             <div
               className={`transition-all duration-300 ease-in-out shrink-0 overflow-hidden flex flex-col ${
-                rightSidebarOpen ? 'w-80 border-l border-slate-200' : 'w-0 border-l-0'
+                rightSidebarOpen ? 'w-80' : 'w-0'
               }`}
             >
               <div className="w-80 h-full flex flex-col">

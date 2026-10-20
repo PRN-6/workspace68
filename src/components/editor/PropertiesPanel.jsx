@@ -8,7 +8,7 @@ import { ANIM_STYLES } from '../../lib/style'
 
 function SectionTitle({ children }) {
   return (
-    <div className="mb-2 mt-1 border-b border-slate-100 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+    <div className="ws-label mb-2 mt-1 border-b pb-1.5" style={{ borderColor: 'var(--ws-border)' }}>
       {children}
     </div>
   )
@@ -187,7 +187,10 @@ function StyleTab({ element }) {
                 key={theme.name}
                 type="button"
                 onClick={() => updateStyle(element.id, theme.style)}
-                className="rounded-lg border border-slate-200 bg-white p-2 text-left text-xs font-semibold text-slate-700 shadow-xs hover:border-indigo-400 hover:bg-indigo-50/50 transition active:scale-95"
+                className="rounded-2xl border p-2 text-left text-xs font-semibold transition hover:-translate-y-0.5 active:scale-95"
+                style={{ background: 'var(--ws-panel-2)', borderColor: 'var(--ws-border)', color: 'var(--ws-text-2)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ws-accent)')}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--ws-border)')}
               >
                 {theme.name}
               </button>
@@ -199,17 +202,14 @@ function StyleTab({ element }) {
       {!isSection && (
         <div className="mb-4">
           <SectionTitle>Position & Placement</SectionTitle>
-          <div className="flex rounded-lg bg-slate-100 p-0.5 mb-2.5">
+          <div className="ws-seg mb-2.5">
             <button
               type="button"
               onClick={() => {
                 if (isFree) restoreElementFlow(element.id)
               }}
-              className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
-                !isFree
-                  ? 'bg-white text-indigo-600 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
+              data-active={!isFree ? 'true' : 'false'}
+              className="ws-seg-btn"
             >
               📌 In-Flow (Stack)
             </button>
@@ -218,43 +218,34 @@ function StyleTab({ element }) {
               onClick={() => {
                 if (!isFree) enableFreePosition()
               }}
-              className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
-                isFree
-                  ? 'bg-white text-indigo-600 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
+              data-active={isFree ? 'true' : 'false'}
+              className="ws-seg-btn"
             >
-              🎯 Free Place (Anywhere)
+              🎯 Free Place
             </button>
           </div>
 
           {isFree ? (
-            <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-2.5">
-              <p className="mb-2 text-[11px] text-indigo-900 leading-snug">
+            <div className="rounded-2xl border p-2.5" style={{ borderColor: 'var(--ws-accent)', background: 'var(--ws-accent-soft)' }}>
+              <p className="mb-2 text-[11px] leading-snug" style={{ color: 'var(--ws-text-2)' }}>
                 Drag this block anywhere on the page, or tap quick alignment:
               </p>
-              <div className="flex items-center gap-1.5 mb-3">
-                <button
-                  type="button"
-                  onClick={() => updateStyle(element.id, { left: '24px' })}
-                  className="flex-1 rounded border border-indigo-200 bg-white py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-50 shadow-xs"
-                >
-                  ⬅ Left
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateStyle(element.id, { left: 'calc(50% - 80px)' })}
-                  className="flex-1 rounded border border-indigo-200 bg-white py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-50 shadow-xs"
-                >
-                  ↔ Center
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateStyle(element.id, { top: '24px' })}
-                  className="flex-1 rounded border border-indigo-200 bg-white py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-50 shadow-xs"
-                >
-                  ⬆ Top
-                </button>
+              <div className="mb-3 flex items-center gap-1.5">
+                {[
+                  ['⬅ Left', { left: '24px' }],
+                  ['↔ Center', { left: 'calc(50% - 80px)' }],
+                  ['⬆ Top', { top: '24px' }],
+                ].map(([label, style]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => updateStyle(element.id, style)}
+                    className="flex-1 rounded-xl border py-1 text-[11px] font-medium transition hover:-translate-y-px"
+                    style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)', color: 'var(--ws-accent)' }}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -265,7 +256,7 @@ function StyleTab({ element }) {
                   ['Height', 'height'],
                 ].map(([label, key]) => (
                   <label key={key} className="flex flex-col gap-1">
-                    <span className="text-[10px] font-medium text-slate-500">{label}</span>
+                    <span className="text-[10px] font-medium" style={{ color: 'var(--ws-text-3)' }}>{label}</span>
                     <input
                       type="number"
                       className="ws-input text-xs"
@@ -281,7 +272,7 @@ function StyleTab({ element }) {
               </div>
             </div>
           ) : (
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px]" style={{ color: 'var(--ws-text-3)' }}>
               Element stays in normal responsive flow. Switch to <b>Free Place</b> to position anywhere.
             </p>
           )}
@@ -313,7 +304,7 @@ function ActionTab({ element }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="rounded-lg bg-slate-50 p-2 text-[11px] leading-relaxed text-slate-500">
+      <p className="rounded-2xl p-2 text-[11px] leading-relaxed" style={{ background: 'var(--ws-panel-2)', color: 'var(--ws-text-3)' }}>
         Define what happens when a visitor clicks this block.
       </p>
       <SelectField
@@ -330,7 +321,7 @@ function ActionTab({ element }) {
             placeholder="https://example.com"
             onChange={(v) => updateAction(element.id, { value: v })}
           />
-          <label className="flex items-center gap-2 text-xs text-slate-600">
+          <label className="flex items-center gap-2 text-xs text-[var(--ws-text-2)]">
             <input
               type="checkbox"
               checked={action.newTab !== false}
@@ -443,25 +434,25 @@ function AnimationTab({ element }) {
           />
 
           {/* Interactive Live Animation Preview */}
-          <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <div className="mb-2 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+          <div className="mt-2 rounded-2xl border p-3" style={{ borderColor: 'var(--ws-border)', background: 'var(--ws-panel-2)' }}>
+            <div className="mb-2 flex items-center justify-between text-[11px] font-semibold" style={{ color: 'var(--ws-text-3)' }}>
               <span className="flex items-center gap-1.5">
-                <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="inline-block h-2 w-2 animate-pulse-dot rounded-full bg-emerald-500" />
                 Live Preview
               </span>
               <button
                 type="button"
                 onClick={replay}
-                className="flex items-center gap-1 rounded-md bg-white px-2 py-1 text-xs font-semibold text-indigo-600 shadow-sm border border-slate-200 hover:bg-slate-100 transition active:scale-95"
+                className="ws-btn !px-2.5 !py-1 !text-[11px]"
               >
                 <span>▶</span> Replay
               </button>
             </div>
-            <div className="flex h-16 items-center justify-center overflow-hidden rounded-lg bg-white border border-dashed border-slate-200">
+            <div className="flex h-16 items-center justify-center overflow-hidden rounded-xl border border-dashed" style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border-strong)' }}>
               <div
                 key={previewKey}
                 style={testStyle}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-indigo-600/20"
+                className="rounded-xl bg-[#e11d33] px-4 py-2 text-xs font-semibold text-white shadow-glow-sm"
               >
                 {element.type === 'button' ? (element.props?.text || 'Button') : `${element.name || 'Block'}`}
               </div>
@@ -493,7 +484,7 @@ function PageSettings() {
           <TextField label="Route path" value={page.path} onChange={(v) => setPagePath(page.id, v)} placeholder="/about" />
         </div>
       </div>
-      <p className="rounded-lg bg-indigo-50 p-2.5 text-[11px] leading-relaxed text-indigo-700">
+      <p className="rounded-2xl border p-2.5 text-[11px] leading-relaxed" style={{ borderColor: 'var(--ws-accent)', background: 'var(--ws-accent-soft)', color: 'var(--ws-text-2)' }}>
         Select any block on the canvas to edit its style, actions and animations. Drag blocks from the left panel to
         build your page.
       </p>
@@ -519,28 +510,43 @@ export default function PropertiesPanel() {
   const element = selectedId ? T.findById(root, selectedId) : null
 
   return (
-    <aside className="ws-properties flex w-80 shrink-0 flex-col border-l border-slate-200 bg-white">
+    <aside
+      className="ws-properties flex w-80 shrink-0 flex-col border-l"
+      style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
+    >
       {!element ? (
         <div className="ws-scroll flex-1 overflow-y-auto p-4">
           <PageSettings />
         </div>
       ) : (
         <>
-          <div className="shrink-0 border-b border-slate-200 p-3">
-            <div className="mb-2 flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-sm">
+          <div className="shrink-0 border-b p-3" style={{ borderColor: 'var(--ws-border)' }}>
+            <div className="mb-2.5 flex items-center gap-2">
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-2xl text-sm"
+                style={{ background: 'var(--ws-accent-soft)', color: 'var(--ws-accent)' }}
+              >
                 {COMPONENTS[element.type]?.icon}
               </span>
               <input
                 value={element.name}
                 onChange={(e) => updateElement(element.id, { name: e.target.value })}
-                className="min-w-0 flex-1 rounded-md border border-transparent px-1.5 py-1 text-sm font-semibold text-slate-700 hover:border-slate-200 focus:border-indigo-400 focus:outline-none"
+                className="min-w-0 flex-1 rounded-xl border border-transparent px-2 py-1 text-sm font-semibold transition"
+                style={{ color: 'var(--ws-text)' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--ws-accent)'
+                  e.currentTarget.style.boxShadow = '0 0 0 3px var(--ws-accent-soft)'
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'transparent'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
               />
               <button
                 type="button"
                 title="Duplicate"
                 onClick={() => duplicateElement(element.id)}
-                className="rounded-md px-1.5 py-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="ws-icon-btn !h-7 !min-w-7 !p-0"
               >
                 ⧉
               </button>
@@ -548,20 +554,19 @@ export default function PropertiesPanel() {
                 type="button"
                 title="Delete"
                 onClick={() => removeElement(element.id)}
-                className="rounded-md px-1.5 py-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                className="ws-icon-btn !h-7 !min-w-7 !p-0 hover:!text-crimson-400"
               >
                 ✕
               </button>
             </div>
-            <div className="flex rounded-lg bg-slate-100 p-0.5">
+            <div className="ws-seg">
               {TABS.map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => setRightTab(id)}
-                  className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
-                    rightTab === id ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                  data-active={rightTab === id ? 'true' : 'false'}
+                  className="ws-seg-btn"
                 >
                   {label}
                 </button>

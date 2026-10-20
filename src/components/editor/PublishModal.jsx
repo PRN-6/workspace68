@@ -121,30 +121,35 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-[#0e0e12] p-6 shadow-2xl text-white">
-        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
-          <div className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-red-500" />
-            <h3 className="text-base font-semibold">Publish & Share Website</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+      <div
+        className="w-full max-w-lg animate-scale-in rounded-3xl border p-6 shadow-lift"
+        style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)', color: 'var(--ws-text)' }}
+      >
+        <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--ws-border)' }}>
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-2xl" style={{ background: 'var(--ws-accent-soft)', color: 'var(--ws-accent)' }}>
+              <Globe className="h-4.5 w-4.5" />
+            </span>
+            <h3 className="font-display text-base font-bold">Publish & Share Website</h3>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-800">
+          <button onClick={onClose} className="ws-icon-btn">
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-950/60 p-3 text-xs text-red-400">
+          <div className="mt-4 flex items-center gap-2 rounded-2xl border border-crimson-500/30 bg-crimson-950/50 p-3 text-xs text-crimson-400">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {successUrl && (
-          <div className="mt-4 rounded-xl border border-red-500/30 bg-red-950/20 p-4">
-            <span className="text-xs font-semibold text-red-400">Website is live at:</span>
-            <div className="mt-2 flex items-center justify-between rounded-lg bg-[#070709] p-2 text-xs border border-zinc-800">
-              <span className="truncate text-zinc-200 font-mono">{successUrl}</span>
+          <div className="mt-4 rounded-2xl border border-crimson-500/30 bg-crimson-950/20 p-4">
+            <span className="text-xs font-semibold text-crimson-400">Website is live at:</span>
+            <div className="mt-2 flex items-center justify-between rounded-xl border p-2 text-xs" style={{ borderColor: 'var(--ws-border)', background: 'var(--ws-panel-2)' }}>
+              <span className="truncate font-mono" style={{ color: 'var(--ws-text-2)' }}>{successUrl}</span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -153,11 +158,11 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
                     setCopied(true)
                     setTimeout(() => setCopied(false), 2000)
                   }}
-                  className="rounded p-1 hover:bg-zinc-800"
+                  className="ws-icon-btn !h-7 !min-w-7 !p-0"
                 >
-                  {copied ? <Check className="h-4 w-4 text-red-500" /> : <Copy className="h-4 w-4 text-zinc-400" />}
+                  {copied ? <Check className="h-4 w-4 text-crimson-500" /> : <Copy className="h-4 w-4" />}
                 </button>
-                <a href={successUrl} target="_blank" rel="noreferrer" className="rounded p-1 hover:bg-zinc-800 text-zinc-400 hover:text-white">
+                <a href={successUrl} target="_blank" rel="noreferrer" className="ws-icon-btn !h-7 !min-w-7 !p-0">
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
@@ -167,20 +172,24 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
 
         <form onSubmit={handlePublish} className="mt-4 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-zinc-300">Public URL Slug</label>
-            <div className="mt-1 flex items-center rounded-lg border border-zinc-800 bg-[#070709] px-3 py-2 text-sm focus-within:border-red-600">
-              <span className="text-zinc-500">/publishers/</span>
+            <label className="block text-xs font-semibold" style={{ color: 'var(--ws-text-2)' }}>Public URL Slug</label>
+            <div
+              className="mt-1 flex items-center rounded-xl border px-3 py-2.5 text-sm transition focus-within:border-[var(--ws-accent)] focus-within:shadow-[0_0_0_3px_var(--ws-accent-soft)]"
+              style={{ borderColor: 'var(--ws-border)', background: 'var(--ws-panel-2)' }}
+            >
+              <span style={{ color: 'var(--ws-text-3)' }}>/publishers/</span>
               <input
                 type="text"
                 required
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                className="w-full bg-transparent pl-1 font-mono text-white focus:outline-none"
+                className="w-full bg-transparent pl-1 font-mono focus:outline-none"
+                style={{ color: 'var(--ws-text)' }}
                 placeholder="myportfolio"
               />
             </div>
-            <p className="mt-1 text-[11px] text-zinc-400">
-              Only letters, numbers, and hyphens (e.g. <code className="text-red-400">my-portfolio</code>).
+            <p className="mt-1 text-[11px]" style={{ color: 'var(--ws-text-3)' }}>
+              Only letters, numbers, and hyphens (e.g. <code className="text-crimson-400">my-portfolio</code>).
             </p>
           </div>
 
@@ -190,25 +199,17 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
                 type="button"
                 onClick={handleUnpublish}
                 disabled={loading}
-                className="text-xs font-medium text-red-400 hover:underline"
+                className="text-xs font-medium text-crimson-400 hover:underline"
               >
                 Unpublish Site
               </button>
             ) : <div />}
 
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-lg px-4 py-2 text-xs font-semibold text-zinc-400 hover:bg-zinc-800"
-              >
+              <button type="button" onClick={onClose} className="ws-btn">
                 Close
               </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-red-600/30 hover:bg-red-500 disabled:opacity-50"
-              >
+              <button type="submit" disabled={loading} className="ws-btn ws-btn-primary disabled:opacity-50">
                 {loading ? 'Publishing…' : projectRecord?.status === 'published' ? 'Republish Changes' : 'Publish Now'}
               </button>
             </div>

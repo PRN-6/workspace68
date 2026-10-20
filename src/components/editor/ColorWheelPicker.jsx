@@ -230,8 +230,9 @@ export default function ColorWheelPicker({ value = '', onChange, label }) {
           onClick={() => setOpen(!open)}
           title="Click to open Color Wheel"
           aria-label={`Pick color for ${label}`}
-          className="relative flex h-8 w-12 shrink-0 cursor-pointer items-center justify-center rounded-lg border-2 border-slate-200 shadow-sm transition hover:scale-105 active:scale-95"
+          className="relative flex h-8 w-12 shrink-0 cursor-pointer items-center justify-center rounded-xl border-2 transition hover:scale-105 active:scale-95"
           style={{
+            borderColor: 'var(--ws-border-strong)',
             backgroundColor: isTransparent ? '#ffffff' : currentColorHex,
             backgroundImage: isTransparent
               ? 'linear-gradient(45deg, #e2e8f0 25%, transparent 25%), linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e2e8f0 75%), linear-gradient(-45deg, transparent 75%, #e2e8f0 75%)'
@@ -247,12 +248,13 @@ export default function ColorWheelPicker({ value = '', onChange, label }) {
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="flex flex-1 items-center justify-between rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 shadow-sm hover:bg-slate-50 transition"
+          className="flex flex-1 items-center justify-between rounded-xl border px-2.5 py-1.5 text-xs transition"
+          style={{ background: 'var(--ws-panel-2)', borderColor: 'var(--ws-border)', color: 'var(--ws-text-2)' }}
         >
           <span className="font-medium truncate">
             {isTransparent ? 'Transparent' : currentColorHex}
           </span>
-          <span className="text-slate-400">🎨 Wheel</span>
+          <span style={{ color: 'var(--ws-text-3)' }}>🎨 Wheel</span>
         </button>
       </div>
 
@@ -260,25 +262,26 @@ export default function ColorWheelPicker({ value = '', onChange, label }) {
       {open && (
         <div
           ref={popoverRef}
-          className="absolute right-0 top-10 z-50 w-72 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-0 top-10 z-50 w-72 animate-scale-in rounded-3xl border p-4 shadow-lift"
+          style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)', color: 'var(--ws-text)' }}
         >
           {/* Header */}
-          <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
-            <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+          <div className="mb-3 flex items-center justify-between border-b pb-2" style={{ borderColor: 'var(--ws-border)' }}>
+            <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: 'var(--ws-text)' }}>
               <span>🎡</span> Color Wheel
             </span>
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => handleSelectSwatch('transparent')}
-                className="rounded px-2 py-0.5 text-[11px] font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition"
+                className="rounded-full bg-crimson-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-crimson-500 transition hover:bg-crimson-500/25"
               >
                 Clear
               </button>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                className="ws-icon-btn !h-7 !min-w-7 !p-0"
               >
                 ✕
               </button>
@@ -314,7 +317,7 @@ export default function ColorWheelPicker({ value = '', onChange, label }) {
 
             {/* Brightness / Lightness slider */}
             <div className="mt-3 w-full">
-              <div className="mb-1 flex justify-between text-[10px] font-semibold text-slate-400">
+              <div className="mb-1 flex justify-between text-[10px] font-semibold" style={{ color: 'var(--ws-text-3)' }}>
                 <span>Dark</span>
                 <span>Brightness</span>
                 <span>Light</span>
@@ -334,14 +337,12 @@ export default function ColorWheelPicker({ value = '', onChange, label }) {
           </div>
 
           {/* Curated Fun Swatches for Non-Programmers */}
-          <div className="mt-3.5 border-t border-slate-100 pt-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Quick Fun Colors
-            </span>
+          <div className="mt-3.5 border-t pt-3" style={{ borderColor: 'var(--ws-border)' }}>
+            <span className="ws-label">Quick Fun Colors</span>
             <div className="mt-2 flex flex-col gap-2">
               {PALETTES.map((palette) => (
                 <div key={palette.name} className="flex items-center justify-between gap-1">
-                  <span className="text-[10px] font-medium text-slate-500 truncate w-24">
+                  <span className="w-24 truncate text-[10px] font-medium" style={{ color: 'var(--ws-text-3)' }}>
                     {palette.name}
                   </span>
                   <div className="flex items-center gap-1.5">
@@ -355,15 +356,16 @@ export default function ColorWheelPicker({ value = '', onChange, label }) {
                           title={color}
                           onClick={() => handleSelectSwatch(color)}
                           className={`h-5 w-5 rounded-full border transition hover:scale-125 ${
-                            isSelected ? 'ring-2 ring-indigo-600 ring-offset-1' : 'border-slate-200'
+                            isSelected ? 'ring-2 ring-[#e11d33] ring-offset-1' : ''
                           }`}
                           style={{
                             backgroundColor: isClear ? '#fff' : color,
+                            borderColor: isSelected ? '#e11d33' : 'var(--ws-border)',
                             position: 'relative',
                           }}
                         >
                           {isClear && (
-                            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-rose-500">
+                            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-crimson-500">
                               /
                             </span>
                           )}

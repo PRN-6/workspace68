@@ -3,7 +3,7 @@ import { parseBox, boxToCss, animTransition } from '../../lib/style'
 import ColorWheelPicker from './ColorWheelPicker'
 
 function Label({ children }) {
-  return <span className="text-[11px] font-medium text-slate-500">{children}</span>
+  return <span className="text-[11px] font-medium" style={{ color: 'var(--ws-text-3)' }}>{children}</span>
 }
 
 export function Row({ label, children }) {
@@ -64,7 +64,7 @@ export function SliderField({ label, value = 0, min = 0, max = 1, step = 0.05, o
         step={step}
         value={Number.isFinite(num) ? num : min}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full accent-indigo-600"
+        className="w-full accent-[#e11d33]"
       />
     </Row>
   )
@@ -78,6 +78,25 @@ function unitInput(value, onChange) {
       placeholder="0px"
       onChange={(e) => onChange(e.target.value)}
     />
+  )
+}
+
+function OptionBtn({ active, onClick, children, className = '' }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-xl border py-1.5 text-[11px] font-medium transition hover:-translate-y-px ${className}`}
+      style={{
+        background: active ? 'var(--ws-accent-soft)' : 'var(--ws-panel-2)',
+        borderColor: active ? 'var(--ws-accent)' : 'var(--ws-border)',
+        color: active ? 'var(--ws-accent)' : 'var(--ws-text-2)',
+        fontWeight: active ? 700 : 500,
+        boxShadow: active ? '0 0 0 3px var(--ws-accent-soft)' : 'none',
+      }}
+    >
+      {children}
+    </button>
   )
 }
 
@@ -107,7 +126,7 @@ export function BoxField({ label, value = '', onChange }) {
         <button
           type="button"
           onClick={() => setShowCustom(!showCustom)}
-          className="text-[10px] font-semibold text-indigo-600 hover:underline"
+          className="text-[10px] font-semibold text-[var(--ws-accent)] hover:underline"
         >
           {showCustom ? 'Presets' : 'Custom'}
         </button>
@@ -115,29 +134,17 @@ export function BoxField({ label, value = '', onChange }) {
 
       {!showCustom ? (
         <div className="grid grid-cols-4 gap-1">
-          {presets.map((p) => {
-            const active = value === p.val
-            return (
-              <button
-                key={p.label}
-                type="button"
-                onClick={() => onChange(p.val)}
-                className={`rounded-md py-1 text-[11px] font-medium border transition ${
-                  active
-                    ? 'bg-indigo-50 border-indigo-300 text-indigo-700 font-semibold'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {p.label}
-              </button>
-            )
-          })}
+          {presets.map((p) => (
+            <OptionBtn key={p.label} active={value === p.val} onClick={() => onChange(p.val)}>
+              {p.label}
+            </OptionBtn>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-4 gap-1">
           {sides.map(([side, tag]) => (
             <div key={side} className="flex flex-col items-center gap-0.5">
-              <span className="text-[9px] text-slate-400">{tag}</span>
+              <span className="text-[9px]" style={{ color: 'var(--ws-text-3)' }}>{tag}</span>
               {unitInput(box[side], update(side))}
             </div>
           ))}
@@ -159,26 +166,14 @@ export function RadiusField({ label = 'Corner Radius', value = '', onChange }) {
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
         <Label>{label}</Label>
-        <span className="text-[10px] text-slate-400 font-mono">{value || '0px'}</span>
+        <span className="font-mono text-[10px]" style={{ color: 'var(--ws-text-3)' }}>{value || '0px'}</span>
       </div>
       <div className="grid grid-cols-4 gap-1">
-        {presets.map((p) => {
-          const active = value === p.val
-          return (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => onChange(p.val)}
-              className={`rounded-md py-1.5 text-[11px] font-medium border transition ${
-                active
-                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700 font-semibold shadow-sm'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              {p.label}
-            </button>
-          )
-        })}
+        {presets.map((p) => (
+          <OptionBtn key={p.label} active={value === p.val} onClick={() => onChange(p.val)}>
+            {p.label}
+          </OptionBtn>
+        ))}
       </div>
     </div>
   )
@@ -194,24 +189,14 @@ export function AlignField({ label = 'Alignment', value = 'left', onChange }) {
     <div className="flex flex-col gap-1.5">
       <Label>{label}</Label>
       <div className="grid grid-cols-3 gap-1">
-        {options.map((o) => {
-          const active = value === o.val
-          return (
-            <button
-              key={o.val}
-              type="button"
-              onClick={() => onChange(o.val)}
-              className={`rounded-md py-1.5 text-xs font-medium border flex items-center justify-center gap-1.5 transition ${
-                active
-                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700 font-semibold shadow-sm'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-            >
+        {options.map((o) => (
+          <OptionBtn key={o.val} active={value === o.val} onClick={() => onChange(o.val)}>
+            <span className="inline-flex items-center justify-center gap-1.5">
               <span>{o.icon}</span>
               <span>{o.label}</span>
-            </button>
-          )
-        })}
+            </span>
+          </OptionBtn>
+        ))}
       </div>
     </div>
   )
@@ -229,26 +214,14 @@ export function FontSizeField({ label = 'Font Size', value = '16px', onChange })
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
         <Label>{label}</Label>
-        <span className="text-[10px] text-slate-400 font-mono">{value || '16px'}</span>
+        <span className="font-mono text-[10px]" style={{ color: 'var(--ws-text-3)' }}>{value || '16px'}</span>
       </div>
       <div className="grid grid-cols-5 gap-1">
-        {presets.map((p) => {
-          const active = value === p.val
-          return (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => onChange(p.val)}
-              className={`rounded-md py-1 text-xs font-medium border transition ${
-                active
-                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700 font-semibold shadow-sm'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              {p.label}
-            </button>
-          )
-        })}
+        {presets.map((p) => (
+          <OptionBtn key={p.label} active={value === p.val} onClick={() => onChange(p.val)}>
+            {p.label}
+          </OptionBtn>
+        ))}
       </div>
     </div>
   )
@@ -259,7 +232,7 @@ export function ShadowField({ label, value = '', onChange }) {
     { label: 'None', val: '' },
     { label: 'Soft', val: '0 1px 3px rgba(15,23,42,0.1)' },
     { label: 'Pop', val: '0 8px 20px rgba(15,23,42,0.14)' },
-    { label: 'Glow ✨', val: '0 0 24px rgba(236,72,153,0.45)' },
+    { label: 'Glow ✨', val: '0 0 24px rgba(225,29,51,0.45)' },
   ]
 
   return (
@@ -269,18 +242,9 @@ export function ShadowField({ label, value = '', onChange }) {
         {options.map((o) => {
           const active = (value || '') === o.val || (o.val === '' && !value)
           return (
-            <button
-              key={o.label}
-              type="button"
-              onClick={() => onChange(o.val)}
-              className={`rounded-md py-1.5 text-[11px] font-medium border transition ${
-                active
-                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700 font-semibold shadow-sm'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-            >
+            <OptionBtn key={o.label} active={active} onClick={() => onChange(o.val)}>
               {o.label}
-            </button>
+            </OptionBtn>
           )
         })}
       </div>
@@ -291,7 +255,7 @@ export function ShadowField({ label, value = '', onChange }) {
 export function AnimPreview({ animation }) {
   if (!animation || animation.type === 'none') return null
   return (
-    <span className="text-[10px] text-slate-400">
+    <span className="text-[10px]" style={{ color: 'var(--ws-text-3)' }}>
       preview: {animation.type} · {animTransition(animation)}
     </span>
   )

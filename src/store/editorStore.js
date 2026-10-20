@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { uid, sanitizePath } from '../lib/id'
 import * as T from '../lib/tree'
-import { buildElement } from '../data/components'
+import { buildElement, COMPONENTS } from '../data/components'
 import { createPortfolioPage, createBirthdayScreen, createQuizScreen, createWinnerScreen } from '../data/templates'
 import { isValidProject } from '../lib/workspaceFile'
 

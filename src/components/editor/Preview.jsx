@@ -147,8 +147,11 @@ export default function Preview() {
   const page = pages.find((p) => p.id === (previewPageId || currentPageId)) || pages[0]
 
   return (
-    <div className="ws-canvas-workspace ws-scroll flex-1 overflow-y-auto bg-slate-100 p-6">
-      <div className="mx-auto overflow-hidden rounded-xl bg-white shadow-xl transition-all" style={{ maxWidth: widthFor(viewport) }}>
+    <div className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 overflow-y-auto p-8">
+      <div
+        className="mx-auto overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-black/5 transition-all"
+        style={{ maxWidth: widthFor(viewport) }}
+      >
         <div className="relative w-full" style={{ minHeight: '70vh' }}>
           {page.root.map((el) => (
             <PreviewElement key={el.id} element={el} />

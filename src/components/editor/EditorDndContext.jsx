@@ -110,7 +110,7 @@ export function EditorDndProvider({ children }) {
       {children}
       <DragOverlay dropAnimation={null}>
         {dragLabel ? (
-          <div className="pointer-events-none flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-2xl ring-2 ring-indigo-400 z-50">
+          <div className="pointer-events-none z-50 flex items-center gap-1.5 rounded-full bg-[#e11d33] px-3.5 py-2 text-xs font-semibold text-white shadow-glow ring-2 ring-[#f43f4e]/40">
             {dragIcon && <span>{dragIcon}</span>}
             <span>{dragLabel}</span>
           </div>

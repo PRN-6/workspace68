@@ -274,11 +274,11 @@ function EditableElement({ element, containerId }) {
               style={{
                 minHeight: 56,
                 width: '100%',
-                border: '1px dashed #cbd5e1',
-                borderRadius: 8,
+                border: '1px dashed #d4d4dc',
+                borderRadius: 12,
                 color: '#94a3b8',
                 pointerEvents: 'none',
-                background: isOver ? 'rgba(239,68,68,0.08)' : 'transparent',
+                background: isOver ? 'rgba(225,29,51,0.07)' : 'transparent',
               }}
             >
               Drop blocks inside this {def.label.toLowerCase()}
@@ -294,21 +294,21 @@ function EditableElement({ element, containerId }) {
           className="pointer-events-none absolute z-10"
           style={{
             inset: 0,
-            outline: isOver ? '2px dashed #ef4444' : selected ? '2px solid #ef4444' : '1px dashed #f87171',
+            outline: isOver ? '2px dashed #e11d33' : selected ? '2px solid #e11d33' : '1px dashed rgba(244,63,94,0.55)',
             outlineOffset: '-1px',
-            borderRadius: 2,
+            borderRadius: 4,
           }}
         />
       )}
 
       {selected && !isDragging && (
-        <div className="absolute -top-7 left-0 z-20 flex items-center gap-0.5 rounded-md bg-indigo-600 px-1 py-0.5 text-[10px] font-medium text-white shadow-lg">
+        <div className="absolute -top-7 left-0 z-20 flex items-center gap-0.5 rounded-full bg-[#e11d33] px-1.5 py-1 text-[10px] font-semibold text-white shadow-glow-sm">
           <button
             ref={setActivatorNodeRef}
             {...listeners}
             {...attributes}
             title="Drag to move"
-            className="cursor-grab rounded px-1 py-0.5 hover:bg-indigo-500 active:cursor-grabbing"
+            className="cursor-grab rounded-full px-1 py-0.5 hover:bg-white/20 active:cursor-grabbing"
           >
             ⠿
           </button>
@@ -316,7 +316,7 @@ function EditableElement({ element, containerId }) {
           <button
             type="button"
             title="Duplicate"
-            className="rounded px-1 py-0.5 hover:bg-indigo-500"
+            className="rounded-full px-1 py-0.5 hover:bg-white/20"
             onClick={(e) => {
               e.stopPropagation()
               duplicateElement(element.id)
@@ -327,7 +327,7 @@ function EditableElement({ element, containerId }) {
           <button
             type="button"
             title="Delete"
-            className="rounded px-1 py-0.5 hover:bg-rose-500"
+            className="rounded-full px-1 py-0.5 hover:bg-black/30"
             onClick={(e) => {
               e.stopPropagation()
               removeElement(element.id)
@@ -343,7 +343,7 @@ function EditableElement({ element, containerId }) {
           title="Drag to resize"
           aria-label="Resize element"
           onPointerDown={onResizePointerDown}
-          className="ws-resize-handle absolute -bottom-1.5 -right-1.5 z-30 h-3.5 w-3.5 cursor-nwse-resize rounded-sm border-2 border-white bg-indigo-600 shadow"
+          className="ws-resize-handle absolute -bottom-1.5 -right-1.5 z-30 h-4 w-4 cursor-nwse-resize rounded-full border-2 border-white bg-[#e11d33] shadow-md"
         />
       )}
     </Tag>
@@ -357,7 +357,7 @@ function RootList({ page }) {
     <div
       ref={setNodeRef}
       className="relative min-h-full"
-      style={{ outline: isOver ? '2px dashed #ef4444' : 'none', outlineOffset: -2 }}
+      style={{ outline: isOver ? '2px dashed #e11d33' : 'none', outlineOffset: -2 }}
     >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         {page.root.map((el) => (
@@ -365,9 +365,11 @@ function RootList({ page }) {
         ))}
       </SortableContext>
       {page.root.length === 0 && (
-        <div className="flex h-[70vh] flex-col items-center justify-center gap-2 p-10 text-center">
-          <div className="text-4xl">✥</div>
-          <p className="text-sm font-semibold text-slate-500">Drag blocks here from the left panel</p>
+        <div className="flex h-[70vh] flex-col items-center justify-center gap-3 p-10 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#fff1f2] text-3xl shadow-glow-sm">
+            ✥
+          </div>
+          <p className="font-display text-base font-bold text-slate-700">Drag blocks here from the left panel</p>
           <p className="max-w-xs text-xs text-slate-400">
             Start with a <b>Section</b>, then drop headings, text, buttons and images inside it.
           </p>
@@ -392,30 +394,30 @@ function PagesBar() {
   }
 
   return (
-    <div className="ws-pages-bar flex shrink-0 items-center justify-between border-b border-slate-200 bg-white/80 px-4 py-2 backdrop-blur-xs">
-      <div className="flex items-center gap-1.5 overflow-x-auto ws-scroll py-0.5">
-        <span className="mr-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Screens:
-        </span>
+    <div
+      className="ws-pages-bar flex shrink-0 items-center justify-between border-b px-4 py-2 backdrop-blur"
+      style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
+    >
+      <div className="ws-scroll flex items-center gap-1.5 overflow-x-auto py-0.5">
+        <span className="ws-label mr-1">Screens</span>
         {pages.map((p, idx) => {
           const isCurrent = p.id === currentPageId
           return (
             <div
               key={p.id}
-              className={`group flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                isCurrent
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
+              className="group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition"
+              style={{
+                background: isCurrent ? 'var(--ws-accent)' : 'var(--ws-panel-3)',
+                color: isCurrent ? 'var(--ws-accent-text)' : 'var(--ws-text-2)',
+                boxShadow: isCurrent ? '0 6px 18px -6px var(--ws-accent-ring)' : 'none',
+              }}
             >
               <button
                 type="button"
                 onClick={() => setCurrentPage(p.id)}
                 className="flex items-center gap-1.5 whitespace-nowrap"
               >
-                <span className={`inline-block h-1.5 w-1.5 rounded-full ${
-                  isCurrent ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'
-                }`} />
+                <span className={`inline-block h-1.5 w-1.5 rounded-full ${isCurrent ? 'bg-white animate-pulse-dot' : 'bg-[var(--ws-text-3)]'}`} />
                 <span>{idx + 1}. {p.name}</span>
               </button>
 
@@ -427,7 +429,7 @@ function PagesBar() {
                   duplicatePage(p.id)
                 }}
                 className={`hidden rounded px-1 text-[10px] group-hover:inline-block ${
-                  isCurrent ? 'text-indigo-200 hover:text-white' : 'text-slate-400 hover:text-slate-700'
+                  isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-text)]'
                 }`}
               >
                 ⧉
@@ -442,10 +444,10 @@ function PagesBar() {
                     removePage(p.id)
                   }}
                   className={`hidden rounded px-1 text-[10px] group-hover:inline-block ${
-                    isCurrent ? 'text-indigo-200 hover:text-rose-200' : 'text-slate-400 hover:text-rose-500'
-                  }`}
-                >
-                  ✕
+                  isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-accent)]'
+                }`}
+              >
+                ✕
                 </button>
               )}
             </div>
@@ -457,58 +459,38 @@ function PagesBar() {
           <button
             type="button"
             onClick={() => setShowAddMenu(!showAddMenu)}
-            className="flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 bg-indigo-50/50 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition active:scale-95"
+            className="flex items-center gap-1 rounded-full border border-dashed px-2.5 py-1.5 text-xs font-semibold transition active:scale-95"
+            style={{ borderColor: 'var(--ws-accent)', color: 'var(--ws-accent)', background: 'var(--ws-accent-soft)' }}
           >
             <span>+</span> Add Screen
           </button>
 
           {showAddMenu && (
-            <div className="absolute left-0 top-9 z-40 w-52 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-100">
-              <button
-                type="button"
-                onClick={() => handleAdd('birthday')}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition"
-              >
-                <span>🎂</span>
-                <div>
-                  <div className="font-semibold text-slate-800">Birthday Surprise</div>
-                  <div className="text-[10px] text-slate-400">Gift card flow</div>
+            <div
+              className="absolute left-0 top-9 z-40 w-52 animate-scale-in rounded-2xl border p-1.5 shadow-lift"
+              style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
+            >
+              {[
+                { type: 'birthday', emoji: '🎂', name: 'Birthday Surprise', desc: 'Gift card flow' },
+                { type: 'quiz', emoji: '🎮', name: 'Quiz Question', desc: 'Multiple choice card' },
+                { type: 'winner', emoji: '🏆', name: 'Winner Screen', desc: 'Victory score screen' },
+                { type: 'blank', emoji: '📄', name: 'Blank Screen', desc: 'Start from scratch', divider: true },
+              ].map((opt) => (
+                <div key={opt.type}>
+                  {opt.divider && <div className="my-1 h-px" style={{ background: 'var(--ws-border)' }} />}
+                  <button
+                    type="button"
+                    onClick={() => handleAdd(opt.type)}
+                    className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-xs transition hover:bg-[var(--ws-accent-soft)]"
+                  >
+                    <span>{opt.emoji}</span>
+                    <div>
+                      <div className="font-semibold" style={{ color: 'var(--ws-text)' }}>{opt.name}</div>
+                      <div className="text-[10px]" style={{ color: 'var(--ws-text-3)' }}>{opt.desc}</div>
+                    </div>
+                  </button>
                 </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleAdd('quiz')}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition"
-              >
-                <span>🎮</span>
-                <div>
-                  <div className="font-semibold text-slate-800">Quiz Question</div>
-                  <div className="text-[10px] text-slate-400">Multiple choice card</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleAdd('winner')}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition"
-              >
-                <span>🏆</span>
-                <div>
-                  <div className="font-semibold text-slate-800">Winner Screen</div>
-                  <div className="text-[10px] text-slate-400">Victory score screen</div>
-                </div>
-              </button>
-              <div className="my-1 border-t border-slate-100" />
-              <button
-                type="button"
-                onClick={() => handleAdd('blank')}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
-              >
-                <span>📄</span>
-                <div>
-                  <div className="font-semibold text-slate-800">Blank Screen</div>
-                  <div className="text-[10px] text-slate-400">Start from scratch</div>
-                </div>
-              </button>
+              ))}
             </div>
           )}
         </div>
@@ -593,7 +575,7 @@ function EditCanvas() {
     <main className="ws-editor-canvas flex min-w-0 flex-1 flex-col">
       <PagesBar />
       <div
-        className="ws-canvas-workspace ws-scroll flex-1 overflow-y-auto bg-slate-100 p-6"
+        className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 overflow-y-auto p-8"
         onClick={() => {
           selectElement(null)
           setHovered(null)
@@ -607,14 +589,14 @@ function EditCanvas() {
           onDragCancel={onDragCancel}
         >
           <div
-            className="mx-auto min-h-[70vh] overflow-hidden rounded-xl bg-white shadow-xl"
+            className="mx-auto min-h-[70vh] overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-black/5"
             style={{ width: widthFor(viewport), maxWidth: '100%' }}
           >
             <RootList page={page} />
           </div>
           <DragOverlay dropAnimation={null}>
             {dragLabel ? (
-              <div className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg">
+              <div className="rounded-full bg-[#e11d33] px-3.5 py-2 text-xs font-semibold text-white shadow-glow">
                 {dragLabel}
               </div>
             ) : null}
