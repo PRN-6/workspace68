@@ -2,13 +2,30 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Globe, Copy, Check, ExternalLink, X, AlertCircle } from 'lucide-react'
 
-const RESERVED_SLUGS = ['admin', 'api', 'login', 'register', 'dashboard', 'settings', 'publishers', 'auth']
+const RESERVED_SLUGS = [
+  'admin',
+  'api',
+  'login',
+  'register',
+  'dashboard',
+  'settings',
+  'publishers',
+  'auth',
+  'reset-password',
+  'forgot-password',
+]
+
+/** Turn a project name into a slug that passes validateSlug. */
+function slugifyName(name = '') {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
 
 export default function PublishModal({ projectRecord, currentDocument, onClose, onPublished }) {
   const [slug, setSlug] = useState(
-    projectRecord?.slug ||
-      projectRecord?.name?.toLowerCase().replace(/[^a-z0-9]/g, '-') ||
-      ''
+    projectRecord?.slug || slugifyName(projectRecord?.name) || ''
   )
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -41,14 +58,18 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
     try {
       const cleanSlug = slug.trim().toLowerCase()
 
-      // 1. Check if slug is used by someone else
-      const { data: existing } = await supabase
+      // 1. Check if slug is used by someone else.
+      // `maybeSingle()` errors when several rows match, so read the error
+      // instead of assuming a null result means "free".
+      const { data: existing, error: lookupError } = await supabase
         .from('published_sites')
         .select('project_id')
         .eq('slug', cleanSlug)
-        .maybeSingle()
+        .limit(1)
 
-      if (existing && existing.project_id !== projectRecord.id) {
+      if (lookupError) throw lookupError
+
+      if (existing && existing.length > 0 && existing[0].project_id !== projectRecord.id) {
         throw new Error('This slug is already taken. Please pick another one.')
       }
 

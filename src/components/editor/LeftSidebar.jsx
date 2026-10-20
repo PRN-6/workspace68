@@ -3,6 +3,7 @@ import { useDraggable } from '@dnd-kit/core'
 import { useEditorStore } from '../../store/editorStore'
 import { COMPONENTS, PALETTE_GROUPS } from '../../data/components'
 import * as T from '../../lib/tree'
+import { getInsertTarget } from '../../lib/dnd'
 import { Smartphone, Blocks, FolderTree, Plus, Copy, Trash2, PanelLeftClose } from 'lucide-react'
 
 function ScreensTab() {
@@ -176,43 +177,11 @@ function PaletteCard({ type }) {
     data: { source: 'palette', elementType: type },
   })
 
+  // Click-to-insert uses the same targeting rules as a drop, so the two
+  // interactions always agree on where a block lands.
   const onClick = () => {
-    let containerId = 'root'
-    let targetIndex = null
-
-    if (type === 'section') {
-      containerId = 'root'
-      if (selectedId) {
-        const info = T.findContainerInfo(root, selectedId)
-        if (info?.containerId === 'root') {
-          targetIndex = info.index + 1
-        }
-      }
-    } else {
-      if (selectedId) {
-        const sel = T.findById(root, selectedId)
-        if (sel && COMPONENTS[sel.type]?.canHaveChildren) {
-          containerId = sel.id
-          targetIndex = sel.children?.length ?? 0
-        } else {
-          const info = T.findContainerInfo(root, selectedId)
-          if (info && info.containerId) {
-            containerId = info.containerId
-            targetIndex = info.index + 1
-          }
-        }
-      }
-
-      if (containerId === 'root' && root.length > 0) {
-        const firstSection = root.find((n) => n.type === 'section') || root[0]
-        if (firstSection && COMPONENTS[firstSection.type]?.canHaveChildren) {
-          const col = firstSection.children?.find((c) => COMPONENTS[c.type]?.canHaveChildren)
-          containerId = col ? col.id : firstSection.id
-        }
-      }
-    }
-
-    insertElement(type, containerId, targetIndex)
+    const target = getInsertTarget({ root }, selectedId, type)
+    insertElement(type, target.containerId, target.index)
   }
 
   return (
@@ -223,19 +192,26 @@ function PaletteCard({ type }) {
       {...attributes}
       onClick={onClick}
       title={def.description}
-      style={{ opacity: isDragging ? 0.4 : 1 }}
-      className="group flex w-full cursor-grab select-none flex-col items-start gap-1.5 rounded-2xl border p-2.5 text-left transition hover:-translate-y-0.5 hover:shadow-glow-sm active:cursor-grabbing"
+      style={{ opacity: isDragging ? 0.35 : 1 }}
+      className="group relative flex w-full cursor-grab select-none flex-col items-start gap-1.5 rounded-2xl border p-2.5 text-left transition hover:-translate-y-0.5 hover:shadow-glow-sm active:cursor-grabbing"
       onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ws-accent)')}
       onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--ws-border)')}
     >
       <span
-        className="flex h-8 w-8 items-center justify-center rounded-xl text-sm transition"
-        style={{ background: 'var(--ws-panel-3)', color: 'var(--ws-text-2)' }}
+        className="flex h-8 w-8 items-center justify-center rounded-xl text-sm transition group-hover:bg-[var(--ws-accent-soft)]"
+        style={{ color: 'var(--ws-text-2)' }}
       >
         {def.icon}
       </span>
       <span className="text-xs font-semibold" style={{ color: 'var(--ws-text-2)' }}>
         {def.label}
+      </span>
+      <span
+        className="pointer-events-none absolute right-2 top-2 text-[10px] opacity-0 transition group-hover:opacity-60"
+        style={{ color: 'var(--ws-text-3)' }}
+        aria-hidden="true"
+      >
+        ⠿
       </span>
     </button>
   )

@@ -1,24 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  KeyboardSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  useDroppable,
-} from '@dnd-kit/core'
+import { useDroppable } from '@dnd-kit/core'
 import {
   SortableContext,
   verticalListSortingStrategy,
   useSortable,
-  sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useEditorStore } from '../../store/editorStore'
 import { COMPONENTS } from '../../data/components'
 import * as T from '../../lib/tree'
+import { dropIdFor, ROOT_ID } from '../../lib/dnd'
+import { useDragHint } from './EditorDndContext'
 import Preview from './Preview'
 
 function widthFor(v) {
@@ -60,7 +52,7 @@ function EditableText({ element }) {
   )
 }
 
-function EditableElement({ element, containerId }) {
+function EditableElement({ element, containerId, depth = 0 }) {
   const selectedId = useEditorStore((s) => s.selectedId)
   const hoveredId = useEditorStore((s) => s.hoveredId)
   const selectElement = useEditorStore((s) => s.selectElement)
@@ -75,17 +67,20 @@ function EditableElement({ element, containerId }) {
   const elementNode = useRef(null)
   const interaction = useRef(null)
   const [interactionStyle, setInteractionStyle] = useState(null)
+  const { position: hintPosition, overId: hintId } = useDragHint()
 
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
     useSortable({
       id: element.id,
-      data: { source: 'canvas', containerId, elementId: element.id },
+      data: { source: 'canvas', containerId, elementId: element.id, depth },
     })
 
+  // Containers get their OWN droppable id. Using the element id here would
+  // collide with the droppable that useSortable registers internally.
   const { setNodeRef: setDropRef, isOver } = useDroppable({
-    id: `drop:${element.id}`,
+    id: dropIdFor(element.id),
     disabled: !canHaveChildren,
-    data: { type: 'container', containerId: element.id },
+    data: { type: 'container', containerId: element.id, depth },
   })
 
   const ref = (node) => {
@@ -266,19 +261,19 @@ function EditableElement({ element, containerId }) {
       {canHaveChildren && (
         <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
           {element.children.map((child) => (
-            <EditableElement key={child.id} element={child} containerId={element.id} />
+            <EditableElement key={child.id} element={child} containerId={element.id} depth={depth + 1} />
           ))}
           {element.children.length === 0 && (
             <div
-              className="flex items-center justify-center text-[11px]"
+              className="flex items-center justify-center rounded-xl text-[11px] transition"
               style={{
-                minHeight: 56,
+                minHeight: 64,
                 width: '100%',
-                border: '1px dashed #d4d4dc',
+                border: isOver ? '2px dashed #e11d33' : '1px dashed #c9c9d4',
                 borderRadius: 12,
-                color: '#94a3b8',
+                color: isOver ? '#e11d33' : '#94a3b8',
                 pointerEvents: 'none',
-                background: isOver ? 'rgba(225,29,51,0.07)' : 'transparent',
+                background: isOver ? 'rgba(225,29,51,0.06)' : 'transparent',
               }}
             >
               Drop blocks inside this {def.label.toLowerCase()}
@@ -289,6 +284,20 @@ function EditableElement({ element, containerId }) {
 
       {element.type === 'image' && style.width === undefined && null}
 
+      {/* Insertion line: shows exactly where a dragged block will land. */}
+      {hintPosition === 'before' && hintId === element.id && (
+        <div
+          className="pointer-events-none absolute z-30 left-0 right-0 -top-0.5 h-1 rounded-full"
+          style={{ background: '#e11d33', boxShadow: '0 0 0 3px rgba(225,29,51,0.18)' }}
+        />
+      )}
+      {hintPosition === 'after' && hintId === element.id && (
+        <div
+          className="pointer-events-none absolute z-30 left-0 right-0 -bottom-0.5 h-1 rounded-full"
+          style={{ background: '#e11d33', boxShadow: '0 0 0 3px rgba(225,29,51,0.18)' }}
+        />
+      )}
+
       {(selected || hovered || isOver) && (
         <div
           className="pointer-events-none absolute z-10"
@@ -297,6 +306,20 @@ function EditableElement({ element, containerId }) {
             outline: isOver ? '2px dashed #e11d33' : selected ? '2px solid #e11d33' : '1px dashed rgba(244,63,94,0.55)',
             outlineOffset: '-1px',
             borderRadius: 4,
+          }}
+        />
+      )}
+
+      {/* Highlight for "this block will be dropped inside me". */}
+      {hintPosition === 'inside' && hintId === element.id && (
+        <div
+          className="pointer-events-none absolute z-10"
+          style={{
+            inset: 0,
+            outline: '2px dashed #e11d33',
+            outlineOffset: '-1px',
+            borderRadius: 4,
+            background: 'rgba(225,29,51,0.05)',
           }}
         />
       )}
@@ -351,7 +374,10 @@ function EditableElement({ element, containerId }) {
 }
 
 function RootList({ page }) {
-  const { setNodeRef, isOver } = useDroppable({ id: 'drop:root', data: { type: 'container', containerId: 'root' } })
+  const { setNodeRef, isOver } = useDroppable({
+    id: dropIdFor(ROOT_ID),
+    data: { type: 'container', containerId: ROOT_ID, depth: -1 },
+  })
   const ids = page.root.map((e) => e.id)
   return (
     <div
@@ -361,7 +387,7 @@ function RootList({ page }) {
     >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         {page.root.map((el) => (
-          <EditableElement key={el.id} element={el} containerId="root" />
+          <EditableElement key={el.id} element={el} containerId={ROOT_ID} depth={0} />
         ))}
       </SortableContext>
       {page.root.length === 0 && (
@@ -499,77 +525,11 @@ function PagesBar() {
   )
 }
 
-function resolveDrop(over, elements, draggedType) {
-  const data = over.data?.current
-  if (data?.type === 'container') {
-    if (draggedType && draggedType !== 'section' && data.containerId === 'root' && elements.root?.length > 0) {
-      const targetSec = elements.root.find((s) => s.type === 'section') || elements.root[0]
-      if (targetSec) {
-        const col = targetSec.children?.find((c) => COMPONENTS[c.type]?.canHaveChildren)
-        return { containerId: col ? col.id : targetSec.id, index: null }
-      }
-    }
-    return { containerId: data.containerId, index: null }
-  }
-  if (data?.source === 'canvas') {
-    const overEl = T.findById(elements.root, over.id)
-    if (overEl && COMPONENTS[overEl.type]?.canHaveChildren && draggedType !== 'section') {
-      const col = overEl.children?.find((c) => COMPONENTS[c.type]?.canHaveChildren)
-      return { containerId: col ? col.id : overEl.id, index: null }
-    }
-    const containerId = data.containerId
-    const list = containerId === 'root' ? elements.root : T.findById(elements.root, containerId)?.children
-    const index = list ? list.findIndex((x) => x.id === over.id) : null
-    return { containerId, index: index < 0 ? null : index }
-  }
-  return null
-}
-
 function EditCanvas() {
   const page = useEditorStore((s) => s.currentPage())
   const viewport = useEditorStore((s) => s.viewport)
   const selectElement = useEditorStore((s) => s.selectElement)
   const setHovered = useEditorStore((s) => s.setHovered)
-  const insertElement = useEditorStore((s) => s.insertElement)
-  const moveElement = useEditorStore((s) => s.moveElement)
-
-  const [drag, setDrag] = useState(null)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  )
-
-  const onDragStart = (e) => setDrag(e.active.data.current)
-  const onDragCancel = () => setDrag(null)
-
-  const onDragEnd = (e) => {
-    setDrag(null)
-    const { active, over } = e
-    if (!over) return
-    const activeData = active.data.current
-
-    if (activeData?.source === 'palette') {
-      const dest = resolveDrop(over, page, activeData.elementType)
-      if (!dest) return
-      insertElement(activeData.elementType, dest.containerId, dest.index)
-      return
-    }
-
-    const activeId = String(active.id)
-    const activeEl = T.findById(page.root, activeId)
-    const dest = resolveDrop(over, page, activeEl?.type)
-    if (!dest) return
-    if (dest.containerId === activeId) return
-    moveElement(activeId, dest.containerId, dest.index)
-  }
-
-  const dragLabel =
-    drag?.source === 'palette'
-      ? COMPONENTS[drag.elementType]?.label
-      : drag?.elementId
-        ? T.findById(page.root, drag.elementId)?.name || 'Block'
-        : null
 
   return (
     <main className="ws-editor-canvas flex min-w-0 flex-1 flex-col">
@@ -581,27 +541,12 @@ function EditCanvas() {
           setHovered(null)
         }}
       >
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-          onDragCancel={onDragCancel}
+        <div
+          className="mx-auto min-h-[70vh] overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-black/5"
+          style={{ width: widthFor(viewport), maxWidth: '100%' }}
         >
-          <div
-            className="mx-auto min-h-[70vh] overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-black/5"
-            style={{ width: widthFor(viewport), maxWidth: '100%' }}
-          >
-            <RootList page={page} />
-          </div>
-          <DragOverlay dropAnimation={null}>
-            {dragLabel ? (
-              <div className="rounded-full bg-[#e11d33] px-3.5 py-2 text-xs font-semibold text-white shadow-glow">
-                {dragLabel}
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+          <RootList page={page} />
+        </div>
       </div>
     </main>
   )

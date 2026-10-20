@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Drag &amp; drop test harness</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      // Test-only harness: mounts the editor UI directly, bypassing the
+      // Supabase auth wall. Not part of the production app.
+      import '/src/index.css'
+      import React from 'react'
+      import { createRoot } from 'react-dom/client'
+      import { MemoryRouter, Route, Routes } from 'react-router-dom'
+      import { useEditorStore } from '/src/store/editorStore.js'
+      import { createPortfolioPage } from '/src/data/templates.js'
+      import EditorPage from '/src/pages/EditorPage.jsx'
+
+      const page = createPortfolioPage()
+      useEditorStore.setState({
+        project: { name: 'Test Site', pages: [page] },
+        currentPageId: page.id,
+        selectedId: null,
+      })
+
+      createRoot(document.getElementById('root')).render(
+        React.createElement(
+          MemoryRouter,
+          { initialEntries: ['/editor/local-test'] },
+          React.createElement(
+            Routes,
+            null,
+            React.createElement(Route, {
+              path: '/editor/:projectId',
+              element: React.createElement(EditorPage, { projectId: 'local-test' }),
+            })
+          )
+        )
+      )
+      window.__store = useEditorStore
+    </script>
+    <script>
+      // Stub the Supabase REST calls the editor makes on mount, so the page
+      // renders without a network round trip.
+      const originalFetch = window.fetch
+      window.fetch = async function (input, init) {
+        const url = typeof input === 'string' ? input : input?.url || ''
+        if (url.includes('/rest/v1/projects')) {
+          return new Response(
+            JSON.stringify([{
+              id: 'local-test',
+              name: 'Test Site',
+              owner_id: '11111111-1111-1111-1111-111111111111',
+              document: { name: 'Test Site' },
+              status: 'draft',
+            }]),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          )
+        }
+        if (url.includes('/rest/v1/profiles')) {
+          return new Response(
+            JSON.stringify([{ id: '11111111-1111-1111-1111-111111111111', display_name: 'Tester' }]),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          )
+        }
+        return originalFetch.call(this, input, init)
+      }
+    </script>
+  </body>
+</html>
