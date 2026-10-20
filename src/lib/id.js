@@ -6,7 +6,9 @@ export function slugify(str) {
   return str
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
+    // Keep underscores here so the next rule can turn them into hyphens
+    // instead of silently deleting them.
+    .replace(/[^a-z0-9\s_-]/g, '')
     .replace(/[\s_]+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')

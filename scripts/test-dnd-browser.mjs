@@ -220,7 +220,7 @@ async function main() {
   const paletteCard = await cdp.evaluate(`
     (() => {
       // Palette cards carry the component description as their title.
-      const el = [...document.querySelectorAll('aside button')]
+      const el = [...document.querySelectorAll('aside [role="button"], aside button')]
         .find(b => (b.getAttribute('title') || '').startsWith('Big headline'));
       if (!el) return null;
       const r = el.getBoundingClientRect();

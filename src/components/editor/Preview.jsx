@@ -153,9 +153,17 @@ export default function Preview() {
         style={{ maxWidth: widthFor(viewport) }}
       >
         <div className="relative w-full" style={{ minHeight: '70vh' }}>
-          {page.root.map((el) => (
+          {(page?.root || []).map((el) => (
             <PreviewElement key={el.id} element={el} />
           ))}
+          {!page && (
+            <div className="flex h-[70vh] flex-col items-center justify-center gap-2 text-center">
+              <p className="font-display text-base font-bold text-slate-700">Nothing to preview yet</p>
+              <p className="max-w-xs text-xs text-slate-400">
+                Add a screen from the Screens panel, then build it out on the canvas.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

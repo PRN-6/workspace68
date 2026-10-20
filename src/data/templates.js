@@ -127,7 +127,7 @@ export function createPortfolioPage() {
     ],
   })
 
-  return { id: `page_${Date.now().toString(36)}`, name: 'Home', path: '/', root: [hero, projects, footer] }
+  return { id: `page_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`, name: 'Home', path: '/', root: [hero, projects, footer] }
 }
 
 function projectCard(number, title, description, photoId) {

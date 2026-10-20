@@ -45,6 +45,9 @@ body {
   --ws-canvas: #e9e9ef;
   --ws-artboard: #ffffff;
   --ws-shadow: 0 24px 70px -28px rgba(15, 15, 25, 0.35);
+  /* Translucent panel background for floating controls. Tailwind cannot apply
+     an alpha modifier to a var(), so this is a pre-mixed token instead. */
+  --ws-panel-glass: rgba(255, 255, 255, 0.92);
 }
 
 .ws-app.ws-dark {
@@ -66,6 +69,7 @@ body {
   --ws-canvas: #08080a;
   --ws-artboard: #ffffff;
   --ws-shadow: 0 28px 80px -30px rgba(0, 0, 0, 0.85);
+  --ws-panel-glass: rgba(16, 16, 20, 0.92);
 }
 
 /* ------------------------------------------------------------------ */

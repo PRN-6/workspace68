@@ -187,7 +187,7 @@ export default function EditorPage() {
               type="button"
               onClick={toggleLeftSidebar}
               title="Expand Screens & Blocks Panel"
-              className="absolute left-3 top-3 z-30 flex items-center gap-1.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--ws-text-2)] shadow-panel backdrop-blur transition hover:text-[var(--ws-accent)] active:scale-95"
+              className="absolute left-3 top-3 z-30 flex items-center gap-1.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel-glass)] px-3.5 py-2 text-xs font-semibold text-[var(--ws-text-2)] shadow-panel backdrop-blur transition hover:text-[var(--ws-accent)] active:scale-95"
             >
               <span>▶</span>
               <span>Screens & Blocks</span>
@@ -203,7 +203,7 @@ export default function EditorPage() {
               type="button"
               onClick={toggleRightSidebar}
               title="Expand Properties & Styles Panel"
-              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--ws-text-2)] shadow-panel backdrop-blur transition hover:text-[var(--ws-accent)] active:scale-95"
+              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel-glass)] px-3.5 py-2 text-xs font-semibold text-[var(--ws-text-2)] shadow-panel backdrop-blur transition hover:text-[var(--ws-accent)] active:scale-95"
             >
               <span>Properties</span>
               <span>◀</span>

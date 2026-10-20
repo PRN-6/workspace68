@@ -11,6 +11,7 @@ import { COMPONENTS } from '../../data/components'
 import * as T from '../../lib/tree'
 import { dropIdFor, ROOT_ID } from '../../lib/dnd'
 import { useDragHint } from './EditorDndContext'
+import { GripVertical, Copy, X, Plus, MousePointerClick } from 'lucide-react'
 import Preview from './Preview'
 
 function widthFor(v) {
@@ -265,7 +266,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
           ))}
           {element.children.length === 0 && (
             <div
-              className="flex items-center justify-center rounded-xl text-[11px] transition"
+              className="flex flex-col items-center justify-center gap-1 rounded-xl text-[11px] transition"
               style={{
                 minHeight: 64,
                 width: '100%',
@@ -276,7 +277,11 @@ function EditableElement({ element, containerId, depth = 0 }) {
                 background: isOver ? 'rgba(225,29,51,0.06)' : 'transparent',
               }}
             >
-              Drop blocks inside this {def.label.toLowerCase()}
+              <span className="flex items-center gap-1.5 font-semibold">
+                <Plus size={12} />
+                Drop blocks inside this {def.label.toLowerCase()}
+              </span>
+              <span className="text-[10px] opacity-70">or pick one from the Blocks panel</span>
             </div>
           )}
         </SortableContext>
@@ -333,30 +338,30 @@ function EditableElement({ element, containerId, depth = 0 }) {
             title="Drag to move"
             className="cursor-grab rounded-full px-1 py-0.5 hover:bg-white/20 active:cursor-grabbing"
           >
-            ⠿
+            <GripVertical size={12} />
           </button>
-          <span className="px-1">{element.name}</span>
+          <span className="max-w-[140px] truncate px-1">{element.name}</span>
           <button
             type="button"
             title="Duplicate"
-            className="rounded-full px-1 py-0.5 hover:bg-white/20"
+            className="rounded-full p-1 hover:bg-white/20"
             onClick={(e) => {
               e.stopPropagation()
               duplicateElement(element.id)
             }}
           >
-            ⧉
+            <Copy size={11} />
           </button>
           <button
             type="button"
             title="Delete"
-            className="rounded-full px-1 py-0.5 hover:bg-black/30"
+            className="rounded-full p-1 hover:bg-black/30"
             onClick={(e) => {
               e.stopPropagation()
               removeElement(element.id)
             }}
           >
-            ✕
+            <X size={11} />
           </button>
         </div>
       )}
@@ -391,14 +396,24 @@ function RootList({ page }) {
         ))}
       </SortableContext>
       {page.root.length === 0 && (
-        <div className="flex h-[70vh] flex-col items-center justify-center gap-3 p-10 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#fff1f2] text-3xl shadow-glow-sm">
-            ✥
+        <div className="flex h-[70vh] flex-col items-center justify-center gap-4 p-10 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#fff1f2] text-[#e11d33] shadow-glow-sm">
+            <MousePointerClick size={26} />
           </div>
-          <p className="font-display text-base font-bold text-slate-700">Drag blocks here from the left panel</p>
-          <p className="max-w-xs text-xs text-slate-400">
-            Start with a <b>Section</b>, then drop headings, text, buttons and images inside it.
-          </p>
+          <div>
+            <p className="font-display text-base font-bold text-slate-700">Drag blocks here from the left panel</p>
+            <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-slate-400">
+              Start with a <b>Section</b>, then drop headings, text, buttons and images inside it.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] text-slate-400">
+            <span className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1">
+              <GripVertical size={11} /> drag
+            </span>
+            <span className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1">
+              <Plus size={11} /> click to add
+            </span>
+          </div>
         </div>
       )}
     </div>
@@ -454,11 +469,11 @@ function PagesBar() {
                   e.stopPropagation()
                   duplicatePage(p.id)
                 }}
-                className={`hidden rounded px-1 text-[10px] group-hover:inline-block ${
+                className={`hidden rounded p-0.5 group-hover:inline-flex ${
                   isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-text)]'
                 }`}
               >
-                ⧉
+                <Copy size={11} />
               </button>
 
               {pages.length > 1 && (
@@ -469,11 +484,11 @@ function PagesBar() {
                     e.stopPropagation()
                     removePage(p.id)
                   }}
-                  className={`hidden rounded px-1 text-[10px] group-hover:inline-block ${
+                  className={`hidden rounded p-0.5 group-hover:inline-flex ${
                   isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-accent)]'
                 }`}
               >
-                ✕
+                <X size={11} />
                 </button>
               )}
             </div>

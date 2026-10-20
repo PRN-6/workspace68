@@ -10,6 +10,7 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useEditorStore } from '../../store/editorStore'
 import { COMPONENTS } from '../../data/components'
+import { iconFor } from './componentIcons'
 import * as T from '../../lib/tree'
 import { editorCollisionDetection, resolveDrop, describeOver } from '../../lib/dnd'
 
@@ -102,8 +103,7 @@ export function EditorDndProvider({ children }) {
         ? T.findById(page.root, drag.elementId)?.name || 'Block'
         : null
 
-  const dragIcon =
-    drag?.source === 'palette' ? COMPONENTS[drag.elementType]?.icon : null
+  const DragIcon = drag?.source === 'palette' ? iconFor(drag.elementType) : null
 
   return (
     <DndContext
@@ -117,8 +117,10 @@ export function EditorDndProvider({ children }) {
       <DragHintContext.Provider value={dropHint}>{children}</DragHintContext.Provider>
       <DragOverlay dropAnimation={null}>
         {dragLabel ? (
-          <div className="pointer-events-none z-50 flex items-center gap-1.5 rounded-full bg-[#e11d33] px-3.5 py-2 text-xs font-semibold text-white shadow-glow ring-2 ring-[#f43f4e]/40">
-            {dragIcon && <span>{dragIcon}</span>}
+          // dnd-kit sizes the overlay wrapper to the dragged element, so the
+          // chip needs w-max to hug its own content instead of stretching.
+          <div className="pointer-events-none z-50 flex w-max items-center gap-1.5 rounded-full bg-[#e11d33] px-3.5 py-2 text-xs font-semibold text-white shadow-glow ring-2 ring-[#f43f4e]/40">
+            {DragIcon && <DragIcon size={13} />}
             <span>{dragLabel}</span>
           </div>
         ) : null}

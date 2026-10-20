@@ -11,6 +11,10 @@ function freshPage(name = 'Home', path = '/') {
   return { id: uid('page'), name, path, root: [] }
 }
 
+// A stable, empty page handed out when the project has no screens at all.
+// Without it, every `currentPage().root` call site would throw.
+const EMPTY_PAGE = Object.freeze({ id: '', name: '', path: '/', root: [] })
+
 function newWorkspace(name, project = { name, pages: [freshPage()] }) {
   return { id: uid('workspace'), name, project, updatedAt: new Date().toISOString() }
 }
@@ -190,7 +194,8 @@ const useEditorStore = create((set, get) => ({
 
   currentPage: () => {
     const s = get()
-    return s.project.pages.find((p) => p.id === s.currentPageId) || s.project.pages[0]
+    const pages = s.project?.pages || []
+    return pages.find((p) => p.id === s.currentPageId) || pages[0] || EMPTY_PAGE
   },
 
   selectElement: (id) => set({ selectedId: id, editingId: null }),

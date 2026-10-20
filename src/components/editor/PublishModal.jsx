@@ -124,14 +124,26 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
     if (!window.confirm('Are you sure you want to unpublish this site? Public visitors will receive a 404.')) return
     setLoading(true)
     try {
-      await supabase.from('published_sites').delete().eq('project_id', projectRecord.id)
-      const { data: updated } = await supabase
+      // Supabase resolves with { error } instead of throwing, so check both
+      // responses explicitly — otherwise a failed delete silently "succeeds".
+      const { error: deleteError } = await supabase
+        .from('published_sites')
+        .delete()
+        .eq('project_id', projectRecord.id)
+
+      if (deleteError) throw deleteError
+
+      const { data: updated, error: updateError } = await supabase
         .from('projects')
         .update({ status: 'draft' })
         .eq('id', projectRecord.id)
         .select()
         .single()
+
+      if (updateError) throw updateError
+
       setSuccessUrl('')
+      setError('')
       if (onPublished) onPublished(updated)
       onClose()
     } catch (err) {
@@ -150,7 +162,7 @@ export default function PublishModal({ projectRecord, currentDocument, onClose, 
         <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--ws-border)' }}>
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-2xl" style={{ background: 'var(--ws-accent-soft)', color: 'var(--ws-accent)' }}>
-              <Globe className="h-4.5 w-4.5" />
+              <Globe className="h-[18px] w-[18px]" />
             </span>
             <h3 className="font-display text-base font-bold">Publish & Share Website</h3>
           </div>

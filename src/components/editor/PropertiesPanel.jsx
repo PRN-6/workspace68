@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useEditorStore } from '../../store/editorStore'
 import { COMPONENTS } from '../../data/components'
 import { STYLE_GROUPS, ANIMATION_OPTIONS, EASING_OPTIONS, ACTION_TYPES } from '../../data/styleControls'
 import { TextField, SelectField, ColorField, SliderField, BoxField, RadiusField, AlignField, FontSizeField, ShadowField, Row } from './Field'
+import { iconFor } from './componentIcons'
+import { Copy, X, MousePointerClick, RotateCcw } from 'lucide-react'
 import * as T from '../../lib/tree'
 import { ANIM_STYLES } from '../../lib/style'
 
@@ -369,12 +371,18 @@ function AnimationTab({ element }) {
 
   const [playing, setPlaying] = useState(false)
   const [previewKey, setPreviewKey] = useState(0)
+  const replayTimer = useRef(null)
 
   const replay = () => {
     setPlaying(false)
     setPreviewKey((k) => k + 1)
-    setTimeout(() => setPlaying(true), 40)
+    clearTimeout(replayTimer.current)
+    replayTimer.current = setTimeout(() => setPlaying(true), 40)
   }
+
+  // Clear the pending timer on unmount so it does not fire against a dead
+  // component.
+  useEffect(() => () => clearTimeout(replayTimer.current), [])
 
   useEffect(() => {
     if (anim.type && anim.type !== 'none') {
@@ -445,7 +453,7 @@ function AnimationTab({ element }) {
                 onClick={replay}
                 className="ws-btn !px-2.5 !py-1 !text-[11px]"
               >
-                <span>▶</span> Replay
+                <RotateCcw size={11} /> Replay
               </button>
             </div>
             <div className="flex h-16 items-center justify-center overflow-hidden rounded-xl border border-dashed" style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border-strong)' }}>
@@ -484,9 +492,12 @@ function PageSettings() {
           <TextField label="Route path" value={page.path} onChange={(v) => setPagePath(page.id, v)} placeholder="/about" />
         </div>
       </div>
-      <p className="rounded-2xl border p-2.5 text-[11px] leading-relaxed" style={{ borderColor: 'var(--ws-accent)', background: 'var(--ws-accent-soft)', color: 'var(--ws-text-2)' }}>
-        Select any block on the canvas to edit its style, actions and animations. Drag blocks from the left panel to
-        build your page.
+      <p className="flex gap-2 rounded-2xl border p-2.5 text-[11px] leading-relaxed" style={{ borderColor: 'var(--ws-accent)', background: 'var(--ws-accent-soft)', color: 'var(--ws-text-2)' }}>
+        <MousePointerClick size={13} className="mt-0.5 shrink-0" style={{ color: 'var(--ws-accent)' }} />
+        <span>
+          Select any block on the canvas to edit its style, actions and animations. Drag blocks from the left panel to
+          build your page.
+        </span>
       </p>
     </div>
   )
@@ -523,10 +534,13 @@ export default function PropertiesPanel() {
           <div className="shrink-0 border-b p-3" style={{ borderColor: 'var(--ws-border)' }}>
             <div className="mb-2.5 flex items-center gap-2">
               <span
-                className="flex h-8 w-8 items-center justify-center rounded-2xl text-sm"
+                className="flex h-8 w-8 items-center justify-center rounded-2xl"
                 style={{ background: 'var(--ws-accent-soft)', color: 'var(--ws-accent)' }}
               >
-                {COMPONENTS[element.type]?.icon}
+                {(() => {
+                  const Icon = iconFor(element.type)
+                  return <Icon size={15} />
+                })()}
               </span>
               <input
                 value={element.name}
@@ -548,7 +562,7 @@ export default function PropertiesPanel() {
                 onClick={() => duplicateElement(element.id)}
                 className="ws-icon-btn !h-7 !min-w-7 !p-0"
               >
-                ⧉
+                <Copy size={13} />
               </button>
               <button
                 type="button"
@@ -556,7 +570,7 @@ export default function PropertiesPanel() {
                 onClick={() => removeElement(element.id)}
                 className="ws-icon-btn !h-7 !min-w-7 !p-0 hover:!text-crimson-400"
               >
-                ✕
+                <X size={13} />
               </button>
             </div>
             <div className="ws-seg">

@@ -1,10 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { useEditorStore } from '../../store/editorStore'
 import { COMPONENTS, PALETTE_GROUPS } from '../../data/components'
 import * as T from '../../lib/tree'
 import { getInsertTarget } from '../../lib/dnd'
-import { Smartphone, Blocks, FolderTree, Plus, Copy, Trash2, PanelLeftClose } from 'lucide-react'
+import { iconFor } from './componentIcons'
+import {
+  Smartphone,
+  Blocks,
+  FolderTree,
+  Plus,
+  Copy,
+  Trash2,
+  PanelLeftClose,
+  Search,
+  GripVertical,
+  X,
+  MousePointerClick,
+} from 'lucide-react'
 
 function ScreensTab() {
   const pages = useEditorStore((s) => s.project.pages)
@@ -132,7 +145,7 @@ function ScreensTab() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
+              <div className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
                 <button
                   type="button"
                   title="Duplicate screen"
@@ -168,6 +181,7 @@ function ScreensTab() {
 
 function PaletteCard({ type }) {
   const def = COMPONENTS[type]
+  const Icon = iconFor(type)
   const insertElement = useEditorStore((s) => s.insertElement)
   const selectedId = useEditorStore((s) => s.selectedId)
   const root = useEditorStore((s) => s.currentPage().root)
@@ -177,43 +191,108 @@ function PaletteCard({ type }) {
     data: { source: 'palette', elementType: type },
   })
 
-  // Click-to-insert uses the same targeting rules as a drop, so the two
-  // interactions always agree on where a block lands.
-  const onClick = () => {
+  // A drag ends with a click event too. Track the pointer so we can tell a
+  // real click from the tail of a drag, and only insert on the former.
+  const pointerStart = useRef(null)
+  const draggedRef = useRef(false)
+
+  // dnd-kit activates the drag from its own pointerdown handler. Chain onto
+  // it rather than replacing it, or the block stops being draggable.
+  const dndPointerDown = listeners.onPointerDown
+
+  // When a drag ends, dnd-kit still delivers a click to the source element.
+  // Flag it so we do not also insert the block at the click target.
+  useEffect(() => {
+    if (isDragging) draggedRef.current = true
+  }, [isDragging])
+
+  const insertHere = () => {
     const target = getInsertTarget({ root }, selectedId, type)
     insertElement(type, target.containerId, target.index)
   }
 
+  // Click-to-insert uses the same targeting rules as a drop, so the two
+  // interactions always agree on where a block lands.
+  const onClick = (event) => {
+    if (draggedRef.current) {
+      draggedRef.current = false
+      return
+    }
+    const start = pointerStart.current
+    if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 4) {
+      return
+    }
+    insertHere()
+  }
+
   return (
-    <button
+    <div
       ref={setNodeRef}
-      type="button"
-      {...listeners}
       {...attributes}
-      onClick={onClick}
+      {...listeners}
+      role="button"
+      tabIndex={0}
       title={def.description}
-      style={{ opacity: isDragging ? 0.35 : 1 }}
-      className="group relative flex w-full cursor-grab select-none flex-col items-start gap-1.5 rounded-2xl border p-2.5 text-left transition hover:-translate-y-0.5 hover:shadow-glow-sm active:cursor-grabbing"
+      onPointerDown={(e) => {
+        pointerStart.current = { x: e.clientX, y: e.clientY }
+        dndPointerDown?.(e)
+      }}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          insertHere()
+        }
+      }}
+      style={{ opacity: isDragging ? 0.35 : 1, borderColor: 'var(--ws-border)' }}
+      className="group relative flex w-full cursor-grab select-none items-center gap-2 rounded-xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-glow-sm active:cursor-grabbing"
       onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ws-accent)')}
       onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--ws-border)')}
     >
       <span
-        className="flex h-8 w-8 items-center justify-center rounded-xl text-sm transition group-hover:bg-[var(--ws-accent-soft)]"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition group-hover:bg-[var(--ws-accent-soft)] group-hover:text-[var(--ws-accent)]"
         style={{ color: 'var(--ws-text-2)' }}
       >
-        {def.icon}
+        <Icon size={14} />
       </span>
-      <span className="text-xs font-semibold" style={{ color: 'var(--ws-text-2)' }}>
-        {def.label}
+
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[11px] font-semibold" style={{ color: 'var(--ws-text-2)' }}>
+          {def.label}
+        </span>
+        <span className="block truncate text-[10px] leading-tight" style={{ color: 'var(--ws-text-3)' }}>
+          {def.description}
+        </span>
       </span>
-      <span
-        className="pointer-events-none absolute right-2 top-2 text-[10px] opacity-0 transition group-hover:opacity-60"
+
+      {/* The grip only lights up on hover, so the drag affordance is clear
+          without making the panel look busy at rest. */}
+      <GripVertical
+        size={13}
+        className="shrink-0 opacity-0 transition group-hover:opacity-70"
         style={{ color: 'var(--ws-text-3)' }}
-        aria-hidden="true"
+      />
+
+      {/* A visible "add" button so click-to-insert is discoverable. The card
+          itself is also clickable; stopPropagation keeps that from
+          inserting the block twice. */}
+      <button
+        type="button"
+        title={`Add ${def.label}`}
+        onClick={(e) => {
+          e.stopPropagation()
+          insertHere()
+        }}
+        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border opacity-0 transition hover:scale-110 focus-visible:opacity-100 group-hover:opacity-100"
+        style={{
+          background: 'var(--ws-accent)',
+          borderColor: 'var(--ws-panel)',
+          color: 'var(--ws-accent-text)',
+        }}
       >
-        ⠿
-      </span>
-    </button>
+        <Plus size={11} strokeWidth={3} />
+      </button>
+    </div>
   )
 }
 
@@ -222,6 +301,7 @@ function LayerRow({ element, depth }) {
   const selectElement = useEditorStore((s) => s.selectElement)
   const removeElement = useEditorStore((s) => s.removeElement)
   const def = COMPONENTS[element.type]
+  const Icon = iconFor(element.type)
   const selected = selectedId === element.id
 
   return (
@@ -238,18 +318,20 @@ function LayerRow({ element, depth }) {
         }}
         className="group flex cursor-pointer items-center gap-1.5 rounded-xl py-1 pr-1.5 text-xs transition hover:bg-[var(--ws-panel-3)]"
       >
-        <span className="w-4 text-center text-[11px] opacity-70">{def?.icon}</span>
+        <span className="flex w-4 shrink-0 justify-center">
+          <Icon size={12} />
+        </span>
         <span className="flex-1 truncate">{element.name || def?.label}</span>
         <button
           type="button"
-          className="hidden text-[var(--ws-text-3)] hover:text-crimson-400 group-hover:block"
+          className="hidden text-[var(--ws-text-3)] hover:text-crimson-400 group-hover:inline-flex"
           onClick={(e) => {
             e.stopPropagation()
             removeElement(element.id)
           }}
           title="Delete"
         >
-          ✕
+          <X size={12} />
         </button>
       </div>
       {element.children?.map((c) => (
@@ -264,6 +346,93 @@ const TABS = [
   { id: 'blocks', icon: Blocks, label: 'Blocks' },
   { id: 'layers', icon: FolderTree, label: 'Layers' },
 ]
+
+function BlocksTab() {
+  const [query, setQuery] = useState('')
+
+  const groups = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return PALETTE_GROUPS
+    return PALETTE_GROUPS.map((group) => ({
+      ...group,
+      types: group.types.filter((type) => {
+        const def = COMPONENTS[type]
+        return (
+          def.label.toLowerCase().includes(q) ||
+          def.description.toLowerCase().includes(q) ||
+          type.includes(q)
+        )
+      }),
+    })).filter((group) => group.types.length > 0)
+  }, [query])
+
+  const matchCount = groups.reduce((n, g) => n + g.types.length, 0)
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Search */}
+      <div className="relative">
+        <Search
+          size={13}
+          className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2"
+          style={{ color: 'var(--ws-text-3)' }}
+        />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search blocks…"
+          className="ws-input !rounded-xl !py-1.5 !pl-8 !pr-7 !text-[11px]"
+          style={{ paddingLeft: 30 }}
+        />
+        {query && (
+          <button
+            type="button"
+            title="Clear search"
+            onClick={() => setQuery('')}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1 transition hover:bg-[var(--ws-panel-3)]"
+            style={{ color: 'var(--ws-text-3)' }}
+          >
+            <X size={11} />
+          </button>
+        )}
+      </div>
+
+      <p className="text-[11px] leading-relaxed" style={{ color: 'var(--ws-text-3)' }}>
+        Drag a block onto the canvas, or hover it and press{' '}
+        <span
+          className="mx-0.5 inline-flex items-center rounded px-1 py-px align-middle"
+          style={{ background: 'var(--ws-panel-3)', color: 'var(--ws-text-2)' }}
+        >
+          <Plus size={9} strokeWidth={3} />
+        </span>{' '}
+        to append it.
+      </p>
+
+      {matchCount === 0 ? (
+        <div
+          className="flex flex-col items-center gap-2 rounded-2xl border border-dashed px-3 py-8 text-center"
+          style={{ borderColor: 'var(--ws-border)' }}
+        >
+          <Search size={18} style={{ color: 'var(--ws-text-3)' }} />
+          <p className="text-[11px]" style={{ color: 'var(--ws-text-3)' }}>
+            No blocks match “{query}”.
+          </p>
+        </div>
+      ) : (
+        groups.map((group) => (
+          <div key={group.name} className="flex flex-col gap-1.5">
+            <span className="ws-label">{group.name}</span>
+            <div className="flex flex-col gap-1.5">
+              {group.types.map((t) => (
+                <PaletteCard key={t} type={t} />
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
 
 export default function LeftSidebar() {
   const leftTab = useEditorStore((s) => s.leftTab)
@@ -308,23 +477,7 @@ export default function LeftSidebar() {
       <div className="ws-scroll flex-1 overflow-y-auto p-3">
         {leftTab === 'screens' && <ScreensTab />}
 
-        {leftTab === 'blocks' && (
-          <div className="flex flex-col gap-4">
-            <p className="text-[11px] leading-relaxed" style={{ color: 'var(--ws-text-3)' }}>
-              Drag a block onto the canvas, or click to append it.
-            </p>
-            {PALETTE_GROUPS.map((group) => (
-              <div key={group.name} className="flex flex-col gap-2">
-                <span className="ws-label">{group.name}</span>
-                <div className="grid grid-cols-2 gap-2">
-                  {group.types.map((t) => (
-                    <PaletteCard key={t} type={t} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {leftTab === 'blocks' && <BlocksTab />}
 
         {leftTab === 'layers' && (
           <div className="flex flex-col gap-0.5">
