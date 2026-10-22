@@ -43,10 +43,10 @@ function actionHandlers(action) {
 function PreviewElement({ element }) {
   const { ref, style: revealStyle } = useReveal(element.animation)
   const action = actionHandlers(element.action)
-  const Tag = blockTag(element.type)
+  const Tag = blockTag(element.type, element.props)
 
   const isSection = element.type === 'section'
-  const isContainer = ['section', 'container', 'row', 'column'].includes(element.type)
+  const isContainer = ['section', 'container', 'row', 'column', 'grid', 'card'].includes(element.type)
   const position = isSection ? 'relative' : (element.style.position || (isContainer ? 'relative' : undefined))
 
   const style = {
@@ -125,21 +125,25 @@ function PreviewElement({ element }) {
 
   const children = element.children?.map((c) => <PreviewElement key={c.id} element={c} />)
 
-  let content = null
+  // A link block's wrapper IS the anchor, so the text goes straight into it.
+  // Rendering another <a> inside would nest anchors, which is invalid HTML.
   if (element.type === 'link') {
-    content = (
-      <a
+    return (
+      <Tag
+        ref={ref}
+        id={element.id}
         href={element.props.href || '#'}
-        style={{ color: 'inherit', textDecoration: 'inherit' }}
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-        }}
+        style={{ ...style, color: 'inherit', textDecoration: 'inherit' }}
+        onClick={action.onClick}
       >
         {element.props.text}
-      </a>
+        {children}
+      </Tag>
     )
-  } else if (isInlineTextType(element.type)) {
+  }
+
+  let content = null
+  if (isInlineTextType(element.type)) {
     content = element.props.text
   } else {
     content = renderBlockContent(element)

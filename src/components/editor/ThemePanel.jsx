@@ -43,9 +43,12 @@ export default function ThemePanel() {
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-[11px] leading-relaxed" style={{ color: 'var(--ws-text-3)' }}>
-        Theme tokens apply to new blocks instantly. Push them across the whole project when you are happy.
-      </p>
+      <div>
+        <span className="ws-label">Theme</span>
+        <p className="mt-1 text-[11px] leading-relaxed" style={{ color: 'var(--ws-text-3)' }}>
+          Theme tokens apply to new blocks instantly. Push them across the whole project when you are happy.
+        </p>
+      </div>
 
       <Row icon={Palette} label="Accent colour">
         <div className="grid grid-cols-3 gap-1.5">

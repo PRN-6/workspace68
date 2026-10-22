@@ -1,6 +1,7 @@
 import { slugify } from './id'
-import { TAGS, styleToJsLiteral } from './style'
+import { styleToJsLiteral } from './style'
 import { COMPONENTS } from '../data/components'
+import { blockTag } from '../components/editor/blockRenderers'
 import blockRenderersSource from '../components/editor/blockRenderers.jsx?raw'
 
 const IND = '  '
@@ -64,7 +65,9 @@ function cap(tag) {
 }
 
 function tagFor(el) {
-  return el.type === 'heading' ? `h${el.props?.level || 1}` : TAGS[el.type] || 'div'
+  // The exporter uses the same tag resolution as the renderer, so a block
+  // looks the same in the editor and in the exported project.
+  return blockTag(el.type, el.props)
 }
 
 function anchorAttr(el) {
@@ -89,17 +92,20 @@ function clickAttr(el) {
   return null
 }
 
+function revealProps(anim) {
+  return {
+    type: anim.type,
+    trigger: anim.trigger || 'scroll',
+    duration: Number(anim.duration) || 0.6,
+    delay: Number(anim.delay) || 0,
+    easing: anim.easing || 'ease-out',
+  }
+}
+
 function revealAttr(el) {
   const a = el.animation
   if (!a || a.type === 'none') return null
-  const props = {
-    type: a.type,
-    trigger: a.trigger || 'scroll',
-    duration: Number(a.duration) || 0.6,
-    delay: Number(a.delay) || 0,
-    easing: a.easing || 'ease-out',
-  }
-  return `reveal={${JSON.stringify(props).replace(/"([a-zA-Z]+)":/g, '$1:')}}`
+  return `reveal={${JSON.stringify(revealProps(a)).replace(/"([a-zA-Z]+)":/g, '$1:')}}`
 }
 
 function genElement(el, level, cx) {
@@ -108,8 +114,6 @@ function genElement(el, level, cx) {
   const isContainer = !!def?.canHaveChildren
   const tag = tagFor(el)
   const reveal = !!(el.animation && el.animation.type !== 'none')
-  const TagName = reveal ? `Anim${cap(tag)}` : tag
-  if (reveal) cx.animated.add(tag)
 
   const exportedStyle = { ...el.style }
   if (el.type === 'section') {
@@ -123,22 +127,37 @@ function genElement(el, level, cx) {
   } else if (isContainer && exportedStyle.position !== 'absolute') {
     exportedStyle.position = 'relative'
   }
-  const attrs = [`id={${JSON.stringify(el.id)}}`, `style={${styleToJsLiteral(exportedStyle)}}`]
-  if (reveal) attrs.push(revealAttr(el))
 
   if (RICH_TYPES.has(el.type)) {
     cx.usesBlocks = true
     const payload = {
+      id: el.id,
       type: el.type,
       style: exportedStyle,
       props: el.props || {},
       action: el.action || { type: 'none' },
     }
+    // Rich blocks carry their own animation and navigation handling, so those
+    // props travel with them instead of wrapping the element.
+    const extra = []
+    if (reveal) {
+      extra.push(`reveal={${JSON.stringify(revealProps(el.animation)).replace(/"([a-zA-Z]+)":/g, '$1:')}}`)
+    }
+    if (el.action?.type === 'page' && el.action.value) {
+      extra.push('navigate={navigate}')
+    }
     const children = el.children?.length
       ? '\n' + el.children.map((c) => genElement(c, level + 1, cx)).join('\n') + `\n${pad}`
       : ''
-    return `${pad}<Blocks.Block element={${JSON.stringify(payload)}}>${children}</Blocks.Block>`
+    const props = [`element={${JSON.stringify(payload)}}`, ...extra].join(' ')
+    return `${pad}<Blocks.Block ${props}>${children}</Blocks.Block>`
   }
+
+  const TagName = reveal ? `Anim${cap(tag)}` : tag
+  if (reveal) cx.animated.add(tag)
+
+  const attrs = [`id={${JSON.stringify(el.id)}}`, `style={${styleToJsLiteral(exportedStyle)}}`]
+  if (reveal) attrs.push(revealAttr(el))
 
   if (el.type === 'image') {
     const click = clickAttr(el)
@@ -158,6 +177,14 @@ function genElement(el, level, cx) {
   } else if (el.type === 'button') {
     const aa = anchorAttr(el)
     if (aa) attrs.push(aa)
+  } else if (el.type === 'link') {
+    // A link block is an anchor itself: give it an href and its own text.
+    const href = el.props?.href || (el.action?.type === 'url' ? el.action.value : '#')
+    attrs.push(`href={${JSON.stringify(href)}}`)
+    if (el.action?.type === 'url' && el.action.newTab !== false) {
+      attrs.push('target="_blank"')
+      attrs.push('rel="noopener noreferrer"')
+    }
   } else if (!isContainer) {
     const c = clickAttr(el)
     if (c) attrs.push(c)
@@ -177,6 +204,7 @@ function genElement(el, level, cx) {
   if (el.type === 'heading') txt = el.props.text || 'Heading'
   else if (el.type === 'text') txt = el.props.text || ''
   else if (el.type === 'button') txt = el.props.text || 'Button'
+  else if (el.type === 'link') txt = el.props.text || 'Link'
   const esc = String(txt)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

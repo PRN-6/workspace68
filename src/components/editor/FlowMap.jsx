@@ -64,10 +64,13 @@ export default function FlowMap() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[11px] leading-relaxed" style={{ color: 'var(--ws-text-3)' }}>
-        Every screen in this design and where each tap leads. Arrows come from the
-        &ldquo;Go to screen&rdquo; action on a block.
-      </p>
+      <div>
+        <span className="ws-label">Screen flow</span>
+        <p className="mt-1 text-[11px] leading-relaxed" style={{ color: 'var(--ws-text-3)' }}>
+          Every screen in this design and where each tap leads. Arrows come from the
+          &ldquo;Go to screen&rdquo; action on a block.
+        </p>
+      </div>
 
       <div ref={containerRef} className="relative pr-12">
         {/* Arrows are drawn behind the cards in the right-hand gutter. */}

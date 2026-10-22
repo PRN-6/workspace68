@@ -91,7 +91,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
   const isFree = !isSection && element.style.position === 'absolute'
   const updateStyle = useEditorStore((s) => s.updateStyle)
 
-  const Tag = blockTag(element.type)
+  const Tag = blockTag(element.type, element.props)
   const style = {
     ...element.style,
     ...(interactionStyle || {}),

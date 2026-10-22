@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { TAGS } from '../lib/style'
 import { useReveal } from '../lib/useReveal'
+import { blockTag, isInlineTextType, renderBlockContent } from '../components/editor/blockRenderers'
 
 function PublicElement({ element, onNavigatePage }) {
   const { ref, style: revealStyle } = useReveal(element.animation)
-  const Tag = TAGS[element.type] || 'div'
+  const Tag = blockTag(element.type, element.props)
   const isSection = element.type === 'section'
-  const isContainer = ['section', 'container', 'row', 'column'].includes(element.type)
+  const isContainer = ['section', 'container', 'row', 'column', 'grid', 'card'].includes(element.type)
   const position = isSection ? 'relative' : (element.style?.position || (isContainer ? 'relative' : undefined))
 
   const baseStyle = {
@@ -103,9 +103,27 @@ function PublicElement({ element, onNavigatePage }) {
     <PublicElement key={c.id} element={c} onNavigatePage={onNavigatePage} />
   ))
 
+  // A link block's wrapper IS the anchor; nesting another <a> would be
+  // invalid HTML.
+  if (element.type === 'link') {
+    return (
+      <Tag
+        ref={ref}
+        id={element.id}
+        href={element.props?.href || '#'}
+        style={{ ...baseStyle, color: 'inherit', textDecoration: 'inherit' }}
+      >
+        {element.props?.text}
+        {children}
+      </Tag>
+    )
+  }
+
   let content = null
-  if (element.type === 'heading' || element.type === 'text') {
+  if (isInlineTextType(element.type)) {
     content = element.props?.text
+  } else {
+    content = renderBlockContent(element)
   }
 
   return (

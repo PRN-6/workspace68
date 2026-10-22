@@ -49,7 +49,7 @@ function ScreensTab() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="ws-label">Flow Screens ({pages.length})</span>
+        <span className="ws-label">Screens ({pages.length})</span>
         <div className="relative">
           <button
             type="button"
@@ -88,6 +88,7 @@ function ScreensTab() {
 
       <p className="text-[11px] leading-relaxed" style={{ color: 'var(--ws-text-3)' }}>
         Build multi-step stories, quiz flows, or surprise reveals. Link buttons to any screen!
+        The <b>Flow</b> tab maps where each tap leads.
       </p>
 
       <div className="flex flex-col gap-2">
@@ -414,6 +415,8 @@ function BlocksTab() {
         to append it.
       </p>
 
+      <span className="ws-label -mb-1.5">Blocks</span>
+
       {matchCount === 0 ? (
         <div
           className="flex flex-col items-center gap-2 rounded-2xl border border-dashed px-3 py-8 text-center"
@@ -451,6 +454,8 @@ export default function LeftSidebar() {
       className="ws-sidebar flex w-64 shrink-0 flex-col border-r"
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
+      {/* Icon-only rail: five labelled tabs do not fit a 256px panel, and
+          the active panel names itself in its own header. */}
       <div className="flex shrink-0 items-center gap-1 border-b p-2" style={{ borderColor: 'var(--ws-border)' }}>
         <div className="ws-seg flex-1">
           {TABS.map((t) => {
@@ -461,11 +466,11 @@ export default function LeftSidebar() {
                 type="button"
                 onClick={() => setLeftTab(t.id)}
                 data-active={leftTab === t.id ? 'true' : 'false'}
-                className="ws-seg-btn flex items-center justify-center gap-1.5"
+                className="ws-seg-btn flex items-center justify-center"
                 title={t.label}
+                aria-label={t.label}
               >
-                <Icon size={13} />
-                <span className="hidden lg:inline">{t.label}</span>
+                <Icon size={14} />
               </button>
             )
           })}
@@ -491,6 +496,7 @@ export default function LeftSidebar() {
 
         {leftTab === 'layers' && (
           <div className="flex flex-col gap-0.5">
+            <span className="ws-label mb-1.5">Layers</span>
             {root.length === 0 ? (
               <p className="px-1 text-[11px]" style={{ color: 'var(--ws-text-3)' }}>
                 This screen is empty.

@@ -8,6 +8,8 @@
 
 **workspace68** is a modern, browser-based visual website builder. Design responsive pages effortlessly with drag-and-drop components, full styling controls, animations, interactive actions, and AI-assisted generation from reference screenshots—then export production-ready React source code.
 
+It is **local-first**: open the editor and start designing immediately. No account, no server, no setup. Everything autosaves to your browser, and signing in is only needed if you want cloud sync and publishing.
+
 ---
 
 ## 🚀 Live Demo
@@ -18,13 +20,42 @@
 
 ## ✨ Features
 
+### Local-first, no account required
+
+- **Zero-setup editor:** Open the editor and design immediately. Projects are written to `localStorage` first, so the app never blocks on a server or a login.
+- **Optional cloud sync:** Sign in with Supabase any time to mirror projects to your library, publish a public URL, and work across devices. Signing in is never required to design or export.
+- **Portable projects:** Export and import `.json` project files to move a design between machines.
+
+### Design
+
+- **45-block palette:** Layout, typography, media, data, forms, and marketing sections — searchable and grouped, insertable by drag or by a single click.
 - **Visual Drag & Drop Builder:** Easily arrange sections, cards, grids, buttons, typography, media, and interactive blocks using `@dnd-kit`.
 - **In-Canvas Resizing & Positioning:** Manipulate layout and sizing directly on the canvas or fine-tune exact styles in the properties sidebar.
+- **Screen flow map:** The **Flow** tab draws the graph of screens and the tap that opens each one, so multi-step flows stay legible.
+- **One-place theme panel:** Seed colour, radius, typography, and light/dark scheme live in a single **Theme** tab and apply to every screen at once.
 - **Responsive Viewport Previews:** Seamlessly switch between Desktop, Tablet, and Mobile canvas modes, plus an interactive full-screen Preview mode.
 - **AI-Powered Website Generation:** Generate full page layouts and components directly from reference screenshots and prompts using any OpenAI-compatible vision model.
-- **Production React Export:** One-click download of your visual layout as a clean, modular React + Tailwind CSS project in a `.zip` archive.
-- **Workspace Autosave & Portability:** Browser-local autosave with support for exporting and importing `.json` project files across devices.
 - **Dark & Light Themes:** Native dark and light mode support for both the editor UI and canvas preview.
+
+### Export
+
+- **Copy design prompt:** Turn the design into a precise brief — theme, screen flow, every block, style and action — that Claude Code, Codex, Gemini CLI or Cursor can build from directly.
+- **Production React Export:** One-click download of your visual layout as a clean, modular React + Tailwind CSS project in a `.zip` archive. The shared block renderers ship with the export, so the built project matches the design pixel for pixel.
+
+### Keyboard-first
+
+| Shortcut | Action |
+| -------- | ------ |
+| `P` | Toggle full-screen preview |
+| `Ctrl/Cmd + Z` / `Ctrl/Cmd + Shift + Z` | Undo / redo |
+| `Ctrl/Cmd + C` / `Ctrl/Cmd + V` | Copy / paste selection |
+| `Ctrl/Cmd + D` | Duplicate selection |
+| `Ctrl/Cmd + G` / `Ctrl/Cmd + Shift + G` | Group / ungroup |
+| `Ctrl/Cmd + S` | Save (autosaves anyway) |
+| `Delete` / `Backspace` | Remove selection |
+| Arrow keys | Nudge selection 1px (`Shift` for 8px) |
+| `+` / `-` / `0` | Zoom in / out / fit |
+| `Esc` | Leave preview, inline edit, or selection |
 
 ---
 
@@ -68,6 +99,16 @@ npm run dev
 
 Open `http://localhost:5173` in your browser.
 
+### Your first design
+
+1. **New design** on the landing page — a project is created in your browser, no account needed.
+2. **Add a screen** from the **Screens** tab. Each screen is a page with its own route.
+3. **Drag blocks** from the **Blocks** tab onto the canvas, or hover a block and press `+` to append it.
+4. **Select a block** to edit its style, actions and animations in the right-hand panel.
+5. **Link screens** by setting a block's action to *Go to screen*; the **Flow** tab shows the resulting graph.
+6. **Set the look** in the **Theme** tab — it applies to every screen.
+7. **Ship it** from **Export**: copy the design prompt for an AI coding tool, download a React project, or publish a live URL.
+
 ### Production Build
 
 Create an optimized build and test it locally:
@@ -76,6 +117,23 @@ Create an optimized build and test it locally:
 npm run build
 npm run preview
 ```
+
+---
+
+## 🧪 Regression Checks
+
+Two headless-Chrome scripts exercise the parts of the app that are easy to
+break silently:
+
+```bash
+node scripts/.verify.mjs          # editor UI: tabs, block insert, prompt + export output
+node scripts/.verify-export.mjs   # generates a project with every block type, builds it, and renders it
+```
+
+`.verify.mjs` drives a running dev server (pass a different base URL as the
+first argument). `.verify-export.mjs` is self-contained: it generates a React
+project containing every block type, builds it with Vite, serves the result and
+asserts the rendered DOM has no nested anchors and no console errors.
 
 ---
 

@@ -9,6 +9,10 @@
 //   * These functions are pure: no hooks, no store access, no side
 //     effects, no browser-only APIs. They run in the editor canvas, in
 //     the live preview and in exported React code.
+//
+// This file is also shipped verbatim into exported React projects (see
+// src/lib/generateProject.js), so it may only import from `react`.
+import { useEffect, useRef, useState } from 'react'
 
 const ACCENT = '#e11d33'
 const GOLD = '#f59e0b'
@@ -28,6 +32,9 @@ const TAGS = {
   button: 'a',
   link: 'a',
   image: 'div',
+  quote: 'blockquote',
+  navbar: 'nav',
+  footer: 'footer',
 }
 
 // Types whose inner content the caller renders on its own.
@@ -46,8 +53,14 @@ const CALLER_RENDERED = new Set([
   'image',
 ])
 
-/** HTML tag the caller should use for the wrapper of a given block type. */
-export function blockTag(type) {
+/** HTML tag the caller should use for the wrapper of a given block type.
+ *  `props` is optional and only used by headings, whose level decides the
+ *  tag (h1..h6). */
+export function blockTag(type, props) {
+  if (type === 'heading') {
+    const level = Number(props?.level) || 1
+    return `h${Math.min(6, Math.max(1, level))}`
+  }
   return TAGS[type] || 'div'
 }
 
@@ -1060,31 +1073,100 @@ function renderFooter(props) {
 }
 
 /**
+ * A self-contained reveal-on-scroll hook.
+ *
+ * The editor renders blocks through the canvas and the preview, which use
+ * their own `useReveal`. The EXPORTED project renders them through
+ * `Block`, and that file is shipped verbatim — so the animation logic has
+ * to live here too, without importing anything.
+ */
+function useBlockReveal(reveal) {
+  const [shown, setShown] = useState(!reveal)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!reveal) {
+      setShown(true)
+      return undefined
+    }
+    if (reveal.trigger === 'load') {
+      const timer = setTimeout(() => setShown(true), 50)
+      return () => clearTimeout(timer)
+    }
+    const node = ref.current
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setShown(true)
+      return undefined
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShown(true)
+            io.disconnect()
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+    io.observe(node)
+    return () => io.disconnect()
+  }, [reveal])
+
+  if (!reveal) return { ref, style: {} }
+  const hidden = REVEAL_STYLES[reveal.type]
+  if (!hidden) return { ref, style: {} }
+  const duration = Number(reveal.duration) || 0.6
+  const delay = Number(reveal.delay) || 0
+  const transition = `opacity ${duration}s ${reveal.easing || 'ease-out'} ${delay}s, transform ${duration}s ${reveal.easing || 'ease-out'} ${delay}s`
+  return {
+    ref,
+    style: shown ? {} : { ...hidden, transition },
+  }
+}
+
+const REVEAL_STYLES = {
+  fade: { opacity: 0 },
+  'fade-up': { opacity: 0, transform: 'translateY(28px)' },
+  'fade-down': { opacity: 0, transform: 'translateY(-28px)' },
+  'fade-left': { opacity: 0, transform: 'translateX(28px)' },
+  'fade-right': { opacity: 0, transform: 'translateX(-28px)' },
+  'zoom-in': { opacity: 0, transform: 'scale(0.92)' },
+  'zoom-out': { opacity: 0, transform: 'scale(1.06)' },
+}
+
+/**
  * A complete block: the wrapper element carrying the block's own style, the
  * inner content, and any children.
  *
  * The exported React project renders blocks through this component, so a
  * design made in the editor produces the same markup outside it.
  */
-export function Block({ element, children }) {
-  const Tag = blockTag(element.type)
-  const style = { ...(element.style || {}) }
+export function Block({ element, children, navigate, reveal }) {
+  const Tag = blockTag(element.type, element.props)
   const props = element.props || {}
+  const { ref: revealRef, style: revealStyle } = useBlockReveal(reveal)
+  const style = { ...(element.style || {}), ...revealStyle }
 
   // A block with a link action becomes clickable in the exported project.
   const action = element.action
-  const onClick =
-    action && action.type === 'url' && action.value
-      ? (event) => {
-          event.preventDefault()
-          window.open(action.value, action.newTab === false ? '_self' : '_blank')
-        }
-      : undefined
+  let onClick
+  if (action && action.type === 'url' && action.value) {
+    onClick = (event) => {
+      event.preventDefault()
+      window.open(action.value, action.newTab === false ? '_self' : '_blank')
+    }
+  } else if (action && action.type === 'page' && action.value && navigate) {
+    onClick = (event) => {
+      event.preventDefault()
+      navigate(action.value)
+    }
+  }
   const actionProps = onClick ? { onClick, style: { ...style, cursor: 'pointer' } } : { style }
 
   if (element.type === 'image') {
     return (
-      <Tag style={style}>
+      <Tag ref={revealRef} id={element.id} style={style}>
         <img
           src={props.src || ''}
           alt={props.alt || 'Image'}
@@ -1095,22 +1177,21 @@ export function Block({ element, children }) {
   }
 
   if (element.type === 'divider') {
-    return <Tag style={style} />
+    return <Tag ref={revealRef} id={element.id} style={style} />
   }
 
   if (element.type === 'heading') {
-    const Heading = `h${props.level || 1}`
     return (
-      <Heading style={style}>
+      <Tag ref={revealRef} id={element.id} style={style}>
         {props.text || ''}
         {children}
-      </Heading>
+      </Tag>
     )
   }
 
-  if (element.type === 'text' || element.type === 'lead') {
+  if (element.type === 'text') {
     return (
-      <Tag style={style}>
+      <Tag ref={revealRef} id={element.id} style={style}>
         {props.text || ''}
         {children}
       </Tag>
@@ -1119,7 +1200,7 @@ export function Block({ element, children }) {
 
   if (element.type === 'button' || element.type === 'link') {
     return (
-      <Tag style={style} href={props.href || '#'}>
+      <Tag ref={revealRef} id={element.id} style={style} href={props.href || '#'}>
         {props.text || ''}
         {children}
       </Tag>
@@ -1127,7 +1208,7 @@ export function Block({ element, children }) {
   }
 
   return (
-    <Tag {...actionProps}>
+    <Tag ref={revealRef} id={element.id} {...actionProps}>
       {renderBlockContent(element)}
       {children}
     </Tag>
