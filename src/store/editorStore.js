@@ -7,6 +7,16 @@ import { isValidProject } from '../lib/workspaceFile'
 
 const WORKSPACES_KEY = 'workspace68.projects.v1'
 
+// Design tokens applied across the whole project. Kept on the project (not
+// the app) so every design carries its own look and can be exported.
+export const DEFAULT_THEME = {
+  seed: '#e11d33',
+  radius: '16px',
+  font: 'Inter',
+  scheme: 'light',
+  density: 'comfortable',
+}
+
 function freshPage(name = 'Home', path = '/') {
   return { id: uid('page'), name, path, root: [] }
 }
@@ -162,8 +172,13 @@ function withCurrentPage(state, fn) {
   return { project: { ...state.project, pages }, past, future: [] }
 }
 
+// Clipboard shared by copy/paste inside the editor (module scope, like a
+// native clipboard — it survives navigation between screens of the app).
+let clipboard = []
+
 const restored = restoreWorkspaces()
-const FIRST_PROJECT = { name: 'My Portfolio', pages: [createPortfolioPage()] }
+
+const FIRST_PROJECT = { name: 'My Portfolio', theme: { ...DEFAULT_THEME }, pages: [createPortfolioPage()] }
 const FIRST_WORKSPACE = newWorkspace(FIRST_PROJECT.name, FIRST_PROJECT)
 const INITIAL_WORKSPACES = restored?.workspaces || [FIRST_WORKSPACE]
 const INITIAL_WORKSPACE_ID = restored?.currentWorkspaceId || FIRST_WORKSPACE.id
@@ -174,22 +189,36 @@ const useEditorStore = create((set, get) => ({
   currentWorkspaceId: INITIAL_WORKSPACE_ID,
   currentPageId: (restored?.project || FIRST_PROJECT).pages[0].id,
   selectedId: null,
+  selectedIds: [],
   hoveredId: null,
   editingId: null,
   viewport: 'desktop', // desktop | tablet | mobile
+  zoom: 1,
   darkMode: true,
   previewMode: false,
   previewPageId: null,
   rightTab: 'style', // style | action | animation
-  leftTab: 'screens', // screens | blocks | layers
+  leftTab: 'screens', // screens | blocks | layers | flow | theme
   leftSidebarOpen: true,
   rightSidebarOpen: true,
   past: [],
   future: [],
 
-  init: (pages) => {
+  // Accepts a whole document ({ name, pages, theme }) or a bare pages array.
+  init: (doc) => {
+    const isArray = Array.isArray(doc)
+    const pages = isArray ? doc : doc?.pages
     const list = pages && pages.length ? pages : [freshPage()]
-    set({ project: { ...get().project, pages: list }, currentPageId: list[0].id, selectedId: null, editingId: null, past: [], future: [] })
+    const theme = !isArray && doc?.theme ? { ...DEFAULT_THEME, ...doc.theme } : get().project.theme
+    set({
+      project: { ...get().project, name: !isArray && doc?.name ? doc.name : get().project.name, theme, pages: list },
+      currentPageId: list[0].id,
+      selectedId: null,
+      selectedIds: [],
+      editingId: null,
+      past: [],
+      future: [],
+    })
   },
 
   currentPage: () => {
@@ -198,7 +227,17 @@ const useEditorStore = create((set, get) => ({
     return pages.find((p) => p.id === s.currentPageId) || pages[0] || EMPTY_PAGE
   },
 
-  selectElement: (id) => set({ selectedId: id, editingId: null }),
+  selectElement: (id, options = {}) =>
+    set((s) => {
+      if (id == null) return { selectedId: null, selectedIds: [], editingId: null }
+      if (options.additive) {
+        const ids = s.selectedIds.includes(id)
+          ? s.selectedIds.filter((x) => x !== id)
+          : [...s.selectedIds, id]
+        return { selectedIds: ids, selectedId: ids[ids.length - 1] ?? null, editingId: null }
+      }
+      return { selectedId: id, selectedIds: [id], editingId: null }
+    }),
   setHovered: (id) => set({ hoveredId: id }),
   setEditing: (id) => set({ editingId: id }),
   setViewport: (v) => set({ viewport: v }),
@@ -221,7 +260,7 @@ const useEditorStore = create((set, get) => ({
 
   setPreviewPage: (id) => set({ previewPageId: id }),
 
-  setCurrentPage: (id) => set({ currentPageId: id, selectedId: null, editingId: null }),
+  setCurrentPage: (id) => set({ currentPageId: id, selectedId: null, selectedIds: [], editingId: null }),
 
   addPage: (templateType = 'blank') =>
     set((s) => {
@@ -560,8 +599,172 @@ const useEditorStore = create((set, get) => ({
       }
     }),
 
+  // ---- Theme -----------------------------------------------------------
+  setTheme: (patch) =>
+    set((s) => ({
+      project: { ...s.project, theme: { ...DEFAULT_THEME, ...(s.project.theme || {}), ...patch } },
+    })),
+
+  // Pushes the theme tokens across the whole project: radius, font and the
+  // accent colour on the blocks that carry it.
+  applyThemeToProject: () =>
+    set((s) => {
+      const theme = { ...DEFAULT_THEME, ...(s.project.theme || {}) }
+      const pages = snapshot(s)
+      for (const page of pages) {
+        T.walk(page.root, (element) => {
+          if (element.style?.borderRadius) element.style.borderRadius = theme.radius
+          if (element.style?.fontSize) element.style.fontFamily = theme.font
+          if (['button', 'fab', 'badge', 'link'].includes(element.type)) {
+            element.style.backgroundColor =
+              element.type === 'link' ? 'transparent' : theme.seed
+            if (element.type === 'link') element.style.color = theme.seed
+          }
+        })
+      }
+      const past = [...s.past, s.project.pages].slice(-60)
+      return { project: { ...s.project, pages }, past, future: [] }
+    }),
+
+  // ---- Zoom ------------------------------------------------------------
+  setZoom: (zoom) => set({ zoom: Math.min(2, Math.max(0.25, Number(zoom) || 1)) }),
+  zoomIn: () => set((s) => ({ zoom: Math.min(2, Math.round((s.zoom + 0.1) * 100) / 100) })),
+  zoomOut: () => set((s) => ({ zoom: Math.max(0.25, Math.round((s.zoom - 0.1) * 100) / 100) })),
+  zoomToFit: () => set({ zoom: 1 }),
+
+  // ---- Grouping --------------------------------------------------------
+  groupElements: () =>
+    set((s) => {
+      const ids = s.selectedIds.length > 1 ? s.selectedIds : [s.selectedId].filter(Boolean)
+      if (ids.length < 2) return s
+
+      let groupId = null
+      const next = withCurrentPage(s, (page) => {
+        const infos = ids.map((id) => T.findContainerInfo(page.root, id)).filter(Boolean)
+        if (!infos.length) return
+        // Only siblings can be grouped — the container list must match.
+        const containerId = infos[0].containerId
+        if (!infos.every((info) => info.containerId === containerId)) return
+        const list = containerId === 'root' ? page.root : T.findById(page.root, containerId)?.children
+        if (!list) return
+
+        const members = infos
+          .map((info) => list[info.index])
+          .filter(Boolean)
+          .sort((a, b) => list.indexOf(a) - list.indexOf(b))
+        if (members.length < 2) return
+
+        const group = buildElement('column')
+        group.name = 'Group'
+        group.style = {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          width: '100%',
+        }
+        group.children = members.map((member) => T.deepCloneElement(member))
+        const firstIndex = list.indexOf(members[0])
+        for (const member of members) {
+          const index = list.indexOf(member)
+          if (index !== -1) list.splice(index, 1)
+        }
+        list.splice(Math.min(firstIndex, list.length), 0, group)
+        groupId = group.id
+      })
+      if (!next || !groupId) return s
+      return { ...next, selectedId: groupId, selectedIds: [groupId] }
+    }),
+
+  ungroupElements: () =>
+    set((s) => {
+      const id = s.selectedId
+      if (!id) return s
+      const next = withCurrentPage(s, (page) => {
+        const info = T.findContainerInfo(page.root, id)
+        if (!info) return
+        const list = info.containerId === 'root' ? page.root : T.findById(page.root, info.containerId)?.children
+        const group = T.findById(page.root, id)
+        if (!list || !group?.children?.length) return
+        const index = list.findIndex((x) => x.id === id)
+        if (index === -1) return
+        list.splice(index, 1, ...group.children)
+      })
+      if (!next) return s
+      return { ...next, selectedId: null, selectedIds: [] }
+    }),
+
+  // ---- Nudge -----------------------------------------------------------
+  nudge: (dx, dy) =>
+    set((s) => {
+      const ids = s.selectedIds.length ? s.selectedIds : [s.selectedId].filter(Boolean)
+      if (!ids.length) return s
+      const next = withCurrentPage(s, (page) => {
+        for (const id of ids) {
+          const el = T.findById(page.root, id)
+          if (!el) continue
+          if (el.style?.position === 'absolute') {
+            el.style.left = `${(Number.parseFloat(el.style.left) || 0) + dx}px`
+            el.style.top = `${(Number.parseFloat(el.style.top) || 0) + dy}px`
+          } else {
+            const left = Number.parseFloat(el.style?.marginLeft) || 0
+            const top = Number.parseFloat(el.style?.marginTop) || 0
+            el.style.marginLeft = `${left + dx}px`
+            el.style.marginTop = `${top + dy}px`
+          }
+        }
+      })
+      return next || s
+    }),
+
+  // ---- Clipboard -------------------------------------------------------
+  copySelection: () => {
+    const s = get()
+    const ids = s.selectedIds.length ? s.selectedIds : [s.selectedId].filter(Boolean)
+    const page = s.currentPage()
+    const copied = ids
+      .map((id) => T.findById(page.root, id))
+      .filter(Boolean)
+      .map((el) => T.deepCloneElement(el))
+    if (copied.length) clipboard = copied
+    return copied.length
+  },
+
+  pasteClipboard: () => {
+    const s = get()
+    if (!clipboard.length) return null
+    const clones = clipboard.map((el) => {
+      const clone = T.deepCloneElement(el)
+      const reassign = (node) => {
+        node.id = uid()
+        node.children?.forEach(reassign)
+      }
+      reassign(clone)
+      return clone
+    })
+    let pastedId = null
+    const next = withCurrentPage(s, (page) => {
+      const info = s.selectedId ? T.findContainerInfo(page.root, s.selectedId) : null
+      const containerId = info?.containerId || 'root'
+      const list = containerId === 'root' ? page.root : T.findById(page.root, containerId)?.children
+      if (!list) return
+      const index = info ? info.index + 1 : list.length
+      list.splice(index, 0, ...clones)
+      pastedId = clones[0].id
+    })
+    if (!next || !pastedId) return null
+    return { ...next, selectedId: pastedId, selectedIds: [pastedId] }
+  },
+
   reset: () =>
-    set({ project: { name: 'My Portfolio', pages: [createPortfolioPage()] }, currentPageId: null, selectedId: null, editingId: null, past: [], future: [] }),
+    set({
+      project: { name: 'My Portfolio', theme: { ...DEFAULT_THEME }, pages: [createPortfolioPage()] },
+      currentPageId: null,
+      selectedId: null,
+      selectedIds: [],
+      editingId: null,
+      past: [],
+      future: [],
+    }),
 }))
 
 let saveTimer

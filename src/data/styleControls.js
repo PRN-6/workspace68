@@ -1,14 +1,33 @@
 import { isFlexish } from '../lib/style'
 
 const flex = (el) => isFlexish(el.style)
-const texty = (el) => ['heading', 'text', 'button'].includes(el.type)
+const texty = (el) =>
+  [
+    'heading',
+    'text',
+    'lead',
+    'quote',
+    'code',
+    'button',
+    'link',
+    'chip',
+    'badge',
+    'stat',
+    'featureCard',
+    'pricingCard',
+    'testimonial',
+    'hero',
+    'ctaBanner',
+    'navbar',
+    'footer',
+  ].includes(el.type)
 
-export const TEXT_TYPES = ['heading', 'text', 'button']
+export const TEXT_TYPES = ['heading', 'text', 'lead', 'quote', 'code', 'button', 'link']
 
 export const STYLE_GROUPS = [
   {
     title: 'Layout',
-    when: (el) => ['section', 'container', 'row', 'column'].includes(el.type),
+    when: (el) => ['section', 'container', 'row', 'column', 'grid'].includes(el.type),
     controls: [
       {
         key: 'display', label: 'Display', type: 'select',

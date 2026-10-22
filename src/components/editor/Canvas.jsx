@@ -11,6 +11,7 @@ import { COMPONENTS } from '../../data/components'
 import * as T from '../../lib/tree'
 import { dropIdFor, ROOT_ID } from '../../lib/dnd'
 import { useDragHint } from './EditorDndContext'
+import { blockTag, isInlineTextType, renderBlockContent } from './blockRenderers'
 import { GripVertical, Copy, X, Plus, MousePointerClick } from 'lucide-react'
 import Preview from './Preview'
 
@@ -18,14 +19,6 @@ function widthFor(v) {
   if (v === 'mobile') return '420px'
   if (v === 'tablet') return '860px'
   return '100%'
-}
-
-function canvasTagOf(el) {
-  if (el.type === 'heading') return `h${el.props.level || 1}`
-  if (el.type === 'image') return 'div'
-  if (el.type === 'divider') return 'div'
-  if (el.type === 'button') return 'a'
-  return 'div'
 }
 
 function EditableText({ element }) {
@@ -55,6 +48,7 @@ function EditableText({ element }) {
 
 function EditableElement({ element, containerId, depth = 0 }) {
   const selectedId = useEditorStore((s) => s.selectedId)
+  const selectedIds = useEditorStore((s) => s.selectedIds)
   const hoveredId = useEditorStore((s) => s.hoveredId)
   const selectElement = useEditorStore((s) => s.selectElement)
   const setHovered = useEditorStore((s) => s.setHovered)
@@ -90,14 +84,14 @@ function EditableElement({ element, containerId, depth = 0 }) {
     if (canHaveChildren) setDropRef(node)
   }
 
-  const selected = selectedId === element.id
+  const selected = selectedId === element.id || selectedIds.includes(element.id)
   const hovered = hoveredId === element.id
 
   const isSection = element.type === 'section'
   const isFree = !isSection && element.style.position === 'absolute'
   const updateStyle = useEditorStore((s) => s.updateStyle)
 
-  const Tag = canvasTagOf(element)
+  const Tag = blockTag(element.type)
   const style = {
     ...element.style,
     ...(interactionStyle || {}),
@@ -108,7 +102,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
     ...(isDragging ? { opacity: 0.35 } : {}),
   }
 
-  const isTexty = ['heading', 'text', 'button'].includes(element.type)
+  const isTexty = isInlineTextType(element.type)
 
   const childIds = canHaveChildren ? element.children.map((c) => c.id) : []
   const imageStyle = element.type === 'image' ? { ...element.style, display: 'block' } : null
@@ -238,7 +232,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
       onPointerCancel={finishInteraction}
       onClick={(e) => {
         e.stopPropagation()
-        selectElement(element.id)
+        selectElement(element.id, { additive: e.shiftKey })
       }}
       onDoubleClick={(e) => {
         if (!isTexty) return
@@ -249,6 +243,8 @@ function EditableElement({ element, containerId, depth = 0 }) {
       onMouseLeave={() => setHovered(null)}
     >
       {isTexty && <EditableText element={element} />}
+
+      {!isTexty && element.type !== 'image' && renderBlockContent(element)}
 
       {element.type === 'image' && (
         <img
@@ -543,6 +539,7 @@ function PagesBar() {
 function EditCanvas() {
   const page = useEditorStore((s) => s.currentPage())
   const viewport = useEditorStore((s) => s.viewport)
+  const zoom = useEditorStore((s) => s.zoom)
   const selectElement = useEditorStore((s) => s.selectElement)
   const setHovered = useEditorStore((s) => s.setHovered)
 
@@ -558,7 +555,7 @@ function EditCanvas() {
       >
         <div
           className="mx-auto min-h-[70vh] overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-black/5"
-          style={{ width: widthFor(viewport), maxWidth: '100%' }}
+          style={{ width: widthFor(viewport), maxWidth: '100%', zoom }}
         >
           <RootList page={page} />
         </div>

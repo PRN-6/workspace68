@@ -23,10 +23,12 @@ export default function App() {
       {/* Public Published Sites */}
       <Route path="/publishers/:slug" element={<PublicSite />} />
 
+      {/* Local-first: the editor and the project list work with no account */}
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/editor/:projectId" element={<EditorPage />} />
+
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/editor/:projectId" element={<EditorPage />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
 

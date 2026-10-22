@@ -1,15 +1,25 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
 import {
-  Copy,
+  ArrowRight,
+  Boxes,
   Check,
-  Globe,
-  Sparkles,
-  Share2,
+  ChevronRight,
   Code2,
-  CheckCircle2,
-  ArrowRight
+  Copy,
+  Download,
+  ExternalLink,
+  Hand,
+  Keyboard,
+  Layers,
+  LayoutTemplate,
+  Link2,
+  Monitor,
+  MousePointer2,
+  Palette,
+  Sparkles,
+  Type,
+  Wand2,
+  Zap,
 } from 'lucide-react'
 
 function GithubIcon({ className = "h-3.5 w-3.5" }) {
@@ -24,419 +34,480 @@ function GithubIcon({ className = "h-3.5 w-3.5" }) {
   )
 }
 
+const NAV_LINKS = [
+  { id: 'features', label: 'Features' },
+  { id: 'how-it-works', label: 'How it works' },
+  { id: 'shortcuts', label: 'Shortcuts' },
+]
+
+const STEPS = [
+  {
+    title: 'Sketch',
+    body: 'Drag parts onto a screen. Every block is a real component with real props — no magic, no guesswork.',
+    icon: Boxes,
+  },
+  {
+    title: 'Link',
+    body: 'Connect screens together, then tap through the flow in Preview exactly like a visitor would.',
+    icon: Link2,
+  },
+  {
+    title: 'Export',
+    body: 'Copy the prompt for your coding agent, or download a genuine React source project you own.',
+    icon: Download,
+  },
+]
+
+const FEATURES = [
+  {
+    title: 'Parts library',
+    body: 'Sections, containers, text, buttons, images and forms — a growing catalogue of composable blocks you drag in.',
+    icon: Boxes,
+  },
+  {
+    title: 'Screens & flow',
+    body: 'Add as many screens as you like, set their paths, and wire buttons to navigate between them.',
+    icon: LayoutTemplate,
+  },
+  {
+    title: 'Theme in one place',
+    body: 'Colour, shape, typography and motion tokens are edited once and applied everywhere they are used.',
+    icon: Palette,
+  },
+  {
+    title: 'AI help',
+    body: 'Stuck on a layout? Ask the assistant for a section, a palette, or a starting point you can keep.',
+    icon: Sparkles,
+  },
+]
+
+const SHORTCUTS = [
+  { keys: ['V'], action: 'Select tool' },
+  { keys: ['H'], action: 'Hand / pan the canvas' },
+  { keys: ['Wheel'], action: 'Pan the canvas' },
+  { keys: ['+', '-'], action: 'Zoom in / zoom out' },
+  { keys: ['0'], action: 'Reset zoom to 100%' },
+  { keys: ['Ctrl', 'Z'], action: 'Undo' },
+  { keys: ['Ctrl', 'Shift', 'Z'], action: 'Redo' },
+  { keys: ['Ctrl', 'C'], action: 'Copy selection' },
+  { keys: ['Ctrl', 'V'], action: 'Paste selection' },
+  { keys: ['Ctrl', 'D'], action: 'Duplicate selection' },
+  { keys: ['Ctrl', 'G'], action: 'Group selection' },
+  { keys: ['Shift', 'Click'], action: 'Multi-select' },
+  { keys: ['↑', '↓', '←', '→'], action: 'Nudge selection' },
+  { keys: ['Delete'], action: 'Remove selection' },
+  { keys: ['P'], action: 'Toggle preview' },
+]
+
+const STACK = [
+  { name: 'React', note: '18' },
+  { name: 'Vite', note: '6' },
+  { name: 'Tailwind', note: 'CSS' },
+  { name: 'Zustand', note: 'state' },
+  { name: 'dnd-kit', note: 'drag & drop' },
+  { name: 'Supabase', note: 'sync' },
+]
+
+function scrollToSection(id) {
+  const el = document.getElementById(id)
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+/* ------------------------------------------------------------------ */
+/* Editor mock — pure CSS, no images                                    */
+/* ------------------------------------------------------------------ */
+
+function EditorMock() {
+  return (
+    <div className="animate-fade-up w-full" style={{ animationDelay: '200ms' }}>
+      <div className="overflow-hidden rounded-3xl border border-ink-700 bg-ink-850 shadow-lift">
+        {/* window chrome */}
+        <div className="flex items-center justify-between border-b border-ink-700/80 bg-ink-900/70 px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-crimson-600" />
+            <span className="h-2.5 w-2.5 rounded-full bg-ink-600" />
+            <span className="h-2.5 w-2.5 rounded-full bg-ink-500" />
+            <span className="ml-3 hidden text-[11px] font-medium text-zinc-500 sm:inline">
+              workspace68 — My Portfolio
+            </span>
+          </div>
+          <div className="hidden items-center gap-1.5 sm:flex">
+            <span className="rounded-md bg-ink-800 px-2 py-1 text-[10px] font-semibold text-zinc-400">Desktop</span>
+            <span className="rounded-md bg-ink-800 px-2 py-1 text-[10px] font-semibold text-zinc-400">Tablet</span>
+            <span className="rounded-md bg-ink-800 px-2 py-1 text-[10px] font-semibold text-zinc-400">Mobile</span>
+          </div>
+        </div>
+
+        {/* body */}
+        <div className="flex h-[300px] sm:h-[340px]">
+          {/* left: parts panel */}
+          <div className="hidden w-40 shrink-0 flex-col gap-2 border-r border-ink-700/80 bg-ink-900/60 p-3 sm:flex">
+            <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-600">Parts</span>
+            {[
+              { label: 'Section', icon: LayoutTemplate },
+              { label: 'Text', icon: Type },
+              { label: 'Button', icon: MousePointer2 },
+              { label: 'Container', icon: Layers },
+            ].map((part) => (
+              <div
+                key={part.label}
+                className="flex items-center gap-2 rounded-lg border border-ink-700/70 bg-ink-850 px-2 py-1.5 text-[11px] font-medium text-zinc-400"
+              >
+                <part.icon className="h-3 w-3 text-crimson-500" />
+                {part.label}
+              </div>
+            ))}
+            <div className="mt-1 h-px w-full bg-ink-700/70" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-600">Screens</span>
+            <div className="rounded-lg border border-crimson-600/40 bg-crimson-600/10 px-2 py-1.5 text-[11px] font-semibold text-crimson-400">
+              Home
+            </div>
+            <div className="rounded-lg border border-ink-700/70 bg-ink-850 px-2 py-1.5 text-[11px] font-medium text-zinc-500">
+              About
+            </div>
+          </div>
+
+          {/* centre: canvas */}
+          <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-ink-950 p-5">
+            <div className="absolute inset-0 opacity-[0.55] [background-image:radial-gradient(#2a2a31_1px,transparent_1px)] [background-size:18px_18px]" />
+            {/* artboard */}
+            <div className="relative w-full max-w-[290px] rounded-lg border border-ink-600 bg-white p-3 shadow-panel">
+              <div className="flex items-center justify-between">
+                <span className="h-1.5 w-10 rounded-full bg-ink-950/80" />
+                <span className="h-4 w-10 rounded-full bg-crimson-600" />
+              </div>
+              <div className="mt-3 space-y-1.5">
+                <div className="h-2.5 w-4/5 rounded-full bg-ink-950/85" />
+                <div className="h-2.5 w-3/5 rounded-full bg-ink-950/40" />
+                <div className="h-2.5 w-2/3 rounded-full bg-ink-950/25" />
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="h-12 rounded-md border border-ink-950/10 bg-ink-950/[0.04]" />
+                <div className="h-12 rounded-md border border-ink-950/10 bg-ink-950/[0.04]" />
+              </div>
+              {/* selection outline */}
+              <div className="pointer-events-none absolute -inset-1 rounded-[10px] border border-crimson-500/70">
+                <span className="absolute -top-2 left-2 rounded bg-crimson-600 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white">
+                  Hero
+                </span>
+              </div>
+            </div>
+            {/* zoom pill */}
+            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-900/90 px-2.5 py-1 text-[10px] font-semibold text-zinc-400">
+              <Monitor className="h-3 w-3" />
+              100%
+            </div>
+          </div>
+
+          {/* right: properties */}
+          <div className="hidden w-40 shrink-0 flex-col gap-2 border-l border-ink-700/80 bg-ink-900/60 p-3 md:flex">
+            <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-600">Properties</span>
+            {[
+              ['Display', 'Flex'],
+              ['Gap', '24px'],
+              ['Padding', '48px'],
+              ['Radius', '16px'],
+            ].map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between rounded-lg border border-ink-700/70 bg-ink-850 px-2 py-1.5 text-[10px]">
+                <span className="text-zinc-500">{label}</span>
+                <span className="font-semibold text-zinc-200">{value}</span>
+              </div>
+            ))}
+            <div className="mt-1 flex items-center gap-1.5 rounded-lg border border-crimson-600/30 bg-crimson-600/10 px-2 py-1.5 text-[10px] font-semibold text-crimson-400">
+              <Wand2 className="h-3 w-3" />
+              Suggest section
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+
 export default function LandingPage() {
-  const { user } = useAuth()
-  const [copiedAgent, setCopiedAgent] = useState(false)
-  const [copiedCli, setCopiedCli] = useState(false)
-  const [activeSection, setActiveSection] = useState('setup')
-
-  const agentPrompt = `> Create a modern portfolio with dark mode, interactive hero, and contact section.
-✓ Initializing visual canvas with @dnd-kit...
-✓ Syncing project to Supabase PostgreSQL database...
-✓ Published live at https://workspace68.vercel.app/publishers/myportfolio 🚀`
-
-  const cliCommand = 'npx create-workspace68-site@latest my-portfolio'
-
-  const copyToClipboard = (text, type) => {
-    navigator.clipboard.writeText(text)
-    if (type === 'agent') {
-      setCopiedAgent(true)
-      setTimeout(() => setCopiedAgent(false), 2000)
-    } else {
-      setCopiedCli(true)
-      setTimeout(() => setCopiedCli(false), 2000)
-    }
-  }
-
-  const tocItems = [
-    { id: 'setup', label: 'Set up Workspace68' },
-    { id: 'how-it-works', label: 'How it works' },
-    { id: 'visual-builder', label: 'Visual drag & drop' },
-    { id: 'publishing', label: 'Instant publishing' },
-    { id: 'react-export', label: 'React 18 export' },
-    { id: 'security', label: 'Security & RLS' },
-  ]
-
-  const scrollToSection = (id) => {
-    setActiveSection(id)
-    const el = document.getElementById(id)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
-    }
-  }
-
   return (
     <div className="relative min-h-screen bg-ink-950 text-zinc-200 selection:bg-crimson-600 selection:text-white">
       {/* Ambient glow field */}
       <div className="pointer-events-none absolute -top-40 left-1/4 h-[480px] w-[480px] rounded-full bg-crimson-700/15 blur-[150px]" />
       <div className="pointer-events-none absolute top-[40%] -right-40 h-[420px] w-[420px] rounded-full bg-crimson-500/10 blur-[140px]" />
 
-      {/* Top Banner & Header */}
+      {/* Sticky nav */}
       <nav className="sticky top-0 z-40 border-b border-ink-700/70 bg-ink-950/85 px-6 py-3.5 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
             <Link to="/" className="flex items-center gap-2.5">
               <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-br from-crimson-400 to-crimson-700 font-display text-sm font-bold text-white shadow-glow-sm">
                 W
               </span>
-              <span className="font-display text-base font-bold tracking-tight text-white">WORKSPACE68</span>
+              <span className="font-display text-base font-bold tracking-tight text-white">workspace68</span>
             </Link>
-            <span className="hidden text-xs font-medium text-zinc-500 md:inline">
-              Visual Website Builder & Publishing
-            </span>
           </div>
 
-          {/* Center Links */}
-          <div className="hidden items-center gap-1 text-xs font-medium text-zinc-300 lg:flex">
-            {[
-              ['setup', 'Get started'],
-              ['how-it-works', 'How it works'],
-              ['publishing', 'Publishing'],
-              ['visual-builder', 'Features'],
-            ].map(([id, label]) => (
+          <div className="hidden items-center gap-1 text-xs font-medium text-zinc-300 md:flex">
+            {NAV_LINKS.map((link) => (
               <a
-                key={id}
-                href={`#${id}`}
-                onClick={() => scrollToSection(id)}
+                key={link.id}
+                href={`#${link.id}`}
+                onClick={(e) => {
+                  e.preventDefault()
+                  scrollToSection(link.id)
+                }}
                 className="rounded-full px-3 py-1.5 transition hover:bg-ink-800 hover:text-white"
               >
-                {label}
+                {link.label}
               </a>
             ))}
-            <a
-              href="https://github.com/PRN-6/workspace68#readme"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full px-3 py-1.5 transition hover:bg-ink-800 hover:text-white"
-            >
-              Docs
-            </a>
-          </div>
-
-          {/* Right Tools & Auth */}
-          <div className="flex items-center gap-2.5">
-            <div className="hidden items-center gap-2 rounded-full border border-ink-700 bg-ink-850 px-3 py-1.5 text-xs text-zinc-300 sm:flex">
-              <Globe className="h-3.5 w-3.5 text-zinc-500" />
-              <span>English</span>
-            </div>
-
             <a
               href="https://github.com/PRN-6/workspace68"
               target="_blank"
               rel="noreferrer"
-              title="GitHub Repository"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-ink-700 bg-ink-850 text-zinc-300 transition hover:-translate-y-0.5 hover:border-zinc-600 hover:text-white"
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 transition hover:bg-ink-800 hover:text-white"
             >
-              <GithubIcon className="h-4 w-4" />
+              <GithubIcon className="h-3.5 w-3.5" />
+              GitHub
             </a>
-
             <a
               href="https://prinson.is-a.dev/"
               target="_blank"
               rel="noreferrer"
-              title="Creator Portfolio"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-ink-700 bg-ink-850 text-zinc-400 transition hover:-translate-y-0.5 hover:border-crimson-600/50 hover:text-crimson-400"
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 transition hover:bg-ink-800 hover:text-white"
             >
-              👨‍💻
+              Portfolio
+              <ExternalLink className="h-3 w-3 text-zinc-500" />
             </a>
+          </div>
 
-            {user ? (
-              <Link
-                to="/dashboard"
-                className="rounded-full bg-crimson-600 px-4 py-1.5 text-xs font-semibold text-white shadow-glow-sm transition hover:-translate-y-0.5 hover:bg-crimson-500 hover:shadow-glow"
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/login"
-                  className="hidden text-xs font-medium text-zinc-300 transition hover:text-white sm:inline"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  to="/register"
-                  className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-black transition hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
-                >
-                  Get started
-                </Link>
-              </div>
-            )}
+          <div className="flex items-center gap-2">
+            <Link
+              to="/login"
+              className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-zinc-300 transition hover:bg-ink-800 hover:text-white"
+            >
+              Sign in
+            </Link>
+            <Link
+              to="/dashboard"
+              className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-black transition hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
+            >
+              Start designing
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* Main 3-Column Hero Section */}
-      <div id="setup" className="relative mx-auto max-w-[1440px] px-6 py-12 lg:py-16">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
-          {/* Left Column: Heading, Pitch & CTAs (5 cols) */}
-          <div className="flex flex-col justify-center lg:col-span-5">
-            <p className="animate-fade-up text-xs font-semibold uppercase tracking-[0.18em] text-crimson-500">
-              Visual web building, crafted for modern teams
+      {/* Hero */}
+      <header className="relative mx-auto max-w-[1200px] px-6 pb-16 pt-14 sm:pt-20">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+          <div>
+            <p className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-crimson-600/30 bg-crimson-600/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-crimson-400">
+              <Zap className="h-3 w-3" />
+              Open source · MIT licensed
             </p>
 
-            <h1 className="animate-fade-up mt-4 font-display text-4xl font-bold tracking-tight text-white sm:text-6xl sm:leading-[1.08]" style={{ animationDelay: '60ms' }}>
-              Find out how <br />
+            <h1
+              className="animate-fade-up mt-5 font-display text-4xl font-bold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-6xl"
+              style={{ animationDelay: '60ms' }}
+            >
+              Design a website by{' '}
               <span className="bg-gradient-to-r from-crimson-400 via-crimson-500 to-crimson-700 bg-clip-text text-transparent">
-                websites
+                dragging
               </span>{' '}
-              work.
+              things.
             </h1>
 
-            <p className="animate-fade-up mt-6 text-sm leading-relaxed text-zinc-400 sm:text-base" style={{ animationDelay: '120ms' }}>
-              Design visually with responsive drag-and-drop blocks, animations, and live styling. Workspace68 builds clean
-              React layouts and publishes instantly to custom public URLs with zero devops.
+            <p
+              className="animate-fade-up mt-5 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base"
+              style={{ animationDelay: '120ms' }}
+            >
+              workspace68 is a visual website builder that lives entirely in your browser — sketch a layout, link the
+              screens together, then export real React source you actually own.
             </p>
 
-            {/* CTAs */}
-            <div className="animate-fade-up mt-8 flex flex-wrap items-center gap-4" style={{ animationDelay: '180ms' }}>
+            <div
+              className="animate-fade-up mt-8 flex flex-wrap items-center gap-3"
+              style={{ animationDelay: '180ms' }}
+            >
               <Link
-                to={user ? '/dashboard' : '/register'}
-                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-lift transition hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
+                to="/dashboard"
+                className="flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black shadow-lift transition hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
               >
-                Get started
+                Start designing — no account needed
+                <ArrowRight className="h-4 w-4" />
               </Link>
-              <a
-                href="#how-it-works"
-                onClick={() => scrollToSection('how-it-works')}
-                className="flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-850 px-5 py-2.5 text-sm font-medium text-crimson-400 transition hover:-translate-y-0.5 hover:border-crimson-600/50 hover:text-crimson-300"
+              <Link
+                to="/dashboard"
+                className="flex items-center gap-2 rounded-full border border-ink-700 bg-ink-850 px-5 py-3 text-sm font-medium text-zinc-200 transition hover:-translate-y-0.5 hover:border-crimson-600/50 hover:text-white"
               >
-                See how it works <span aria-hidden="true">↗</span>
-              </a>
+                <Monitor className="h-4 w-4 text-crimson-500" />
+                View a live demo
+              </Link>
             </div>
 
-            {/* Sub-links */}
-            <div className="mt-10 space-y-2 border-t border-ink-700/70 pt-6 text-xs text-zinc-400">
-              <p>
-                <a
-                  href="#publishing"
-                  onClick={() => scrollToSection('publishing')}
-                  className="font-semibold text-zinc-200 underline decoration-ink-600 underline-offset-4 transition hover:text-crimson-400"
-                >
-                  Publishers →
-                </a>{' '}
-                — zero-config custom slugs served live at <code className="font-mono text-crimson-400">/publishers/:slug</code>.
-              </p>
-              <p>
-                <a
-                  href="#react-export"
-                  onClick={() => scrollToSection('react-export')}
-                  className="font-semibold text-zinc-200 underline decoration-ink-600 underline-offset-4 transition hover:text-crimson-400"
-                >
-                  React 18 Export →
-                </a>{' '}
-                — clean Tailwind CSS components and portable workspace ZIP files.
-              </p>
-            </div>
+            <p
+              className="animate-fade-up mt-5 flex items-center gap-2 text-xs text-zinc-500"
+              style={{ animationDelay: '220ms' }}
+            >
+              <Check className="h-3.5 w-3.5 shrink-0 text-crimson-500" />
+              Runs entirely in your browser. No account, no server, nothing to install.
+            </p>
           </div>
 
-          {/* Center Column: Interactive Setup / Agent Command Card (5 cols) */}
-          <div className="lg:col-span-5">
-            <div className="animate-fade-up" style={{ animationDelay: '140ms' }}>
-              <h2 className="font-display text-xl font-bold text-white">Set up Workspace68</h2>
-              <p className="mt-1 text-xs text-zinc-400">Copy this into your coding agent or visual canvas:</p>
-
-              {/* Agent Mock Card */}
-              <div className="mt-4 rounded-3xl border border-ink-700 bg-ink-850 shadow-lift">
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-ink-700/80 px-4 py-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-1.5">
-                      <span className="h-2.5 w-2.5 rounded-full bg-crimson-600" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-ink-600" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-ink-500" />
-                    </div>
-                    <span className="ml-2 text-xs font-medium text-zinc-400">Workspace68 Agent</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(agentPrompt, 'agent')}
-                    className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white"
-                  >
-                    {copiedAgent ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 text-crimson-500" />
-                        <span className="font-semibold text-crimson-500">Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Prompt Code Body */}
-                <div className="p-4 font-mono text-xs leading-relaxed text-zinc-300">
-                  <p className="text-crimson-400">&gt; Create a modern portfolio with dark mode, interactive hero, and contact section.</p>
-                  <p className="mt-2 text-zinc-300">✓ Initializing visual canvas with @dnd-kit...</p>
-                  <p className="mt-1 text-zinc-300">✓ Syncing project to Supabase PostgreSQL database...</p>
-                  <p className="mt-1 font-semibold text-crimson-400">✓ Published live at https://workspace68.vercel.app/publishers/myportfolio 🚀</p>
-                </div>
-              </div>
-
-              {/* Terminal Box */}
-              <div className="mt-6">
-                <span className="text-xs text-zinc-400">Or run in your terminal:</span>
-                <div className="mt-2 flex items-center justify-between rounded-2xl border border-ink-700 bg-ink-850 px-4 py-3 font-mono text-xs text-zinc-200">
-                  <span className="truncate">{cliCommand}</span>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(cliCommand, 'cli')}
-                    className="ml-3 flex shrink-0 items-center gap-1 text-zinc-400 transition hover:text-white"
-                  >
-                    {copiedCli ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 text-crimson-500" />
-                        <span className="font-semibold text-crimson-500">Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick specs */}
-              <div className="mt-6 space-y-2 text-xs text-zinc-400">
-                <p>
-                  Built for your stack:{' '}
-                  <span className="font-semibold text-white">React 18</span> ·{' '}
-                  <span className="font-semibold text-white">Tailwind CSS</span> ·{' '}
-                  <span className="font-semibold text-white">Supabase RLS</span> ·{' '}
-                  <span className="font-semibold text-white">Vercel</span>
-                </p>
-                <p>
-                  First time or want to preview right away?{' '}
-                  <Link to="/register" className="font-semibold text-crimson-400 underline underline-offset-4 transition hover:text-crimson-300">
-                    Create account and open visual editor →
-                  </Link>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: "On this page" TOC Sidebar (2 cols) */}
-          <div className="hidden lg:col-span-2 lg:block">
-            <div className="sticky top-24 pl-4">
-              <span className="font-display text-xs font-semibold uppercase tracking-wider text-zinc-500">On this page</span>
-              <ul className="mt-3 space-y-1 text-xs">
-                {tocItems.map((item) => (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      onClick={() => scrollToSection(item.id)}
-                      className={`w-full rounded-full px-3 py-1.5 text-left transition ${
-                        activeSection === item.id
-                          ? 'bg-crimson-600/15 font-semibold text-white shadow-glow-sm'
-                          : 'text-zinc-400 hover:bg-ink-850 hover:text-zinc-200'
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          <EditorMock />
         </div>
-      </div>
+      </header>
 
-      {/* Section 2: How It Works */}
-      <section id="how-it-works" className="relative border-t border-ink-700/70 bg-ink-900 py-20">
-        <div className="mx-auto max-w-[1440px] px-6">
+      {/* How it works */}
+      <section id="how-it-works" className="relative scroll-mt-20 border-t border-ink-700/70 bg-ink-900 py-20">
+        <div className="mx-auto max-w-[1200px] px-6">
           <div className="max-w-2xl">
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-crimson-500">Workflow</span>
-            <h2 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">How Workspace68 Works</h2>
+            <h2 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">How it works</h2>
             <p className="mt-3 text-sm text-zinc-400">
-              From visual drag-and-drop to instant production cloud deployment in three straightforward steps.
+              Three steps from a blank page to something you can ship.
             </p>
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {[
-              ['1', 'Visual Design Canvas', 'Drag sections, containers, responsive typography, and buttons with real-time responsive viewport switches (Desktop, Tablet, Mobile).'],
-              ['2', 'Supabase Cloud Sync', 'Your visual documents are saved automatically with debounced cloud persistence, Row Level Security, and immutable version snapshots.'],
-              ['3', 'One-Click Publishing', 'Claim your custom slug and publish instantly at /publishers/:slug. Public visitors get lightning-fast rendering without authentication.'],
-            ].map(([step, title, body], i) => (
+            {STEPS.map((step, i) => (
               <div
-                key={step}
-                className="animate-fade-up rounded-3xl border border-ink-700 bg-ink-850 p-6 shadow-panel transition hover:-translate-y-1 hover:border-crimson-600/40 hover:shadow-lift"
+                key={step.title}
+                className="animate-fade-up relative rounded-3xl border border-ink-700 bg-ink-850 p-6 shadow-panel transition hover:-translate-y-1 hover:border-crimson-600/40 hover:shadow-lift"
                 style={{ animationDelay: `${i * 80}ms` }}
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-crimson-600/30 bg-crimson-600/10 font-display text-base font-bold text-crimson-500">
-                  {step}
+                <div className="flex items-center justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-crimson-600/30 bg-crimson-600/10">
+                    <step.icon className="h-5 w-5 text-crimson-500" />
+                  </div>
+                  <span className="font-display text-3xl font-bold text-ink-600">{`0${i + 1}`}</span>
                 </div>
-                <h3 className="mt-4 font-display text-lg font-semibold text-white">{title}</h3>
-                <p className="mt-2 text-xs leading-relaxed text-zinc-400">{body}</p>
+                <h3 className="mt-5 font-display text-lg font-semibold text-white">{step.title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-zinc-400">{step.body}</p>
+                {i < STEPS.length - 1 && (
+                  <ChevronRight className="absolute -right-3 top-1/2 hidden h-6 w-6 -translate-y-1/2 text-ink-600 md:block" />
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Section 3: Visual Drag & Drop Features */}
-      <section id="visual-builder" className="border-t border-ink-700/70 py-20">
-        <div className="mx-auto max-w-[1440px] px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-crimson-500">Precision Visual Controls</span>
-              <h2 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">
-                Real components. <br />
-                Zero arbitrary black-box code.
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-                Unlike complex site builders that lock you in, Workspace68 uses deterministic component schemas.
-                Edit flex layout properties, responsive margins, font sizes, colors, and button click interactions directly.
-              </p>
+      {/* What's inside */}
+      <section id="features" className="scroll-mt-20 border-t border-ink-700/70 py-20">
+        <div className="mx-auto max-w-[1200px] px-6">
+          <div className="max-w-2xl">
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-crimson-500">Inside the editor</span>
+            <h2 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">What's inside</h2>
+            <p className="mt-3 text-sm text-zinc-400">
+              Everything you need to go from a rough idea to a finished screen — without leaving the canvas.
+            </p>
+          </div>
 
-              <div className="mt-6 space-y-3 text-xs text-zinc-300">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-crimson-500" />
-                  <span>@dnd-kit drag and drop reordering inside sections and containers</span>
+          <div className="mt-12 grid gap-6 sm:grid-cols-2">
+            {FEATURES.map((feature, i) => (
+              <div
+                key={feature.title}
+                className="animate-fade-up group rounded-3xl border border-ink-700 bg-ink-850 p-6 shadow-panel transition hover:-translate-y-1 hover:border-crimson-600/40 hover:shadow-lift"
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-crimson-600/30 bg-crimson-600/10 transition group-hover:bg-crimson-600/20">
+                  <feature.icon className="h-5 w-5 text-crimson-500" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-crimson-500" />
-                  <span>Multi-page management with path routing (/home, /about, /projects)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-crimson-500" />
-                  <span>Interactive actions: link to external URLs, scroll to ID, or switch pages</span>
-                </div>
+                <h3 className="mt-4 font-display text-lg font-semibold text-white">{feature.title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-zinc-400">{feature.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Keyboard shortcuts */}
+      <section id="shortcuts" className="scroll-mt-20 border-t border-ink-700/70 bg-ink-900 py-20">
+        <div className="mx-auto max-w-[1200px] px-6">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+            <div>
+              <div className="max-w-2xl">
+                <span className="text-xs font-bold uppercase tracking-[0.18em] text-crimson-500">Keyboard</span>
+                <h2 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">Shortcuts</h2>
+                <p className="mt-3 text-sm text-zinc-400">
+                  Keep your hands on the keyboard and your momentum in the design.
+                </p>
+              </div>
+
+              <div className="mt-10 overflow-hidden rounded-3xl border border-ink-700 bg-ink-850 shadow-panel">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-ink-700/80 bg-ink-900/60">
+                      <th className="px-5 py-3 font-semibold uppercase tracking-wider text-zinc-500">Key</th>
+                      <th className="px-5 py-3 font-semibold uppercase tracking-wider text-zinc-500">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SHORTCUTS.map((row) => (
+                      <tr key={row.action} className="border-b border-ink-700/50 transition last:border-0 hover:bg-ink-900/40">
+                        <td className="whitespace-nowrap px-5 py-3">
+                          <span className="flex flex-wrap items-center gap-1">
+                            {row.keys.map((key) => (
+                              <kbd
+                                key={key}
+                                className="rounded-md border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-200 shadow-inner"
+                              >
+                                {key}
+                              </kbd>
+                            ))}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-zinc-400">{row.action}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            {/* Visual Preview Mock */}
-            <div className="rounded-3xl border border-ink-700 bg-ink-850 p-6 shadow-lift">
-              <div className="flex items-center justify-between border-b border-ink-700 pb-3 text-xs text-zinc-400">
-                <span className="font-display font-semibold text-white">Visual Inspector</span>
-                <span className="rounded-full border border-crimson-600/30 bg-crimson-600/10 px-2.5 py-0.5 font-mono text-[11px] text-crimson-400">
-                  Desktop View (100%)
-                </span>
+            {/* side panel: pointer/hand + stack */}
+            <div className="space-y-6">
+              <div className="rounded-3xl border border-ink-700 bg-ink-850 p-6 shadow-panel">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-crimson-600/30 bg-crimson-600/10">
+                  <Keyboard className="h-5 w-5 text-crimson-500" />
+                </div>
+                <h3 className="mt-4 font-display text-base font-semibold text-white">Canvas controls</h3>
+                <ul className="mt-4 space-y-3 text-xs text-zinc-400">
+                  <li className="flex items-center gap-2.5">
+                    <MousePointer2 className="h-3.5 w-3.5 shrink-0 text-crimson-500" />
+                    <span className="flex-1">Select and move parts</span>
+                    <kbd className="rounded-md border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-zinc-300">V</kbd>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Hand className="h-3.5 w-3.5 shrink-0 text-crimson-500" />
+                    <span className="flex-1">Pan the canvas</span>
+                    <kbd className="rounded-md border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-zinc-300">H</kbd>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Copy className="h-3.5 w-3.5 shrink-0 text-crimson-500" />
+                    <span className="flex-1">Duplicate what you picked</span>
+                    <kbd className="rounded-md border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-zinc-300">Ctrl D</kbd>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <Code2 className="h-3.5 w-3.5 shrink-0 text-crimson-500" />
+                    <span className="flex-1">Export React source</span>
+                    <kbd className="rounded-md border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-zinc-300">P</kbd>
+                  </li>
+                </ul>
               </div>
-              <div className="mt-4 space-y-3 rounded-2xl bg-ink-950 p-4 text-xs font-mono">
-                <div className="flex justify-between text-zinc-400">
-                  <span>Display</span>
-                  <span className="text-white">Flex (Column)</span>
-                </div>
-                <div className="flex justify-between text-zinc-400">
-                  <span>Max Width</span>
-                  <span className="text-white">1120px</span>
-                </div>
-                <div className="flex justify-between text-zinc-400">
-                  <span>Padding</span>
-                  <span className="text-white">80px 32px</span>
-                </div>
-                <div className="flex justify-between text-zinc-400">
-                  <span>Theme Color</span>
-                  <span className="font-semibold text-crimson-500">#e11d33 (Crimson)</span>
+
+              <div className="rounded-3xl border border-ink-700 bg-ink-850 p-6 shadow-panel">
+                <h3 className="font-display text-base font-semibold text-white">Built with</h3>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {STACK.map((item) => (
+                    <span
+                      key={item.name}
+                      className="flex items-center gap-1.5 rounded-full border border-ink-600 bg-ink-800 px-3 py-1.5 text-[11px] font-semibold text-zinc-200 transition hover:border-crimson-600/40 hover:text-white"
+                    >
+                      {item.name}
+                      <span className="text-[10px] font-normal text-zinc-500">{item.note}</span>
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
@@ -444,69 +515,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section 4: Publishing Engine */}
-      <section id="publishing" className="border-t border-ink-700/70 bg-ink-900 py-20">
-        <div className="mx-auto max-w-[1440px] px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="rounded-3xl border border-ink-700 bg-ink-850 p-6 shadow-lift">
-              <span className="text-xs font-bold text-crimson-500">Live Snapshot Engine</span>
-              <h3 className="mt-2 font-display text-xl font-bold text-white">Published Website URLs</h3>
-              <div className="mt-4 space-y-3 text-xs">
-                <div className="rounded-2xl border border-ink-700/60 bg-ink-950 p-3 text-zinc-300">
-                  <p className="text-[11px] text-zinc-500">Portfolio:</p>
-                  <code className="text-crimson-400">https://workspace68.vercel.app/publishers/myportfolio</code>
-                </div>
-                <div className="rounded-2xl border border-ink-700/60 bg-ink-950 p-3 text-zinc-300">
-                  <p className="text-[11px] text-zinc-500">Agency:</p>
-                  <code className="text-crimson-400">https://workspace68.vercel.app/publishers/inovex</code>
-                </div>
-                <div className="rounded-2xl border border-ink-700/60 bg-ink-950 p-3 text-zinc-300">
-                  <p className="text-[11px] text-zinc-500">Restaurant:</p>
-                  <code className="text-crimson-400">https://workspace68.vercel.app/publishers/myrestaurant</code>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-crimson-500">Production Publishing</span>
-              <h2 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">
-                Edit drafts without breaking live visitors.
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-                Workspace68 separates your editable draft from the published snapshot. When you make edits in the visual
-                builder, your live website continues serving the previous version until you hit <b className="text-white">Republish</b>.
-              </p>
-              <div className="mt-6 flex gap-4">
-                <Link
-                  to={user ? '/dashboard' : '/register'}
-                  className="rounded-full bg-crimson-600 px-5 py-2.5 text-xs font-semibold text-white shadow-glow-sm transition hover:-translate-y-0.5 hover:bg-crimson-500 hover:shadow-glow"
-                >
-                  Publish Your First Website
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 5: React 18 Export */}
-      <section id="react-export" className="border-t border-ink-700/70 py-20">
-        <div className="mx-auto max-w-[1440px] px-6 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl border border-crimson-600/30 bg-crimson-600/10 shadow-glow-sm">
-            <Code2 className="h-7 w-7 text-crimson-500" />
-          </div>
-          <h2 className="mt-5 font-display text-3xl font-bold text-white sm:text-4xl">
-            Export real React 18 source code anytime.
+      {/* Closing CTA */}
+      <section className="border-t border-ink-700/70 py-20">
+        <div className="mx-auto max-w-[1200px] px-6 text-center">
+          <h2 className="animate-fade-up font-display text-3xl font-bold text-white sm:text-4xl">
+            Open the canvas. It's already yours.
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-zinc-400">
-            No vendor lock-in. Click Download Code to export a ready-to-deploy Vite + React project with Tailwind CSS configuration.
+          <p className="animate-fade-up mx-auto mt-3 max-w-xl text-sm text-zinc-400" style={{ animationDelay: '60ms' }}>
+            No signup wall, no install, no trial clock. Pick it up, put it down, come back to it later.
           </p>
-          <div className="mt-8 flex justify-center">
+          <div className="animate-fade-up mt-8 flex justify-center" style={{ animationDelay: '120ms' }}>
             <Link
-              to={user ? '/dashboard' : '/register'}
-              className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black shadow-lift transition hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
+              to="/dashboard"
+              className="flex items-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-semibold text-black shadow-lift transition hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
             >
-              Start Building Free
+              Start designing — no account needed
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -514,28 +538,26 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-ink-700/70 bg-ink-950 py-12 text-xs text-zinc-500">
-        <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-6 px-6 sm:flex-row">
+        <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-between gap-6 px-6 sm:flex-row">
           <div className="flex items-center gap-2.5">
             <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-crimson-400 to-crimson-700 font-display text-xs font-bold text-white">
               W
             </span>
-            <span className="font-display font-semibold text-white tracking-tight">WORKSPACE68</span>
-            <span>&copy; {new Date().getFullYear()} All rights reserved.</span>
+            <span className="font-display font-semibold tracking-tight text-white">workspace68</span>
+            <span>· Released under the MIT License.</span>
           </div>
 
           <div className="flex items-center gap-2 text-zinc-400">
-            <a href="https://github.com/PRN-6/workspace68" target="_blank" rel="noreferrer" className="rounded-full px-3 py-1.5 transition hover:bg-ink-850 hover:text-white">
+            <a
+              href="https://github.com/PRN-6/workspace68"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 transition hover:bg-ink-850 hover:text-white"
+            >
+              <GithubIcon className="h-3.5 w-3.5" />
               GitHub
             </a>
-            <a href="https://prinson.is-a.dev/" target="_blank" rel="noreferrer" className="rounded-full px-3 py-1.5 transition hover:bg-ink-850 hover:text-white">
-              Developer
-            </a>
-            <Link to="/login" className="rounded-full px-3 py-1.5 transition hover:bg-ink-850 hover:text-white">
-              Sign In
-            </Link>
-            <Link to="/register" className="rounded-full bg-white px-4 py-1.5 font-semibold text-black transition hover:bg-zinc-200">
-              Register
-            </Link>
+            <span className="text-zinc-600">Made by Prinson R N</span>
           </div>
         </div>
       </footer>

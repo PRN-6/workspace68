@@ -1,8 +1,28 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useEditorStore } from '../../store/editorStore'
 import { downloadProject } from '../../lib/exportProject'
+import { buildDesignPrompt, copyText } from '../../lib/promptExport'
 import WorkspaceManager from './WorkspaceManager'
-import { Monitor, Tablet, Smartphone, Undo2, Redo2, Sun, Moon, Play, Download, Layers } from 'lucide-react'
+import {
+  Monitor,
+  Tablet,
+  Smartphone,
+  Undo2,
+  Redo2,
+  Sun,
+  Moon,
+  Play,
+  Download,
+  Layers,
+  ChevronDown,
+  Sparkles,
+  Check,
+  Copy,
+  FileCode2,
+  Minus,
+  Plus,
+  Maximize,
+} from 'lucide-react'
 
 const VIEWPORTS = [
   { id: 'desktop', icon: Monitor, label: 'Desktop' },
@@ -25,11 +45,144 @@ function IconBtn({ children, onClick, disabled, title, active }) {
   )
 }
 
+function ExportMenu({ project }) {
+  const [open, setOpen] = useState(false)
+  const [copied, setCopied] = useState(null)
+  const [exporting, setExporting] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onPointerDown = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) setOpen(false)
+    }
+    window.addEventListener('pointerdown', onPointerDown)
+    return () => window.removeEventListener('pointerdown', onPointerDown)
+  }, [open])
+
+  const flash = (id) => {
+    setCopied(id)
+    setTimeout(() => setCopied((current) => (current === id ? null : current)), 1800)
+  }
+
+  const onDownloadZip = async () => {
+    setExporting(true)
+    setOpen(false)
+    try {
+      await downloadProject(project)
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const onCopyPrompt = async () => {
+    const text = buildDesignPrompt(project)
+    await copyText(text)
+    flash('prompt')
+    setOpen(false)
+  }
+
+  const onCopyJson = async () => {
+    await copyText(JSON.stringify(project, null, 2))
+    flash('json')
+    setOpen(false)
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="ws-btn ws-btn-primary"
+      >
+        {exporting ? 'Creating ZIP…' : <Download size={13} />}
+        {exporting ? 'Creating ZIP…' : 'Export'}
+        <ChevronDown size={12} />
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-11 z-50 w-72 animate-scale-in rounded-2xl border p-1.5 shadow-lift"
+          style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
+        >
+          <button
+            type="button"
+            onClick={onCopyPrompt}
+            className="flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2.5 text-left transition hover:bg-[var(--ws-accent-soft)]"
+          >
+            <span
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: 'var(--ws-accent-soft)', color: 'var(--ws-accent)' }}
+            >
+              {copied === 'prompt' ? <Check size={14} /> : <Sparkles size={14} />}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-xs font-semibold" style={{ color: 'var(--ws-text)' }}>
+                {copied === 'prompt' ? 'Prompt copied!' : 'Copy design prompt'}
+              </span>
+              <span className="block text-[10px] leading-snug" style={{ color: 'var(--ws-text-3)' }}>
+                A precise brief for Claude Code, Codex, Gemini CLI or Cursor.
+              </span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onDownloadZip}
+            className="flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2.5 text-left transition hover:bg-[var(--ws-accent-soft)]"
+          >
+            <span
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: 'var(--ws-panel-3)', color: 'var(--ws-text-2)' }}
+            >
+              <FileCode2 size={14} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-xs font-semibold" style={{ color: 'var(--ws-text)' }}>
+                Download React project
+              </span>
+              <span className="block text-[10px] leading-snug" style={{ color: 'var(--ws-text-3)' }}>
+                Production-ready source as a .zip archive.
+              </span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onCopyJson}
+            className="flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2.5 text-left transition hover:bg-[var(--ws-accent-soft)]"
+          >
+            <span
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: 'var(--ws-panel-3)', color: 'var(--ws-text-2)' }}
+            >
+              {copied === 'json' ? <Check size={14} /> : <Copy size={14} />}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-xs font-semibold" style={{ color: 'var(--ws-text)' }}>
+                {copied === 'json' ? 'JSON copied!' : 'Copy project JSON'}
+              </span>
+              <span className="block text-[10px] leading-snug" style={{ color: 'var(--ws-text-3)' }}>
+                The raw design document, for backups and sharing.
+              </span>
+            </span>
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Toolbar() {
   const projectName = useEditorStore((s) => s.project.name)
   const setProjectName = useEditorStore((s) => s.setProjectName)
   const viewport = useEditorStore((s) => s.viewport)
   const setViewport = useEditorStore((s) => s.setViewport)
+  const zoom = useEditorStore((s) => s.zoom)
+  const setZoom = useEditorStore((s) => s.setZoom)
+  const zoomIn = useEditorStore((s) => s.zoomIn)
+  const zoomOut = useEditorStore((s) => s.zoomOut)
+  const zoomToFit = useEditorStore((s) => s.zoomToFit)
   const darkMode = useEditorStore((s) => s.darkMode)
   const toggleDarkMode = useEditorStore((s) => s.toggleDarkMode)
   const previewMode = useEditorStore((s) => s.previewMode)
@@ -40,25 +193,15 @@ export default function Toolbar() {
   const canRedo = useEditorStore((s) => s.future.length > 0)
   const project = useEditorStore((s) => s.project)
 
-  const [exporting, setExporting] = useState(false)
   const [workspaceManagerOpen, setWorkspaceManagerOpen] = useState(false)
-
-  const onExport = async () => {
-    setExporting(true)
-    try {
-      await downloadProject(project)
-    } finally {
-      setExporting(false)
-    }
-  }
 
   return (
     <header
       className="ws-toolbar flex h-14 shrink-0 items-center justify-between gap-3 border-b px-4"
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-crimson-400 to-crimson-700 font-display text-sm font-bold text-white shadow-glow-sm">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-crimson-400 to-crimson-700 font-display text-sm font-bold text-white shadow-glow-sm">
           W
         </div>
         <span className="hidden font-display text-sm font-bold tracking-tight sm:block" style={{ color: 'var(--ws-text)' }}>
@@ -68,6 +211,7 @@ export default function Toolbar() {
         <input
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
+          aria-label="Project name"
           className="hidden w-48 rounded-full border border-transparent px-3 py-1.5 text-sm font-medium transition md:block"
           style={{ color: 'var(--ws-text-2)' }}
           onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ws-border)')}
@@ -81,27 +225,21 @@ export default function Toolbar() {
             e.currentTarget.style.boxShadow = 'none'
           }}
         />
-        <button type="button" onClick={() => setWorkspaceManagerOpen(true)} className="ws-btn hidden sm:inline-flex">
+        <button
+          type="button"
+          onClick={() => setWorkspaceManagerOpen(true)}
+          className="ws-btn hidden sm:inline-flex"
+        >
           <Layers size={13} />
           Workspaces
         </button>
-        <a
-          href="https://prinson.is-a.dev/"
-          target="_blank"
-          rel="noreferrer"
-          className="ws-btn hidden md:inline-flex"
-          title="Developer Portfolio"
-        >
-          <span>👨‍💻</span>
-          <span className="hidden lg:inline">Developer</span>
-        </a>
       </div>
 
       <div className="flex items-center gap-0.5">
-        <IconBtn title="Undo" disabled={!canUndo || previewMode} onClick={undo}>
+        <IconBtn title="Undo (Ctrl+Z)" disabled={!canUndo || previewMode} onClick={undo}>
           <Undo2 size={15} />
         </IconBtn>
-        <IconBtn title="Redo" disabled={!canRedo || previewMode} onClick={redo}>
+        <IconBtn title="Redo (Ctrl+Shift+Z)" disabled={!canRedo || previewMode} onClick={redo}>
           <Redo2 size={15} />
         </IconBtn>
         <div className="mx-1 h-5 w-px" style={{ background: 'var(--ws-border)' }} />
@@ -122,6 +260,26 @@ export default function Toolbar() {
             )
           })}
         </div>
+        <div className="hidden items-center gap-0.5 md:flex">
+          <IconBtn title="Zoom out (-)" onClick={zoomOut}>
+            <Minus size={14} />
+          </IconBtn>
+          <button
+            type="button"
+            onClick={() => setZoom(1)}
+            title="Reset zoom (0)"
+            className="min-w-[46px] rounded-full px-1.5 py-1 text-[11px] font-semibold tabular-nums transition hover:bg-[var(--ws-panel-3)]"
+            style={{ color: 'var(--ws-text-2)' }}
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <IconBtn title="Zoom in (+)" onClick={zoomIn}>
+            <Plus size={14} />
+          </IconBtn>
+          <IconBtn title="Fit to screen (0)" onClick={zoomToFit}>
+            <Maximize size={14} />
+          </IconBtn>
+        </div>
         <IconBtn
           title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           active={darkMode}
@@ -135,6 +293,7 @@ export default function Toolbar() {
         <button
           type="button"
           onClick={togglePreview}
+          title="Preview (P)"
           className={`ws-btn ${previewMode ? '!bg-[var(--ws-text)] !text-[var(--ws-panel)] !border-transparent' : ''}`}
         >
           {previewMode ? (
@@ -147,16 +306,7 @@ export default function Toolbar() {
             </>
           )}
         </button>
-        <button
-          type="button"
-          onClick={onExport}
-          disabled={exporting}
-          title="Download the full website project as a .zip file"
-          className="ws-btn ws-btn-primary"
-        >
-          <Download size={13} />
-          {exporting ? 'Creating ZIP…' : 'Download ZIP'}
-        </button>
+        <ExportMenu project={project} />
       </div>
       {workspaceManagerOpen && <WorkspaceManager onClose={() => setWorkspaceManagerOpen(false)} />}
     </header>

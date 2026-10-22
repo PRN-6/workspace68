@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { getProject, saveProject, isSignedIn } from '../lib/projects'
 import { useEditorStore } from '../store/editorStore'
 import Toolbar from '../components/editor/Toolbar'
 import LeftSidebar from '../components/editor/LeftSidebar'
@@ -8,7 +8,8 @@ import Canvas from '../components/editor/Canvas'
 import PropertiesPanel from '../components/editor/PropertiesPanel'
 import { EditorDndProvider } from '../components/editor/EditorDndContext'
 import PublishModal from '../components/editor/PublishModal'
-import { CheckCircle2, Cloud, AlertCircle, ArrowLeft } from 'lucide-react'
+import Shortcuts from '../components/editor/Shortcuts'
+import { CheckCircle2, Cloud, HardDrive, AlertCircle, ArrowLeft, Rocket } from 'lucide-react'
 
 export default function EditorPage() {
   const { projectId } = useParams()
@@ -17,6 +18,7 @@ export default function EditorPage() {
   const [saveStatus, setSaveStatus] = useState('saved') // 'saved' | 'saving' | 'error'
   const [publishModalOpen, setPublishModalOpen] = useState(false)
   const [currentProject, setCurrentProject] = useState(null)
+  const [cloud, setCloud] = useState(false)
 
   const previewMode = useEditorStore((s) => s.previewMode)
   const darkMode = useEditorStore((s) => s.darkMode)
@@ -31,30 +33,27 @@ export default function EditorPage() {
   const saveTimerRef = useRef(null)
   const isInitialLoad = useRef(true)
 
-  // 1. Fetch project on mount
+  // 1. Load the project — from the browser first, from the cloud when signed in.
   useEffect(() => {
     async function loadProject() {
       try {
         setLoading(true)
-        const { data, error } = await supabase
-          .from('projects')
-          .select('*')
-          .eq('id', projectId)
-          .single()
+        const data = await getProject(projectId)
 
-        if (error || !data) {
-          alert('Project not found or unauthorized')
-          return navigate('/dashboard')
+        if (!data) {
+          navigate('/dashboard', { replace: true })
+          return
         }
 
         setCurrentProject(data)
+        setCloud(data.source === 'cloud' || !!data.cloudId)
         if (data.document?.pages) {
-          init(data.document.pages)
+          init(data.document)
           if (data.name) setProjectName(data.name)
         }
       } catch (err) {
         console.error('Failed to load project:', err)
-        navigate('/dashboard')
+        navigate('/dashboard', { replace: true })
       } finally {
         setLoading(false)
         setTimeout(() => {
@@ -66,21 +65,12 @@ export default function EditorPage() {
     loadProject()
   }, [projectId, init, setProjectName, navigate])
 
-  // 2. Debounced Autosave to Supabase
+  // 2. Debounced autosave — always to this browser, plus the cloud if signed in.
   const saveToCloud = useCallback(
     async (doc, name) => {
       try {
         setSaveStatus('saving')
-        const { error } = await supabase
-          .from('projects')
-          .update({
-            name: name || doc.name,
-            document: doc,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', projectId)
-
-        if (error) throw error
+        await saveProject(projectId, doc, name)
         setSaveStatus('saved')
       } catch (err) {
         console.error('Autosave error:', err)
@@ -98,17 +88,21 @@ export default function EditorPage() {
 
     saveTimerRef.current = setTimeout(() => {
       saveToCloud(project, project.name)
-    }, 1500)
+    }, 1200)
 
     return () => clearTimeout(saveTimerRef.current)
   }, [project, loading, saveToCloud])
+
+  useEffect(() => {
+    isSignedIn().then(setCloud).catch(() => setCloud(false))
+  }, [])
 
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-ink-950 text-white">
         <div className="flex flex-col items-center gap-3">
           <div className="h-9 w-9 animate-spin rounded-full border-4 border-crimson-500 border-t-transparent" />
-          <span className="font-display text-sm font-medium text-zinc-400">Loading website workspace…</span>
+          <span className="font-display text-sm font-medium text-zinc-400">Loading your design…</span>
         </div>
       </div>
     )
@@ -116,6 +110,8 @@ export default function EditorPage() {
 
   return (
     <div className={`ws-app flex h-full flex-col overflow-hidden${darkMode ? ' ws-dark' : ''}`}>
+      <Shortcuts />
+
       {/* Cloud Header / Status Bar */}
       <div className="flex h-10 items-center justify-between border-b border-zinc-800/80 bg-ink-950 px-4 text-xs text-zinc-300">
         <div className="flex items-center gap-3">
@@ -140,8 +136,14 @@ export default function EditorPage() {
             )}
             {saveStatus === 'saved' && (
               <>
-                <CheckCircle2 className="h-3.5 w-3.5 text-crimson-500" />
-                <span className="text-zinc-400">Saved</span>
+                {cloud ? (
+                  <CheckCircle2 className="h-3.5 w-3.5 text-crimson-500" />
+                ) : (
+                  <HardDrive className="h-3.5 w-3.5 text-crimson-500" />
+                )}
+                <span className="text-zinc-400">
+                  {cloud ? 'Synced' : 'Saved in this browser'}
+                </span>
               </>
             )}
             {saveStatus === 'error' && (
@@ -153,12 +155,24 @@ export default function EditorPage() {
           </div>
 
           {/* Publish Trigger Button */}
-          <button
-            onClick={() => setPublishModalOpen(true)}
-            className="rounded-full bg-crimson-600 px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-glow-sm transition hover:bg-crimson-500 hover:shadow-glow active:scale-95"
-          >
-            Publish Website
-          </button>
+          {cloud ? (
+            <button
+              onClick={() => setPublishModalOpen(true)}
+              className="rounded-full bg-crimson-600 px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-glow-sm transition hover:bg-crimson-500 hover:shadow-glow active:scale-95"
+            >
+              <span className="flex items-center gap-1.5">
+                <Rocket size={12} /> Publish
+              </span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/login')}
+              title="Sign in to publish this design to a public URL"
+              className="rounded-full border border-zinc-700 px-3.5 py-1.5 text-[11px] font-semibold text-zinc-300 transition hover:border-crimson-600/60 hover:text-white"
+            >
+              Sign in to publish
+            </button>
+          )}
         </div>
       </div>
 

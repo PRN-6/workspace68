@@ -1,8 +1,48 @@
 import { slugify } from './id'
 import { TAGS, styleToJsLiteral } from './style'
 import { COMPONENTS } from '../data/components'
+import blockRenderersSource from '../components/editor/blockRenderers.jsx?raw'
 
 const IND = '  '
+
+// Blocks that carry their own inner markup (cards, heroes, lists, forms…).
+// They are exported through the shared <Blocks.Block> renderer so the
+// exported project looks exactly like the design.
+const RICH_TYPES = new Set([
+  'card',
+  'lead',
+  'quote',
+  'code',
+  'iconButton',
+  'fab',
+  'chip',
+  'badge',
+  'avatar',
+  'icon',
+  'video',
+  'gallery',
+  'list',
+  'table',
+  'stat',
+  'rating',
+  'progress',
+  'accordion',
+  'tabs',
+  'input',
+  'textarea',
+  'select',
+  'checkbox',
+  'switch',
+  'slider',
+  'form',
+  'navbar',
+  'hero',
+  'featureCard',
+  'pricingCard',
+  'testimonial',
+  'ctaBanner',
+  'footer',
+])
 
 const ANIM_HIDDEN = {
   'fade': "  'fade': { opacity: 0 },\n",
@@ -86,6 +126,20 @@ function genElement(el, level, cx) {
   const attrs = [`id={${JSON.stringify(el.id)}}`, `style={${styleToJsLiteral(exportedStyle)}}`]
   if (reveal) attrs.push(revealAttr(el))
 
+  if (RICH_TYPES.has(el.type)) {
+    cx.usesBlocks = true
+    const payload = {
+      type: el.type,
+      style: exportedStyle,
+      props: el.props || {},
+      action: el.action || { type: 'none' },
+    }
+    const children = el.children?.length
+      ? '\n' + el.children.map((c) => genElement(c, level + 1, cx)).join('\n') + `\n${pad}`
+      : ''
+    return `${pad}<Blocks.Block element={${JSON.stringify(payload)}}>${children}</Blocks.Block>`
+  }
+
   if (el.type === 'image') {
     const click = clickAttr(el)
     // Create a separate inner image style: remove layout props that belong on wrapper
@@ -137,6 +191,7 @@ function genPageJsx(page, fileName, path, cx) {
   const top = []
   const Name = fileName
   if (cx.usesNavigate) imports.push(`import { useNavigate } from 'react-router-dom'`)
+  if (cx.usesBlocks) imports.push(`import * as Blocks from '../components/blocks'`)
   if (cx.animated.size) {
     imports.push(`import { createAnimated } from '../lib/animations'`)
     for (const t of [...cx.animated].sort()) {
@@ -156,11 +211,12 @@ function genPageJsx(page, fileName, path, cx) {
 }
 
 function analyzeUsages(page) {
-  const cx = { animated: new Set(), usesNavigate: false }
+  const cx = { animated: new Set(), usesNavigate: false, usesBlocks: false }
   const scan = (nodes) => {
     for (const el of nodes) {
       if (el.animation && el.animation.type !== 'none') cx.animated.add(tagFor(el))
       if (el.action && el.action.type === 'page' && el.action.value) cx.usesNavigate = true
+      if (RICH_TYPES.has(el.type)) cx.usesBlocks = true
       if (el.children?.length) scan(el.children)
     }
   }
@@ -242,6 +298,11 @@ export function generateProjectFiles(project) {
   for (const pf of pageFiles) {
     const cx = analyzeUsages(pf.page)
     files[`src/pages/${pf.fileName}.jsx`] = genPageJsx(pf.page, pf.fileName, pf.path, cx)
+    if (cx.usesBlocks) {
+      // The shared block renderers travel with the export, so the generated
+      // pages render exactly like the design did in the editor.
+      files['src/components/blocks.jsx'] = blockRenderersSource
+    }
   }
 
   return files

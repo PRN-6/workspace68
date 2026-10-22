@@ -43,13 +43,167 @@ function ControlFor({ control, element, updateStyle }) {
   }
 }
 
+// Content fields per block type: the text an author edits for each part.
+const CONTENT_FIELDS = {
+  heading: [{ key: 'text', label: 'Text', multiline: true }],
+  text: [{ key: 'text', label: 'Text', multiline: true }],
+  lead: [{ key: 'text', label: 'Text', multiline: true }],
+  quote: [
+    { key: 'text', label: 'Quote', multiline: true },
+    { key: 'author', label: 'Author' },
+  ],
+  code: [{ key: 'text', label: 'Code', multiline: true }],
+  button: [
+    { key: 'text', label: 'Label' },
+    { key: 'icon', label: 'Icon' },
+  ],
+  link: [
+    { key: 'text', label: 'Label' },
+    { key: 'href', label: 'Link' },
+  ],
+  iconButton: [
+    { key: 'icon', label: 'Icon' },
+    { key: 'label', label: 'Accessible label' },
+  ],
+  fab: [
+    { key: 'icon', label: 'Icon' },
+    { key: 'label', label: 'Label' },
+  ],
+  chip: [{ key: 'text', label: 'Label' }],
+  badge: [{ key: 'text', label: 'Label' }],
+  card: [
+    { key: 'title', label: 'Title' },
+    { key: 'text', label: 'Text', multiline: true },
+  ],
+  hero: [
+    { key: 'eyebrow', label: 'Eyebrow' },
+    { key: 'title', label: 'Title' },
+    { key: 'subtitle', label: 'Subtitle', multiline: true },
+    { key: 'cta', label: 'Button label' },
+  ],
+  featureCard: [
+    { key: 'icon', label: 'Icon' },
+    { key: 'title', label: 'Title' },
+    { key: 'text', label: 'Text', multiline: true },
+  ],
+  pricingCard: [
+    { key: 'plan', label: 'Plan' },
+    { key: 'price', label: 'Price' },
+    { key: 'period', label: 'Period' },
+    { key: 'cta', label: 'Button label' },
+  ],
+  testimonial: [
+    { key: 'quote', label: 'Quote', multiline: true },
+    { key: 'author', label: 'Author' },
+    { key: 'role', label: 'Role' },
+    { key: 'initials', label: 'Initials' },
+  ],
+  ctaBanner: [
+    { key: 'title', label: 'Title' },
+    { key: 'text', label: 'Text', multiline: true },
+    { key: 'button', label: 'Button label' },
+  ],
+  navbar: [{ key: 'brand', label: 'Brand' }],
+  footer: [
+    { key: 'brand', label: 'Brand' },
+    { key: 'copyright', label: 'Copyright' },
+  ],
+  avatar: [
+    { key: 'initials', label: 'Initials' },
+    { key: 'src', label: 'Image URL' },
+  ],
+  icon: [{ key: 'glyph', label: 'Glyph' }],
+  image: [
+    { key: 'src', label: 'Image URL' },
+    { key: 'alt', label: 'Alt text' },
+  ],
+  video: [
+    { key: 'url', label: 'Video URL' },
+    { key: 'title', label: 'Title' },
+  ],
+  input: [
+    { key: 'label', label: 'Label' },
+    { key: 'placeholder', label: 'Placeholder' },
+  ],
+  textarea: [
+    { key: 'label', label: 'Label' },
+    { key: 'placeholder', label: 'Placeholder' },
+  ],
+  select: [{ key: 'label', label: 'Label' }],
+  checkbox: [{ key: 'label', label: 'Label' }],
+  switch: [{ key: 'label', label: 'Label' }],
+  slider: [{ key: 'label', label: 'Label' }],
+  form: [
+    { key: 'title', label: 'Title' },
+    { key: 'buttonText', label: 'Button label' },
+  ],
+  stat: [
+    { key: 'value', label: 'Value' },
+    { key: 'label', label: 'Label' },
+    { key: 'trend', label: 'Trend' },
+  ],
+  rating: [{ key: 'caption', label: 'Caption' }],
+  progress: [{ key: 'label', label: 'Label' }],
+}
+
+// Repeating content — edited as plain text so nobody has to write JSON.
+const LIST_FIELDS = {
+  list: { key: 'items', label: 'Items — one per line', mode: 'lines' },
+  accordion: { key: 'items', label: 'Rows — "Title | Body" per line', mode: 'pipe' },
+  tabs: { key: 'items', label: 'Tabs — one per line', mode: 'lines' },
+  navbar: { key: 'links', label: 'Links — one per line', mode: 'lines' },
+  footer: { key: 'links', label: 'Links — one per line', mode: 'lines' },
+  pricingCard: { key: 'features', label: 'Features — one per line', mode: 'lines' },
+  select: { key: 'options', label: 'Options — one per line', mode: 'lines' },
+  gallery: { key: 'images', label: 'Image URLs — one per line', mode: 'lines' },
+  table: { key: 'columns', label: 'Columns — one per line', mode: 'lines' },
+}
+
+const NUMBER_FIELDS = {
+  rating: [{ key: 'value', label: 'Rating', min: 0, max: 5, step: 1 }],
+  progress: [{ key: 'value', label: 'Progress %', min: 0, max: 100, step: 1 }],
+  slider: [{ key: 'value', label: 'Value', min: 0, max: 100, step: 1 }],
+  grid: [{ key: 'columns', label: 'Columns', min: 1, max: 6, step: 1 }],
+}
+
+function listToText(value, mode) {
+  if (!Array.isArray(value)) return ''
+  if (mode === 'pipe') {
+    return value
+      .map((item) => (typeof item === 'string' ? item : `${item.title || ''} | ${item.body || ''}`))
+      .join('\n')
+  }
+  return value
+    .map((item) => (typeof item === 'string' ? item : item.title || ''))
+    .join('\n')
+}
+
+function textToList(text, mode) {
+  const lines = String(text)
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+  if (mode === 'pipe') {
+    return lines.map((line) => {
+      const [title, body] = line.split('|')
+      return { title: (title || '').trim(), body: (body || '').trim() }
+    })
+  }
+  return lines
+}
+
 function ContentEditor({ element }) {
   const updateProps = useEditorStore((s) => s.updateProps)
-  if (!['heading', 'text', 'button', 'image'].includes(element.type)) return null
+  const fields = CONTENT_FIELDS[element.type]
+  const listField = LIST_FIELDS[element.type]
+  const numberFields = NUMBER_FIELDS[element.type]
+
+  if (!fields && !listField && !numberFields && element.type !== 'heading') return null
 
   return (
     <div className="mb-4 flex flex-col gap-2.5">
       <SectionTitle>Content</SectionTitle>
+
       {element.type === 'heading' && (
         <SelectField
           label="Heading level"
@@ -58,35 +212,50 @@ function ContentEditor({ element }) {
           onChange={(v) => updateProps(element.id, { level: Number(v) })}
         />
       )}
-      {(element.type === 'heading' || element.type === 'text') && (
-        <Row label="Text">
-          <textarea
-            className="ws-input h-20 resize-y"
-            value={element.props.text || ''}
-            onChange={(e) => updateProps(element.id, { text: e.target.value })}
+
+      {fields?.map((field) =>
+        field.multiline ? (
+          <Row key={field.key} label={field.label}>
+            <textarea
+              className="ws-input h-20 resize-y"
+              value={element.props[field.key] || ''}
+              onChange={(e) => updateProps(element.id, { [field.key]: e.target.value })}
+            />
+          </Row>
+        ) : (
+          <TextField
+            key={field.key}
+            label={field.label}
+            value={element.props[field.key] || ''}
+            onChange={(v) => updateProps(element.id, { [field.key]: v })}
+          />
+        )
+      )}
+
+      {numberFields?.map((field) => (
+        <Row key={field.key} label={field.label}>
+          <input
+            type="number"
+            min={field.min}
+            max={field.max}
+            step={field.step}
+            className="ws-input"
+            value={element.props[field.key] ?? 0}
+            onChange={(e) => updateProps(element.id, { [field.key]: Number(e.target.value) })}
           />
         </Row>
-      )}
-      {element.type === 'button' && (
-        <TextField
-          label="Label"
-          value={element.props.text || ''}
-          onChange={(v) => updateProps(element.id, { text: v })}
-        />
-      )}
-      {element.type === 'image' && (
-        <>
-          <TextField
-            label="Image URL"
-            value={element.props.src || ''}
-            onChange={(v) => updateProps(element.id, { src: v })}
+      ))}
+
+      {listField && (
+        <Row label={listField.label}>
+          <textarea
+            className="ws-input h-24 resize-y"
+            value={listToText(element.props[listField.key], listField.mode)}
+            onChange={(e) =>
+              updateProps(element.id, { [listField.key]: textToList(e.target.value, listField.mode) })
+            }
           />
-          <TextField
-            label="Alt text"
-            value={element.props.alt || ''}
-            onChange={(v) => updateProps(element.id, { alt: v })}
-          />
-        </>
+        </Row>
       )}
     </div>
   )

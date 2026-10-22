@@ -5,6 +5,8 @@ import { COMPONENTS, PALETTE_GROUPS } from '../../data/components'
 import * as T from '../../lib/tree'
 import { getInsertTarget } from '../../lib/dnd'
 import { iconFor } from './componentIcons'
+import FlowMap from './FlowMap'
+import ThemePanel from './ThemePanel'
 import {
   Smartphone,
   Blocks,
@@ -17,6 +19,8 @@ import {
   GripVertical,
   X,
   MousePointerClick,
+  GitBranch,
+  Palette,
 } from 'lucide-react'
 
 function ScreensTab() {
@@ -345,6 +349,8 @@ const TABS = [
   { id: 'screens', icon: Smartphone, label: 'Screens' },
   { id: 'blocks', icon: Blocks, label: 'Blocks' },
   { id: 'layers', icon: FolderTree, label: 'Layers' },
+  { id: 'flow', icon: GitBranch, label: 'Flow' },
+  { id: 'theme', icon: Palette, label: 'Theme' },
 ]
 
 function BlocksTab() {
@@ -478,6 +484,10 @@ export default function LeftSidebar() {
         {leftTab === 'screens' && <ScreensTab />}
 
         {leftTab === 'blocks' && <BlocksTab />}
+
+        {leftTab === 'flow' && <FlowMap />}
+
+        {leftTab === 'theme' && <ThemePanel />}
 
         {leftTab === 'layers' && (
           <div className="flex flex-col gap-0.5">

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { TAGS } from '../../lib/style'
 import { useReveal } from '../../lib/useReveal'
 import { useEditorStore } from '../../store/editorStore'
+import { blockTag, isInlineTextType, renderBlockContent } from './blockRenderers'
 
 function actionHandlers(action) {
   if (!action || action.type === 'none' || !action.value) return {}
@@ -43,7 +43,7 @@ function actionHandlers(action) {
 function PreviewElement({ element }) {
   const { ref, style: revealStyle } = useReveal(element.animation)
   const action = actionHandlers(element.action)
-  const Tag = TAGS[element.type] || 'div'
+  const Tag = blockTag(element.type)
 
   const isSection = element.type === 'section'
   const isContainer = ['section', 'container', 'row', 'column'].includes(element.type)
@@ -126,8 +126,23 @@ function PreviewElement({ element }) {
   const children = element.children?.map((c) => <PreviewElement key={c.id} element={c} />)
 
   let content = null
-  if (element.type === 'heading' || element.type === 'text') {
+  if (element.type === 'link') {
+    content = (
+      <a
+        href={element.props.href || '#'}
+        style={{ color: 'inherit', textDecoration: 'inherit' }}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+        }}
+      >
+        {element.props.text}
+      </a>
+    )
+  } else if (isInlineTextType(element.type)) {
     content = element.props.text
+  } else {
+    content = renderBlockContent(element)
   }
 
   return (

@@ -6,10 +6,41 @@ export const TAGS = {
   container: 'div',
   row: 'div',
   column: 'div',
+  grid: 'div',
+  card: 'div',
   heading: 'h1',
   text: 'p',
+  lead: 'p',
+  quote: 'blockquote',
+  code: 'pre',
   button: 'a',
+  link: 'a',
   image: 'img',
+  avatar: 'div',
+  icon: 'div',
+  video: 'div',
+  gallery: 'div',
+  list: 'ul',
+  table: 'div',
+  stat: 'div',
+  rating: 'div',
+  progress: 'div',
+  accordion: 'div',
+  tabs: 'div',
+  input: 'div',
+  textarea: 'div',
+  select: 'div',
+  checkbox: 'div',
+  switch: 'div',
+  slider: 'div',
+  form: 'div',
+  navbar: 'nav',
+  hero: 'div',
+  featureCard: 'div',
+  pricingCard: 'div',
+  testimonial: 'div',
+  ctaBanner: 'div',
+  footer: 'footer',
   spacer: 'div',
   divider: 'hr',
 }
@@ -30,7 +61,7 @@ export function styleToJsLiteral(style) {
 }
 
 export function hasChildren(type) {
-  return ['section', 'container', 'row', 'column'].includes(type)
+  return ['section', 'container', 'row', 'column', 'grid', 'card'].includes(type)
 }
 
 // ---- box shorthand parsing (e.g. "40px 24px" -> top/right/bottom/left) ----
