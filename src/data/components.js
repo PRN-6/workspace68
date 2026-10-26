@@ -2,7 +2,15 @@ import { uid } from '../lib/id'
 
 export const PALETTE_GROUPS = [
   {
-    name: 'Layout',
+    name: 'Actions',
+    types: ['button', 'iconButton', 'fab', 'chip', 'badge', 'link'],
+  },
+  {
+    name: 'Navigation',
+    types: ['navbar', 'tabs'],
+  },
+  {
+    name: 'Containment',
     types: ['section', 'container', 'row', 'column', 'grid', 'card', 'divider', 'spacer'],
   },
   {
@@ -10,16 +18,12 @@ export const PALETTE_GROUPS = [
     types: ['heading', 'text', 'lead', 'quote', 'code'],
   },
   {
-    name: 'Actions',
-    types: ['button', 'iconButton', 'fab', 'chip', 'badge', 'link'],
-  },
-  {
     name: 'Media',
     types: ['image', 'avatar', 'icon', 'video', 'gallery'],
   },
   {
     name: 'Data',
-    types: ['list', 'table', 'stat', 'rating', 'progress', 'accordion', 'tabs'],
+    types: ['list', 'table', 'stat', 'rating', 'progress', 'accordion'],
   },
   {
     name: 'Forms',
@@ -27,7 +31,7 @@ export const PALETTE_GROUPS = [
   },
   {
     name: 'Sections',
-    types: ['navbar', 'hero', 'featureCard', 'pricingCard', 'testimonial', 'ctaBanner', 'footer'],
+    types: ['hero', 'featureCard', 'pricingCard', 'testimonial', 'ctaBanner', 'footer'],
   },
 ]
 

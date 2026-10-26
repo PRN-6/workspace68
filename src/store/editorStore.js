@@ -4,6 +4,7 @@ import * as T from '../lib/tree'
 import { buildElement, COMPONENTS } from '../data/components'
 import { createPortfolioPage, createBirthdayScreen, createQuizScreen, createWinnerScreen } from '../data/templates'
 import { isValidProject } from '../lib/workspaceFile'
+import { normalizeDesignDoc } from '../lib/designDoc'
 
 const WORKSPACES_KEY = 'workspace68.projects.v1'
 
@@ -136,7 +137,7 @@ function restoreWorkspaces() {
           isValidProject(workspace.project)
       )
       .map((workspace) => {
-        let project = workspace.project
+        let project = normalizeDesignDoc(workspace.project)
         if (project.name === 'My Portfolio') {
           project = migratePortfolioTheme(project)
         }
@@ -178,7 +179,7 @@ let clipboard = []
 
 const restored = restoreWorkspaces()
 
-const FIRST_PROJECT = { name: 'My Portfolio', theme: { ...DEFAULT_THEME }, pages: [createPortfolioPage()] }
+const FIRST_PROJECT = { designDocVersion: 1, name: 'My Portfolio', theme: { ...DEFAULT_THEME }, pages: [createPortfolioPage()] }
 const FIRST_WORKSPACE = newWorkspace(FIRST_PROJECT.name, FIRST_PROJECT)
 const INITIAL_WORKSPACES = restored?.workspaces || [FIRST_WORKSPACE]
 const INITIAL_WORKSPACE_ID = restored?.currentWorkspaceId || FIRST_WORKSPACE.id
@@ -194,13 +195,13 @@ const useEditorStore = create((set, get) => ({
   editingId: null,
   viewport: 'desktop', // desktop | tablet | mobile
   zoom: 1,
-  darkMode: true,
+  darkMode: false,
   previewMode: false,
   previewPageId: null,
   rightTab: 'style', // style | action | animation
-  leftTab: 'screens', // screens | blocks | layers | flow | theme
+  leftTab: 'blocks', // screens | blocks | layers | flow | theme
   leftSidebarOpen: true,
-  rightSidebarOpen: true,
+  rightSidebarOpen: false,
   past: [],
   future: [],
 
@@ -392,7 +393,7 @@ const useEditorStore = create((set, get) => ({
 
   importWorkspace: (project) =>
     set((s) => {
-      const sanitized = sanitizeProjectLayout(structuredClone(project))
+      const sanitized = sanitizeProjectLayout(normalizeDesignDoc(structuredClone(project)))
       const workspace = newWorkspace(project.name || 'Imported project', sanitized)
       return {
         workspaces: [...s.workspaces, workspace],

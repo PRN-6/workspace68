@@ -168,7 +168,7 @@ export default function Preview() {
   return (
     <div className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 overflow-y-auto p-8">
       <div
-        className="mx-auto overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-black/5 transition-all"
+        className="ws-artboard-frame mx-auto overflow-hidden transition-all"
         style={{ maxWidth: widthFor(viewport) }}
       >
         <div className="relative w-full" style={{ minHeight: '70vh' }}>

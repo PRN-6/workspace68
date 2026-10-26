@@ -28,48 +28,50 @@ body {
 /* ------------------------------------------------------------------ */
 .ws-app {
   color-scheme: light;
-  --ws-bg: #f1f1f4;
-  --ws-panel: #ffffff;
-  --ws-panel-2: #f6f6f8;
-  --ws-panel-3: #ececf0;
-  --ws-border: #e5e5ea;
-  --ws-border-strong: #d3d3db;
-  --ws-text: #131317;
-  --ws-text-2: #3d3d46;
-  --ws-text-3: #7c7c88;
+  background: var(--ws-bg);
+  color: var(--ws-text);
+  --ws-bg: #eff4ed;
+  --ws-panel: #f7faf5;
+  --ws-panel-2: #e8eee6;
+  --ws-panel-3: #e1e9df;
+  --ws-border: #dce5dc;
+  --ws-border-strong: #c5d2c5;
+  --ws-text: #1d2a22;
+  --ws-text-2: #43564a;
+  --ws-text-3: #7b8c80;
   --ws-accent: #e11d33;
-  --ws-accent-hover: #be1226;
+  --ws-accent-hover: #c81e36;
   --ws-accent-text: #ffffff;
-  --ws-accent-soft: rgba(225, 29, 51, 0.09);
-  --ws-accent-ring: rgba(225, 29, 51, 0.35);
-  --ws-canvas: #e9e9ef;
+  --ws-accent-soft: rgba(225, 29, 51, 0.1);
+  --ws-accent-ring: rgba(225, 29, 51, 0.28);
+  --ws-canvas: #eff4ed;
   --ws-artboard: #ffffff;
-  --ws-shadow: 0 24px 70px -28px rgba(15, 15, 25, 0.35);
+  --ws-shadow: 0 24px 70px -28px rgba(35, 55, 42, 0.24);
   /* Translucent panel background for floating controls. Tailwind cannot apply
      an alpha modifier to a var(), so this is a pre-mixed token instead. */
-  --ws-panel-glass: rgba(255, 255, 255, 0.92);
+  --ws-panel-glass: rgba(247, 250, 245, 0.92);
 }
 
 .ws-app.ws-dark {
   color-scheme: dark;
-  --ws-bg: #0a0a0d;
-  --ws-panel: #101014;
-  --ws-panel-2: #17171c;
-  --ws-panel-3: #1d1d23;
-  --ws-border: #24242b;
-  --ws-border-strong: #33333c;
-  --ws-text: #ececef;
-  --ws-text-2: #b6b6bf;
-  --ws-text-3: #77777f;
-  --ws-accent: #e11d33;
-  --ws-accent-hover: #f43f4e;
+  --ws-bg: #111915;
+  --ws-panel: #18221b;
+  --ws-panel-2: #202d23;
+  --ws-panel-3: #28382c;
+  --ws-border: #304135;
+  --ws-border-strong: #425947;
+  --ws-text: #edf5ee;
+  --ws-text-2: #bdcdbf;
+  --ws-text-3: #899b8d;
+  --ws-accent: #ff5a6a;
+  --ws-accent-hover: #ff7180;
   --ws-accent-text: #ffffff;
-  --ws-accent-soft: rgba(225, 29, 51, 0.14);
-  --ws-accent-ring: rgba(244, 63, 94, 0.45);
-  --ws-canvas: #08080a;
+  --ws-accent-soft: rgba(255, 90, 106, 0.14);
+  --ws-accent-ring: rgba(255, 90, 106, 0.32);
+  --ws-canvas: #121a15;
   --ws-artboard: #ffffff;
-  --ws-shadow: 0 28px 80px -30px rgba(0, 0, 0, 0.85);
-  --ws-panel-glass: rgba(16, 16, 20, 0.92);
+  --ws-shadow: 0 28px 80px -30px rgba(0, 0, 0, 0.55);
+  --ws-panel-glass: rgba(24, 34, 27, 0.92);
 }
 
 /* ------------------------------------------------------------------ */
@@ -94,7 +96,7 @@ body {
 }
 
 [contenteditable]:focus {
-  outline: 2px solid #e11d33;
+  outline: 2px solid var(--ws-accent, #286a48);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -272,9 +274,253 @@ select.ws-input {
 /* ------------------------------------------------------------------ */
 .ws-canvas-grid {
   background-color: var(--ws-canvas);
-  background-image: radial-gradient(var(--ws-border-strong) 1px, transparent 1px);
-  background-size: 22px 22px;
-  background-position: -1px -1px;
+}
+
+.ws-savebar {
+  background: var(--ws-panel) !important;
+  border-color: var(--ws-border) !important;
+  color: var(--ws-text-2) !important;
+}
+
+.ws-savebar button {
+  color: var(--ws-text-2);
+}
+
+.ws-toolbar {
+  position: relative;
+  z-index: 20;
+  min-height: 52px;
+  height: 52px;
+  border-color: transparent !important;
+  background: var(--ws-canvas) !important;
+}
+
+.ws-toolbar > div:nth-child(2) {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  gap: 4px;
+  padding: 5px 8px;
+  border: 1px solid var(--ws-border);
+  border-radius: 999px;
+  background: var(--ws-panel-glass);
+  box-shadow: 0 5px 18px rgba(37, 59, 42, 0.1);
+  backdrop-filter: blur(14px);
+}
+
+.ws-toolbar > div:nth-child(3) {
+  margin-left: auto;
+}
+
+.ws-brand-mark {
+  background: var(--ws-accent);
+}
+
+.ws-sidebar {
+  width: 300px !important;
+  border-color: var(--ws-border) !important;
+  background: var(--ws-panel) !important;
+}
+
+.ws-sidebar-shell {
+  width: 300px;
+  flex: 0 0 300px;
+}
+
+.ws-sidebar-shell-inner {
+  width: 300px;
+}
+
+.ws-sidebar-rail {
+  width: 50px;
+  border-right: 1px solid var(--ws-border);
+  background: var(--ws-bg);
+}
+
+.ws-sidebar-rail button[data-active='true'] {
+  color: var(--ws-accent);
+  background: var(--ws-accent-soft);
+}
+
+.ws-sidebar-content {
+  width: 250px;
+  min-width: 250px;
+}
+
+.ws-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ws-palette-card {
+  min-height: 70px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--ws-bg);
+  padding: 8px 5px;
+  text-align: center;
+}
+
+.ws-palette-card:hover {
+  background: var(--ws-panel-2);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.ws-palette-card > span:first-child {
+  width: auto;
+  height: 24px;
+  background: transparent;
+  color: var(--ws-accent);
+}
+
+.ws-palette-card:hover > span:first-child {
+  background: transparent;
+  color: var(--ws-accent);
+}
+
+.ws-palette-card > span:nth-child(2) {
+  flex: none;
+}
+
+.ws-palette-card > span:nth-child(2) > span:first-child {
+  font-size: 11px;
+  color: var(--ws-text);
+}
+
+.ws-palette-card > span:nth-child(2) > span:nth-child(2),
+.ws-palette-card > svg {
+  display: none;
+}
+
+.ws-editor-canvas {
+  position: relative;
+}
+
+.ws-pages-bar {
+  min-height: 54px;
+  border-color: transparent !important;
+  background: transparent !important;
+  padding: 8px 24px !important;
+}
+
+.ws-artboard-frame {
+  border: 7px solid #29302a;
+  border-radius: 28px;
+  background: var(--ws-artboard);
+  box-shadow: 0 22px 50px rgba(36, 52, 40, 0.16);
+}
+
+.ws-canvas-workspace {
+  padding: 14px 28px 30px !important;
+}
+
+.ws-canvas-zoom {
+  position: absolute;
+  z-index: 15;
+  right: 18px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 9px;
+  border: 1px solid var(--ws-border);
+  border-radius: 999px;
+  background: var(--ws-panel-glass);
+  box-shadow: 0 5px 18px rgba(37, 59, 42, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.ws-savebar [class*='text-zinc'] {
+  color: var(--ws-text-2) !important;
+}
+
+.ws-savebar [class*='text-crimson'] {
+  color: var(--ws-accent) !important;
+}
+
+.ws-savebar-project {
+  color: var(--ws-text) !important;
+}
+
+.ws-savebar [class*='bg-ink'],
+.ws-savebar [class*='bg-crimson'] {
+  background: var(--ws-accent) !important;
+}
+
+.ws-savebar [class*='border-zinc'] {
+  border-color: var(--ws-border-strong) !important;
+}
+
+.ws-savebar svg {
+  color: var(--ws-accent);
+}
+
+@media (max-width: 900px) {
+  .ws-toolbar > div:first-child > span,
+  .ws-toolbar > div:first-child > button {
+    display: none;
+  }
+
+  .ws-toolbar > div:nth-child(2) {
+    position: static;
+    transform: none;
+  }
+
+  .ws-toolbar {
+    justify-content: space-between;
+  }
+
+  .ws-sidebar {
+    width: 270px !important;
+  }
+
+  .ws-sidebar-shell {
+    width: 270px;
+    flex-basis: 270px;
+  }
+
+  .ws-sidebar-shell-inner {
+    width: 270px;
+  }
+
+  .ws-sidebar-content {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .ws-canvas-workspace {
+    padding: 12px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .ws-sidebar {
+    width: 240px !important;
+  }
+
+  .ws-sidebar-shell {
+    width: 240px;
+    flex-basis: 240px;
+  }
+
+  .ws-sidebar-shell-inner {
+    width: 240px;
+  }
+
+  .ws-sidebar-content {
+    width: 190px;
+    min-width: 190px;
+  }
+
+  .ws-toolbar > div:nth-child(3) {
+    display: none;
+  }
 }
 
 /* Section label above panels */

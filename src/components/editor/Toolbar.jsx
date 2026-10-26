@@ -19,9 +19,6 @@ import {
   Check,
   Copy,
   FileCode2,
-  Minus,
-  Plus,
-  Maximize,
 } from 'lucide-react'
 
 const VIEWPORTS = [
@@ -178,11 +175,6 @@ export default function Toolbar() {
   const setProjectName = useEditorStore((s) => s.setProjectName)
   const viewport = useEditorStore((s) => s.viewport)
   const setViewport = useEditorStore((s) => s.setViewport)
-  const zoom = useEditorStore((s) => s.zoom)
-  const setZoom = useEditorStore((s) => s.setZoom)
-  const zoomIn = useEditorStore((s) => s.zoomIn)
-  const zoomOut = useEditorStore((s) => s.zoomOut)
-  const zoomToFit = useEditorStore((s) => s.zoomToFit)
   const darkMode = useEditorStore((s) => s.darkMode)
   const toggleDarkMode = useEditorStore((s) => s.toggleDarkMode)
   const previewMode = useEditorStore((s) => s.previewMode)
@@ -200,8 +192,8 @@ export default function Toolbar() {
       className="ws-toolbar flex h-14 shrink-0 items-center justify-between gap-3 border-b px-4"
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
-      <div className="flex min-w-0 items-center gap-2.5">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-crimson-400 to-crimson-700 font-display text-sm font-bold text-white shadow-glow-sm">
+      <div className="ws-toolbar-brand flex min-w-0 items-center gap-2.5">
+        <div className="ws-brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl font-display text-sm font-bold text-white shadow-glow-sm">
           W
         </div>
         <span className="hidden font-display text-sm font-bold tracking-tight sm:block" style={{ color: 'var(--ws-text)' }}>
@@ -235,7 +227,7 @@ export default function Toolbar() {
         </button>
       </div>
 
-      <div className="flex items-center gap-0.5">
+      <div className="ws-toolbar-controls flex items-center gap-0.5">
         <IconBtn title="Undo (Ctrl+Z)" disabled={!canUndo || previewMode} onClick={undo}>
           <Undo2 size={15} />
         </IconBtn>
@@ -260,26 +252,6 @@ export default function Toolbar() {
             )
           })}
         </div>
-        <div className="hidden items-center gap-0.5 md:flex">
-          <IconBtn title="Zoom out (-)" onClick={zoomOut}>
-            <Minus size={14} />
-          </IconBtn>
-          <button
-            type="button"
-            onClick={() => setZoom(1)}
-            title="Reset zoom (0)"
-            className="min-w-[46px] rounded-full px-1.5 py-1 text-[11px] font-semibold tabular-nums transition hover:bg-[var(--ws-panel-3)]"
-            style={{ color: 'var(--ws-text-2)' }}
-          >
-            {Math.round(zoom * 100)}%
-          </button>
-          <IconBtn title="Zoom in (+)" onClick={zoomIn}>
-            <Plus size={14} />
-          </IconBtn>
-          <IconBtn title="Fit to screen (0)" onClick={zoomToFit}>
-            <Maximize size={14} />
-          </IconBtn>
-        </div>
         <IconBtn
           title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           active={darkMode}
@@ -289,7 +261,7 @@ export default function Toolbar() {
         </IconBtn>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="ws-toolbar-actions flex items-center gap-2">
         <button
           type="button"
           onClick={togglePreview}

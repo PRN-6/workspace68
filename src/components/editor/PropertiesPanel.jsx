@@ -4,7 +4,7 @@ import { COMPONENTS } from '../../data/components'
 import { STYLE_GROUPS, ANIMATION_OPTIONS, EASING_OPTIONS, ACTION_TYPES } from '../../data/styleControls'
 import { TextField, SelectField, ColorField, SliderField, BoxField, RadiusField, AlignField, FontSizeField, ShadowField, Row } from './Field'
 import { iconFor } from './componentIcons'
-import { Copy, X, MousePointerClick, RotateCcw } from 'lucide-react'
+import { Copy, X, MousePointerClick, RotateCcw, Lock } from 'lucide-react'
 import * as T from '../../lib/tree'
 import { ANIM_STYLES } from '../../lib/style'
 
@@ -725,6 +725,15 @@ export default function PropertiesPanel() {
                   e.currentTarget.style.boxShadow = 'none'
                 }}
               />
+              <button
+                type="button"
+                title={element.locked ? 'Unlock' : 'Lock'}
+                onClick={() => updateElement(element.id, { locked: !element.locked })}
+                className="ws-icon-btn !h-7 !min-w-7 !p-0"
+                style={{ color: element.locked ? 'var(--ws-accent)' : undefined }}
+              >
+                <Lock size={13} />
+              </button>
               <button
                 type="button"
                 title="Duplicate"

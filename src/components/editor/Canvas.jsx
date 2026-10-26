@@ -12,7 +12,7 @@ import * as T from '../../lib/tree'
 import { dropIdFor, ROOT_ID } from '../../lib/dnd'
 import { useDragHint } from './EditorDndContext'
 import { blockTag, isInlineTextType, renderBlockContent } from './blockRenderers'
-import { GripVertical, Copy, X, Plus, MousePointerClick } from 'lucide-react'
+import { GripVertical, Copy, X, Plus, Minus, Maximize, MousePointerClick } from 'lucide-react'
 import Preview from './Preview'
 
 function widthFor(v) {
@@ -112,14 +112,12 @@ function EditableElement({ element, containerId, depth = 0 }) {
 
   const beginInteraction = (event, kind) => {
     if (isSection) return
+    if (element.locked) return
     const ignoredTarget = event.target.closest('button:not(.ws-resize-handle), input, textarea, select, [contenteditable="true"]')
     if (event.button !== 0 || ignoredTarget) return
     const node = elementNode.current
     const parent = node?.parentElement
     if (!node || !parent) return
-
-    // Normal flow elements should NOT be converted into position: absolute on drag
-    if (kind === 'move' && !isFree) return
 
     event.stopPropagation()
     selectElement(element.id)
@@ -153,7 +151,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
   }
 
   const onPointerDown = (event) => {
-    if (isFree && !isSection) {
+    if (!isSection) {
       beginInteraction(event, 'move')
     }
   }
@@ -172,7 +170,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
     current.moved = true
     event.preventDefault()
 
-    if (current.kind === 'move' && isFree) {
+    if (current.kind === 'move') {
       const nextStyle = {
         position: 'absolute',
         left: `${Math.round(current.startLeft + dx)}px`,
@@ -211,7 +209,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
     const current = interaction.current
     if (!current || current.pointerId !== event.pointerId) return
     if (current.moved && current.nextStyle) {
-      if (isFree) {
+      if (current.nextStyle.position === 'absolute') {
         setElementLayout(element.id, current.nextStyle, { mode: 'free', flowStyle: current.flowStyle })
       } else {
         updateStyle(element.id, current.nextStyle)
@@ -266,15 +264,15 @@ function EditableElement({ element, containerId, depth = 0 }) {
               style={{
                 minHeight: 64,
                 width: '100%',
-                border: isOver ? '2px dashed #e11d33' : '1px dashed #c9c9d4',
+                border: isOver ? '2px dashed var(--ws-accent)' : '1px dashed var(--ws-border-strong)',
                 borderRadius: 12,
-                color: isOver ? '#e11d33' : '#94a3b8',
+                color: isOver ? 'var(--ws-accent)' : 'var(--ws-text-3)',
                 pointerEvents: 'none',
-                background: isOver ? 'rgba(225,29,51,0.06)' : 'transparent',
+                background: isOver ? 'var(--ws-accent-soft)' : 'transparent',
               }}
             >
               <span className="flex items-center gap-1.5 font-semibold">
-                <Plus size={12} />
+                <PlusCircle size={12} />
                 Drop blocks inside this {def.label.toLowerCase()}
               </span>
               <span className="text-[10px] opacity-70">or pick one from the Blocks panel</span>
@@ -289,13 +287,13 @@ function EditableElement({ element, containerId, depth = 0 }) {
       {hintPosition === 'before' && hintId === element.id && (
         <div
           className="pointer-events-none absolute z-30 left-0 right-0 -top-0.5 h-1 rounded-full"
-          style={{ background: '#e11d33', boxShadow: '0 0 0 3px rgba(225,29,51,0.18)' }}
+          style={{ background: 'var(--ws-accent)', boxShadow: '0 0 0 3px var(--ws-accent-soft)' }}
         />
       )}
       {hintPosition === 'after' && hintId === element.id && (
         <div
           className="pointer-events-none absolute z-30 left-0 right-0 -bottom-0.5 h-1 rounded-full"
-          style={{ background: '#e11d33', boxShadow: '0 0 0 3px rgba(225,29,51,0.18)' }}
+          style={{ background: 'var(--ws-accent)', boxShadow: '0 0 0 3px var(--ws-accent-soft)' }}
         />
       )}
 
@@ -304,7 +302,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
           className="pointer-events-none absolute z-10"
           style={{
             inset: 0,
-            outline: isOver ? '2px dashed #e11d33' : selected ? '2px solid #e11d33' : '1px dashed rgba(244,63,94,0.55)',
+            outline: isOver ? '2px dashed var(--ws-accent)' : selected ? '2px solid var(--ws-accent)' : '1px dashed var(--ws-accent-ring)',
             outlineOffset: '-1px',
             borderRadius: 4,
           }}
@@ -317,16 +315,16 @@ function EditableElement({ element, containerId, depth = 0 }) {
           className="pointer-events-none absolute z-10"
           style={{
             inset: 0,
-            outline: '2px dashed #e11d33',
+            outline: '2px dashed var(--ws-accent)',
             outlineOffset: '-1px',
             borderRadius: 4,
-            background: 'rgba(225,29,51,0.05)',
+            background: 'var(--ws-accent-soft)',
           }}
         />
       )}
 
       {selected && !isDragging && (
-        <div className="absolute -top-7 left-0 z-20 flex items-center gap-0.5 rounded-full bg-[#e11d33] px-1.5 py-1 text-[10px] font-semibold text-white shadow-glow-sm">
+        <div className="absolute -top-7 left-0 z-20 flex items-center gap-0.5 rounded-full px-1.5 py-1 text-[10px] font-semibold text-white shadow-glow-sm" style={{ background: 'var(--ws-accent)' }}>
           <button
             ref={setActivatorNodeRef}
             {...listeners}
@@ -334,7 +332,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
             title="Drag to move"
             className="cursor-grab rounded-full px-1 py-0.5 hover:bg-white/20 active:cursor-grabbing"
           >
-            <GripVertical size={12} />
+            <Move size={12} />
           </button>
           <span className="max-w-[140px] truncate px-1">{element.name}</span>
           <button
@@ -346,7 +344,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
               duplicateElement(element.id)
             }}
           >
-            <Copy size={11} />
+            <Files size={11} />
           </button>
           <button
             type="button"
@@ -357,7 +355,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
               removeElement(element.id)
             }}
           >
-            <X size={11} />
+            <Trash2 size={11} />
           </button>
         </div>
       )}
@@ -367,7 +365,8 @@ function EditableElement({ element, containerId, depth = 0 }) {
           title="Drag to resize"
           aria-label="Resize element"
           onPointerDown={onResizePointerDown}
-          className="ws-resize-handle absolute -bottom-1.5 -right-1.5 z-30 h-4 w-4 cursor-nwse-resize rounded-full border-2 border-white bg-[#e11d33] shadow-md"
+          className="ws-resize-handle absolute -bottom-1.5 -right-1.5 z-30 h-4 w-4 cursor-nwse-resize rounded-full border-2 border-white shadow-md"
+          style={{ background: 'var(--ws-accent)' }}
         />
       )}
     </Tag>
@@ -384,7 +383,7 @@ function RootList({ page }) {
     <div
       ref={setNodeRef}
       className="relative min-h-full"
-      style={{ outline: isOver ? '2px dashed #e11d33' : 'none', outlineOffset: -2 }}
+      style={{ outline: isOver ? '2px dashed var(--ws-accent)' : 'none', outlineOffset: -2 }}
     >
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         {page.root.map((el) => (
@@ -393,7 +392,7 @@ function RootList({ page }) {
       </SortableContext>
       {page.root.length === 0 && (
         <div className="flex h-[70vh] flex-col items-center justify-center gap-4 p-10 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#fff1f2] text-[#e11d33] shadow-glow-sm">
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl shadow-glow-sm" style={{ background: 'var(--ws-accent-soft)', color: 'var(--ws-accent)' }}>
             <MousePointerClick size={26} />
           </div>
           <div>
@@ -404,7 +403,7 @@ function RootList({ page }) {
           </div>
           <div className="flex items-center gap-2 text-[11px] text-slate-400">
             <span className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1">
-              <GripVertical size={11} /> drag
+              <Move size={11} /> drag
             </span>
             <span className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1">
               <Plus size={11} /> click to add
@@ -469,7 +468,7 @@ function PagesBar() {
                   isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-text)]'
                 }`}
               >
-                <Copy size={11} />
+                <Files size={11} />
               </button>
 
               {pages.length > 1 && (
@@ -484,7 +483,7 @@ function PagesBar() {
                   isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-accent)]'
                 }`}
               >
-                <X size={11} />
+                <Trash2 size={11} />
                 </button>
               )}
             </div>
@@ -540,6 +539,10 @@ function EditCanvas() {
   const page = useEditorStore((s) => s.currentPage())
   const viewport = useEditorStore((s) => s.viewport)
   const zoom = useEditorStore((s) => s.zoom)
+  const zoomIn = useEditorStore((s) => s.zoomIn)
+  const zoomOut = useEditorStore((s) => s.zoomOut)
+  const zoomToFit = useEditorStore((s) => s.zoomToFit)
+  const setZoom = useEditorStore((s) => s.setZoom)
   const selectElement = useEditorStore((s) => s.selectElement)
   const setHovered = useEditorStore((s) => s.setHovered)
 
@@ -554,11 +557,31 @@ function EditCanvas() {
         }}
       >
         <div
-          className="mx-auto min-h-[70vh] overflow-hidden rounded-3xl bg-white shadow-lift ring-1 ring-black/5"
+          className="ws-artboard-frame mx-auto min-h-[70vh] overflow-hidden"
           style={{ width: widthFor(viewport), maxWidth: '100%', zoom }}
         >
           <RootList page={page} />
         </div>
+      </div>
+      <div className="ws-canvas-zoom" onClick={(event) => event.stopPropagation()}>
+        <button type="button" title="Zoom out (-)" onClick={zoomOut} className="ws-icon-btn">
+          <Minus size={14} />
+        </button>
+        <button
+          type="button"
+          title="Reset zoom (0)"
+          onClick={() => setZoom(1)}
+          className="min-w-[42px] rounded-full px-1.5 py-1 text-[11px] font-semibold tabular-nums"
+          style={{ color: 'var(--ws-text-2)' }}
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+        <button type="button" title="Zoom in (+)" onClick={zoomIn} className="ws-icon-btn">
+          <PlusCircle size={14} />
+        </button>
+        <button type="button" title="Fit to screen (0)" onClick={zoomToFit} className="ws-icon-btn">
+          <Maximize size={14} />
+        </button>
       </div>
     </main>
   )

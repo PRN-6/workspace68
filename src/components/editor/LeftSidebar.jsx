@@ -21,6 +21,7 @@ import {
   MousePointerClick,
   GitBranch,
   Palette,
+  ChevronDown,
 } from 'lucide-react'
 
 function ScreensTab() {
@@ -250,7 +251,7 @@ function PaletteCard({ type }) {
         }
       }}
       style={{ opacity: isDragging ? 0.35 : 1, borderColor: 'var(--ws-border)' }}
-      className="group relative flex w-full cursor-grab select-none items-center gap-2 rounded-xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-glow-sm active:cursor-grabbing"
+      className="ws-palette-card group relative flex w-full cursor-grab select-none items-center gap-2 rounded-xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-glow-sm active:cursor-grabbing"
       onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ws-accent)')}
       onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--ws-border)')}
     >
@@ -258,7 +259,7 @@ function PaletteCard({ type }) {
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition group-hover:bg-[var(--ws-accent-soft)] group-hover:text-[var(--ws-accent)]"
         style={{ color: 'var(--ws-text-2)' }}
       >
-        <Icon size={14} />
+        <Icon size={20} />
       </span>
 
       <span className="min-w-0 flex-1">
@@ -356,6 +357,7 @@ const TABS = [
 
 function BlocksTab() {
   const [query, setQuery] = useState('')
+  const [collapsedGroups, setCollapsedGroups] = useState([])
 
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -404,19 +406,6 @@ function BlocksTab() {
         )}
       </div>
 
-      <p className="text-[11px] leading-relaxed" style={{ color: 'var(--ws-text-3)' }}>
-        Drag a block onto the canvas, or hover it and press{' '}
-        <span
-          className="mx-0.5 inline-flex items-center rounded px-1 py-px align-middle"
-          style={{ background: 'var(--ws-panel-3)', color: 'var(--ws-text-2)' }}
-        >
-          <Plus size={9} strokeWidth={3} />
-        </span>{' '}
-        to append it.
-      </p>
-
-      <span className="ws-label -mb-1.5">Blocks</span>
-
       {matchCount === 0 ? (
         <div
           className="flex flex-col items-center gap-2 rounded-2xl border border-dashed px-3 py-8 text-center"
@@ -429,13 +418,29 @@ function BlocksTab() {
         </div>
       ) : (
         groups.map((group) => (
-          <div key={group.name} className="flex flex-col gap-1.5">
-            <span className="ws-label">{group.name}</span>
-            <div className="flex flex-col gap-1.5">
+          <div key={group.name} className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setCollapsedGroups((current) => (
+                current.includes(group.name)
+                  ? current.filter((name) => name !== group.name)
+                  : [...current, group.name]
+              ))}
+              className="flex items-center justify-between px-1 py-0.5 text-left"
+              aria-expanded={!collapsedGroups.includes(group.name)}
+            >
+              <span className="ws-label">{group.name}</span>
+              <ChevronDown
+                size={13}
+                className={`transition-transform ${collapsedGroups.includes(group.name) ? '-rotate-90' : ''}`}
+                style={{ color: 'var(--ws-text-3)' }}
+              />
+            </button>
+            {!collapsedGroups.includes(group.name) && <div className="ws-palette-grid">
               {group.types.map((t) => (
                 <PaletteCard key={t} type={t} />
               ))}
-            </div>
+            </div>}
           </div>
         ))
       )}
@@ -448,64 +453,73 @@ export default function LeftSidebar() {
   const setLeftTab = useEditorStore((s) => s.setLeftTab)
   const root = useEditorStore((s) => s.currentPage().root)
   const toggleLeftSidebar = useEditorStore((s) => s.toggleLeftSidebar)
+  const activeTab = TABS.find((tab) => tab.id === leftTab)
+  const panelTitle = leftTab === 'blocks' ? 'Parts' : activeTab?.label || 'Parts'
 
   return (
     <aside
-      className="ws-sidebar flex w-64 shrink-0 flex-col border-r"
+      className="ws-sidebar flex shrink-0 flex-row border-r"
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
-      {/* Icon-only rail: five labelled tabs do not fit a 256px panel, and
-          the active panel names itself in its own header. */}
-      <div className="flex shrink-0 items-center gap-1 border-b p-2" style={{ borderColor: 'var(--ws-border)' }}>
-        <div className="ws-seg flex-1">
-          {TABS.map((t) => {
-            const Icon = t.icon
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setLeftTab(t.id)}
-                data-active={leftTab === t.id ? 'true' : 'false'}
-                className="ws-seg-btn flex items-center justify-center"
-                title={t.label}
-                aria-label={t.label}
-              >
-                <Icon size={14} />
-              </button>
-            )
-          })}
+      <nav className="ws-sidebar-rail flex shrink-0 flex-col items-center gap-2 py-3">
+        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--ws-accent)] text-xs font-bold text-white">
+          W
         </div>
-        <button
-          type="button"
-          onClick={toggleLeftSidebar}
-          title="Collapse panel"
-          className="ws-icon-btn shrink-0"
-        >
-          <PanelLeftClose size={15} />
-        </button>
-      </div>
+        {TABS.map((t) => {
+          const Icon = t.icon
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setLeftTab(t.id)}
+              data-active={leftTab === t.id ? 'true' : 'false'}
+              className="ws-icon-btn !h-9 !min-w-9"
+              title={t.label}
+              aria-label={t.label}
+            >
+              <Icon size={17} />
+            </button>
+          )
+        })}
+      </nav>
 
-      <div className="ws-scroll flex-1 overflow-y-auto p-3">
-        {leftTab === 'screens' && <ScreensTab />}
+      <div className="ws-sidebar-content flex min-h-0 flex-1 flex-col">
+        <div className="flex h-[54px] shrink-0 items-center justify-between border-b px-3" style={{ borderColor: 'var(--ws-border)' }}>
+          <span className="text-sm font-semibold" style={{ color: 'var(--ws-text)' }}>
+            {panelTitle}
+          </span>
+          <button
+            type="button"
+            onClick={toggleLeftSidebar}
+            title="Collapse panel"
+            className="ws-icon-btn shrink-0"
+          >
+            <PanelLeftClose size={15} />
+          </button>
+        </div>
 
-        {leftTab === 'blocks' && <BlocksTab />}
+        <div className="ws-scroll flex-1 overflow-y-auto p-3">
+          {leftTab === 'screens' && <ScreensTab />}
 
-        {leftTab === 'flow' && <FlowMap />}
+          {leftTab === 'blocks' && <BlocksTab />}
 
-        {leftTab === 'theme' && <ThemePanel />}
+          {leftTab === 'flow' && <FlowMap />}
 
-        {leftTab === 'layers' && (
-          <div className="flex flex-col gap-0.5">
-            <span className="ws-label mb-1.5">Layers</span>
-            {root.length === 0 ? (
-              <p className="px-1 text-[11px]" style={{ color: 'var(--ws-text-3)' }}>
-                This screen is empty.
-              </p>
-            ) : (
-              root.map((el) => <LayerRow key={el.id} element={el} depth={0} />)
-            )}
-          </div>
-        )}
+          {leftTab === 'theme' && <ThemePanel />}
+
+          {leftTab === 'layers' && (
+            <div className="flex flex-col gap-0.5">
+              <span className="ws-label mb-1.5">Layers</span>
+              {root.length === 0 ? (
+                <p className="px-1 text-[11px]" style={{ color: 'var(--ws-text-3)' }}>
+                  This screen is empty.
+                </p>
+              ) : (
+                root.map((el) => <LayerRow key={el.id} element={el} depth={0} />)
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   )

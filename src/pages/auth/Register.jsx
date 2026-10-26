@@ -41,17 +41,22 @@ export default function Register() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-ink-950 px-4 py-10 text-white">
-      <div className="pointer-events-none absolute -top-40 left-1/3 h-[460px] w-[460px] rounded-full bg-crimson-700/15 blur-[150px]" />
-      <div className="pointer-events-none absolute bottom-[-140px] -right-32 h-[380px] w-[380px] rounded-full bg-crimson-500/10 blur-[140px]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-gradient-to-b from-crimson-900/18 to-transparent" />
 
-      <div className="animate-scale-in relative w-full max-w-md rounded-3xl border border-ink-700 bg-ink-850 p-8 shadow-lift">
-        <div className="mb-7 text-center">
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-3xl bg-gradient-to-br from-crimson-400 to-crimson-700 font-display text-lg font-bold text-white shadow-glow-sm">
+      <div className="relative w-full max-w-[420px] rounded-3xl border border-ink-700 bg-ink-850/95 p-8 shadow-lift backdrop-blur">
+        <div className="mb-8 flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-crimson-400 to-crimson-700 font-display text-lg font-bold text-white shadow-glow-sm">
             W
           </span>
-          <h2 className="mt-4 font-display text-xl font-bold tracking-tight text-white">WORKSPACE68</h2>
-          <h3 className="mt-1 text-lg font-semibold text-zinc-200">Create Account</h3>
-          <p className="text-xs text-zinc-400">Start building websites on Workspace68</p>
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">Workspace68</p>
+            <p className="font-display text-lg font-bold leading-tight text-white">Create Account</p>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-white">Sign up</h1>
+          <p className="mt-1 text-sm text-zinc-400">Start building in your browser.</p>
         </div>
 
         {error && (
@@ -71,7 +76,7 @@ export default function Register() {
                 required
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="ws-input w-full rounded-full py-2.5 pl-10 pr-4"
+                className="ws-input w-full rounded-2xl py-3 pl-11 pr-4"
                 placeholder="Alex Smith"
               />
             </div>
@@ -86,7 +91,7 @@ export default function Register() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="ws-input w-full rounded-full py-2.5 pl-10 pr-4"
+                className="ws-input w-full rounded-2xl py-3 pl-11 pr-4"
                 placeholder="you@example.com"
               />
             </div>
@@ -101,7 +106,7 @@ export default function Register() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="ws-input w-full rounded-full py-2.5 pl-10 pr-4"
+                className="ws-input w-full rounded-2xl py-3 pl-11 pr-4"
                 placeholder="••••••••"
               />
             </div>
@@ -116,7 +121,7 @@ export default function Register() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="ws-input w-full rounded-full py-2.5 pl-10 pr-4"
+                className="ws-input w-full rounded-2xl py-3 pl-11 pr-4"
                 placeholder="••••••••"
               />
             </div>

@@ -40,6 +40,7 @@ export function EditorDndProvider({ children }) {
   const [drag, setDrag] = useState(null)
   const [dropHint, setDropHint] = useState({ position: null, overId: null })
   const pointerY = useRef(null)
+  const pointerX = useRef(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -49,11 +50,16 @@ export function EditorDndProvider({ children }) {
   const onDragStart = (e) => {
     setDrag(e.active.data.current)
     pointerY.current = null
+    pointerX.current = null
   }
 
   const onDragMove = (e) => {
-    const y = e.activatorEvent?.clientY
-    if (typeof y === 'number') pointerY.current = y
+    const baseX = e.activatorEvent?.clientX
+    const baseY = e.activatorEvent?.clientY
+    const dx = e.delta?.x || 0
+    const dy = e.delta?.y || 0
+    if (typeof baseX === 'number') pointerX.current = baseX + dx
+    if (typeof baseY === 'number') pointerY.current = baseY + dy
     const next = describeOver(e.over, page, pointerY.current)
     // Only re-render when the hint actually changes.
     setDropHint((prev) =>
@@ -65,6 +71,7 @@ export function EditorDndProvider({ children }) {
     setDrag(null)
     setDropHint({ position: null, overId: null })
     pointerY.current = null
+    pointerX.current = null
   }
 
   const onDragEnd = (e) => {
@@ -78,13 +85,35 @@ export function EditorDndProvider({ children }) {
 
     // Keep the pointer position fresh for the final resolve — onDragMove does
     // not always fire for the very last pixel before drop.
-    const lastY = e.activatorEvent?.clientY
-    if (typeof lastY === 'number') pointerY.current = lastY
+    if (pointerY.current == null) {
+      const lastY = e.activatorEvent?.clientY
+      if (typeof lastY === 'number') pointerY.current = lastY
+    }
 
     if (activeData?.source === 'palette') {
       const dest = resolveDrop(over, page, activeData.elementType, null, pointerY.current)
       if (!dest) return
-      insertElement(activeData.elementType, dest.containerId, dest.index)
+      const insertedId = insertElement(activeData.elementType, dest.containerId, dest.index)
+      const px = pointerX.current
+      const py = pointerY.current
+      setTimeout(() => {
+        const node = document.getElementById(insertedId)
+        const parent = node?.parentElement
+        if (!node || !parent) return
+        const parentRect = parent.getBoundingClientRect()
+        const left = Math.round((px ?? parentRect.left + 24) - parentRect.left - parent.clientLeft + parent.scrollLeft)
+        const top = Math.round((py ?? parentRect.top + 24) - parentRect.top - parent.clientTop + parent.scrollTop)
+        const rect = node.getBoundingClientRect()
+        const store = useEditorStore.getState()
+        store.setElementLayout(insertedId, {
+          position: 'absolute',
+          left: `${left}px`,
+          top: `${top}px`,
+          width: `${Math.max(24, Math.round(rect.width || 120))}px`,
+          height: `${Math.max(24, Math.round(rect.height || 40))}px`,
+          margin: '0px',
+        }, { mode: 'free', flowStyle: {} })
+      }, 0)
       return
     }
 
