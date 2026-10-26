@@ -213,7 +213,7 @@ const useEditorStore = create((set, get) => ({
     const theme = !isArray && doc?.theme ? { ...DEFAULT_THEME, ...doc.theme } : get().project.theme
     set({
       project: { ...get().project, name: !isArray && doc?.name ? doc.name : get().project.name, theme, pages: list },
-      currentPageId: list[0].id,
+      currentPageId: list[0]?.id || '',
       selectedId: null,
       selectedIds: [],
       editingId: null,

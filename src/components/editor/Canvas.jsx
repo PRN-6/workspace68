@@ -12,7 +12,7 @@ import * as T from '../../lib/tree'
 import { dropIdFor, ROOT_ID } from '../../lib/dnd'
 import { useDragHint } from './EditorDndContext'
 import { blockTag, isInlineTextType, renderBlockContent } from './blockRenderers'
-import { GripVertical, Copy, X, Plus, Minus, Maximize, MousePointerClick } from 'lucide-react'
+import { Move, Files, Trash2, Plus, PlusCircle, Maximize, MousePointerClick } from 'lucide-react'
 import Preview from './Preview'
 
 function widthFor(v) {
