@@ -12,7 +12,23 @@ import * as T from '../../lib/tree'
 import { dropIdFor, ROOT_ID } from '../../lib/dnd'
 import { useDragHint } from './EditorDndContext'
 import { blockTag, isInlineTextType, renderBlockContent } from './blockRenderers'
-import { Move, Files, Trash2, Plus, PlusCircle, Maximize, MousePointerClick } from 'lucide-react'
+import {
+  Move,
+  Files,
+  Trash2,
+  Plus,
+  PlusCircle,
+  Maximize,
+  MousePointerClick,
+  Minus,
+  Smartphone,
+  Monitor,
+  ArrowUp,
+  ArrowDown,
+  Copy,
+  SlidersHorizontal,
+  Grid,
+} from 'lucide-react'
 import Preview from './Preview'
 
 function widthFor(v) {
@@ -25,9 +41,24 @@ function EditableText({ element }) {
   const editing = useEditorStore((s) => s.editingId === element.id)
   const updateProps = useEditorStore((s) => s.updateProps)
   const setEditing = useEditorStore((s) => s.setEditing)
+  const spanRef = useRef(null)
+
+  useEffect(() => {
+    if (editing && spanRef.current) {
+      spanRef.current.focus()
+      try {
+        const range = document.createRange()
+        range.selectNodeContents(spanRef.current)
+        const sel = window.getSelection()
+        sel.removeAllRanges()
+        sel.addRange(range)
+      } catch { }
+    }
+  }, [editing])
 
   return (
     <span
+      ref={spanRef}
       contentEditable={editing}
       suppressContentEditableWarning
       spellCheck={false}
@@ -36,10 +67,21 @@ function EditableText({ element }) {
         setEditing(null)
       }}
       onKeyDown={(e) => {
-        if (e.key === 'Escape') e.currentTarget.blur()
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault()
+          e.currentTarget.blur()
+        } else if (e.key === 'Escape') {
+          e.currentTarget.blur()
+        }
         e.stopPropagation()
       }}
-      style={{ outline: 'none', display: 'inline-block', minWidth: editing ? '40px' : undefined }}
+      style={{
+        outline: editing ? '2px dashed var(--ws-accent)' : 'none',
+        outlineOffset: '2px',
+        display: 'inline-block',
+        minWidth: editing ? '40px' : undefined,
+        cursor: editing ? 'text' : undefined,
+      }}
     >
       {element.props.text}
     </span>
@@ -53,8 +95,24 @@ function EditableElement({ element, containerId, depth = 0 }) {
   const selectElement = useEditorStore((s) => s.selectElement)
   const setHovered = useEditorStore((s) => s.setHovered)
   const setEditing = useEditorStore((s) => s.setEditing)
+  const editing = useEditorStore((s) => s.editingId === element.id)
+  const spanRef = useRef(null)
+
+  useEffect(() => {
+    if (editing && spanRef.current) {
+      spanRef.current.focus()
+      try {
+        const range = document.createRange()
+        range.selectNodeContents(spanRef.current)
+        const sel = window.getSelection()
+        sel.removeAllRanges()
+        sel.addRange(range)
+      } catch { }
+    }
+  }, [editing])
   const removeElement = useEditorStore((s) => s.removeElement)
   const duplicateElement = useEditorStore((s) => s.duplicateElement)
+  const reorderElement = useEditorStore((s) => s.reorderElement)
   const setElementLayout = useEditorStore((s) => s.setElementLayout)
 
   const def = COMPONENTS[element.type]
@@ -151,7 +209,7 @@ function EditableElement({ element, containerId, depth = 0 }) {
   }
 
   const onPointerDown = (event) => {
-    if (!isSection) {
+    if (!isSection && isFree) {
       beginInteraction(event, 'move')
     }
   }
@@ -208,6 +266,11 @@ function EditableElement({ element, containerId, depth = 0 }) {
   const finishInteraction = (event) => {
     const current = interaction.current
     if (!current || current.pointerId !== event.pointerId) return
+    try {
+      if (elementNode.current?.hasPointerCapture(event.pointerId)) {
+        elementNode.current.releasePointerCapture(event.pointerId)
+      }
+    } catch { }
     if (current.moved && current.nextStyle) {
       if (current.nextStyle.position === 'absolute') {
         setElementLayout(element.id, current.nextStyle, { mode: 'free', flowStyle: current.flowStyle })
@@ -324,40 +387,72 @@ function EditableElement({ element, containerId, depth = 0 }) {
       )}
 
       {selected && !isDragging && (
-        <div className="absolute -top-7 left-0 z-20 flex items-center gap-0.5 rounded-full px-1.5 py-1 text-[10px] font-semibold text-white shadow-glow-sm" style={{ background: 'var(--ws-accent)' }}>
-          <button
-            ref={setActivatorNodeRef}
-            {...listeners}
-            {...attributes}
-            title="Drag to move"
-            className="cursor-grab rounded-full px-1 py-0.5 hover:bg-white/20 active:cursor-grabbing"
+        <>
+          {/* M3 side pill handles (as seen in reference image 4) */}
+          <div className="pointer-events-none absolute -left-1.5 top-1/2 z-20 h-4 w-1.5 -translate-y-1/2 rounded-full border border-white bg-[var(--ws-accent)] shadow-sm" />
+          <div className="pointer-events-none absolute -right-1.5 top-1/2 z-20 h-4 w-1.5 -translate-y-1/2 rounded-full border border-white bg-[var(--ws-accent)] shadow-sm" />
+
+          {/* Floating Element Toolbar */}
+          <div
+            className="absolute -top-8 left-0 z-20 flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white shadow-md animate-scale-in"
+            style={{ background: 'var(--ws-accent)' }}
           >
-            <Move size={12} />
-          </button>
-          <span className="max-w-[140px] truncate px-1">{element.name}</span>
-          <button
-            type="button"
-            title="Duplicate"
-            className="rounded-full p-1 hover:bg-white/20"
-            onClick={(e) => {
-              e.stopPropagation()
-              duplicateElement(element.id)
-            }}
-          >
-            <Files size={11} />
-          </button>
-          <button
-            type="button"
-            title="Delete"
-            className="rounded-full p-1 hover:bg-black/30"
-            onClick={(e) => {
-              e.stopPropagation()
-              removeElement(element.id)
-            }}
-          >
-            <Trash2 size={11} />
-          </button>
-        </div>
+            <button
+              ref={setActivatorNodeRef}
+              {...listeners}
+              {...attributes}
+              title="Drag to move"
+              className="cursor-grab rounded-full p-1 hover:bg-white/20 active:cursor-grabbing"
+            >
+              <Move size={12} />
+            </button>
+            <span className="max-w-[130px] truncate px-1 text-[11px] font-bold">{element.name || element.type}</span>
+            <button
+              type="button"
+              title="Move up (Ctrl+↑)"
+              className="rounded-full p-1 hover:bg-white/20 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation()
+                reorderElement(element.id, 'up')
+              }}
+            >
+              <ArrowUp size={11} />
+            </button>
+            <button
+              type="button"
+              title="Move down (Ctrl+↓)"
+              className="rounded-full p-1 hover:bg-white/20 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation()
+                reorderElement(element.id, 'down')
+              }}
+            >
+              <ArrowDown size={11} />
+            </button>
+            <button
+              type="button"
+              title="Duplicate (Ctrl+D)"
+              className="rounded-full p-1 hover:bg-white/20 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation()
+                duplicateElement(element.id)
+              }}
+            >
+              <Copy size={11} />
+            </button>
+            <button
+              type="button"
+              title="Delete (Delete)"
+              className="rounded-full p-1 hover:bg-black/30 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation()
+                removeElement(element.id)
+              }}
+            >
+              <Trash2 size={11} />
+            </button>
+          </div>
+        </>
       )}
       {selected && !isDragging && (
         <button
@@ -464,9 +559,8 @@ function PagesBar() {
                   e.stopPropagation()
                   duplicatePage(p.id)
                 }}
-                className={`hidden rounded p-0.5 group-hover:inline-flex ${
-                  isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-text)]'
-                }`}
+                className={`hidden rounded p-0.5 group-hover:inline-flex ${isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-text)]'
+                  }`}
               >
                 <Files size={11} />
               </button>
@@ -479,11 +573,10 @@ function PagesBar() {
                     e.stopPropagation()
                     removePage(p.id)
                   }}
-                  className={`hidden rounded p-0.5 group-hover:inline-flex ${
-                  isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-accent)]'
-                }`}
-              >
-                <Trash2 size={11} />
+                  className={`hidden rounded p-0.5 group-hover:inline-flex ${isCurrent ? 'text-white/80 hover:text-white' : 'text-[var(--ws-text-3)] hover:text-[var(--ws-accent)]'
+                    }`}
+                >
+                  <Trash2 size={11} />
                 </button>
               )}
             </div>
@@ -545,9 +638,26 @@ function EditCanvas() {
   const setZoom = useEditorStore((s) => s.setZoom)
   const selectElement = useEditorStore((s) => s.selectElement)
   const setHovered = useEditorStore((s) => s.setHovered)
+  const selectedId = useEditorStore((s) => s.selectedId)
+  const gridVisible = useEditorStore((s) => s.gridVisible)
+  const toggleGrid = useEditorStore((s) => s.toggleGrid)
+  const updateStyle = useEditorStore((s) => s.updateStyle)
+  const reorderElement = useEditorStore((s) => s.reorderElement)
+  const duplicateElement = useEditorStore((s) => s.duplicateElement)
+  const removeElement = useEditorStore((s) => s.removeElement)
 
   return (
     <main className="ws-editor-canvas flex min-w-0 flex-1 flex-col">
+      <style>{`
+.ws-canvas-workspace::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+.ws-canvas-workspace::-webkit-scrollbar-thumb {
+  background: var(--ws-accent);
+  border-radius: 6px;
+}
+`}</style>
       <PagesBar />
       <div
         className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 overflow-y-auto p-8"
@@ -557,11 +667,83 @@ function EditCanvas() {
         }}
       >
         <div
-          className="ws-artboard-frame mx-auto min-h-[70vh] overflow-hidden"
+          className="ws-artboard-frame relative mx-auto min-h-[70vh] overflow-hidden"
           style={{ width: widthFor(viewport), maxWidth: '100%', zoom }}
         >
-          <RootList page={page} />
+          {gridVisible && (
+  <div
+    className="pointer-events-none absolute inset-0"
+    style={{
+      backgroundImage:
+        'linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px)',
+      backgroundSize: '20px 20px',
+      opacity: 0.5,
+      zIndex: 5,
+    }}
+  />
+)}
+<RootList page={page} />
         </div>
+      </div>
+
+      {/* Floating Element Action Bar (From reference image 4: [ ☱ Tidy ] [ ↑ ]) */}
+      <div className="absolute bottom-4 left-6 z-20 flex items-center gap-1 rounded-full border border-[#E7E0EC] bg-white/95 p-1 shadow-sm backdrop-blur">
+        <button
+          type="button"
+          onClick={() => {
+            if (selectedId) {
+              updateStyle(selectedId, {
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              })
+            } else {
+              setZoom(1)
+            }
+          }}
+          title={selectedId ? 'Tidy & Center selected element' : 'Reset view'}
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-[#1D1B20] transition hover:bg-[#F3EDF7] active:scale-95"
+        >
+          <SlidersHorizontal size={13} className="text-[#6750A4]" />
+          <span>Tidy</span>
+        </button>
+
+        {selectedId && (
+          <>
+            <button
+              type="button"
+              onClick={() => reorderElement(selectedId, 'up')}
+              title="Move element up (Ctrl+↑)"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[#49454F] transition hover:bg-[#F3EDF7] hover:text-[#1D1B20] active:scale-95"
+            >
+              <ArrowUp size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={() => reorderElement(selectedId, 'down')}
+              title="Move element down (Ctrl+↓)"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[#49454F] transition hover:bg-[#F3EDF7] hover:text-[#1D1B20] active:scale-95"
+            >
+              <ArrowDown size={13} />
+            </button>
+            <span className="h-4 w-px bg-[#E7E0EC]" />
+            <button
+              type="button"
+              onClick={() => duplicateElement(selectedId)}
+              title="Duplicate element (Ctrl+D)"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[#49454F] transition hover:bg-[#F3EDF7] hover:text-[#1D1B20] active:scale-95"
+            >
+              <Copy size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={() => removeElement(selectedId)}
+              title="Delete element"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[#BA1A1A] transition hover:bg-[#FFEDEC] active:scale-95"
+            >
+              <Trash2 size={13} />
+            </button>
+          </>
+        )}
       </div>
       <div className="ws-canvas-zoom" onClick={(event) => event.stopPropagation()}>
         <button type="button" title="Zoom out (-)" onClick={zoomOut} className="ws-icon-btn">
@@ -581,6 +763,9 @@ function EditCanvas() {
         </button>
         <button type="button" title="Fit to screen (0)" onClick={zoomToFit} className="ws-icon-btn">
           <Maximize size={14} />
+        </button>
+        <button type="button" title="Toggle grid overlay" onClick={toggleGrid} className="ws-icon-btn">
+          <Grid size={14} />
         </button>
       </div>
     </main>

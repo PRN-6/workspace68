@@ -19,6 +19,10 @@ import {
   Check,
   Copy,
   FileCode2,
+  MousePointer2,
+  Plus,
+  Hand,
+
 } from 'lucide-react'
 
 const VIEWPORTS = [
@@ -90,7 +94,7 @@ function ExportMenu({ project }) {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="ws-btn ws-btn-primary"
+        className="ws-btn !bg-[var(--ws-accent)] hover:!bg-[var(--ws-accent-hover)] !text-white !border-transparent !rounded-full !px-4 shadow-sm"
       >
         {exporting ? 'Creating ZIP…' : <Download size={13} />}
         {exporting ? 'Creating ZIP…' : 'Export'}
@@ -177,6 +181,7 @@ export default function Toolbar() {
   const setViewport = useEditorStore((s) => s.setViewport)
   const darkMode = useEditorStore((s) => s.darkMode)
   const toggleDarkMode = useEditorStore((s) => s.toggleDarkMode)
+  const insertElement = useEditorStore((s) => s.insertElement)
   const previewMode = useEditorStore((s) => s.previewMode)
   const togglePreview = useEditorStore((s) => s.togglePreview)
   const undo = useEditorStore((s) => s.undo)
@@ -193,7 +198,7 @@ export default function Toolbar() {
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
       <div className="ws-toolbar-brand flex min-w-0 items-center gap-2.5">
-        <div className="ws-brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl font-display text-sm font-bold text-white shadow-glow-sm">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#6750A4] font-display text-sm font-bold text-white shadow-sm">
           W
         </div>
         <span className="hidden font-display text-sm font-bold tracking-tight sm:block" style={{ color: 'var(--ws-text)' }}>
@@ -227,15 +232,37 @@ export default function Toolbar() {
         </button>
       </div>
 
-      <div className="ws-toolbar-controls flex items-center gap-0.5">
-        <IconBtn title="Undo (Ctrl+Z)" disabled={!canUndo || previewMode} onClick={undo}>
-          <Undo2 size={15} />
-        </IconBtn>
-        <IconBtn title="Redo (Ctrl+Shift+Z)" disabled={!canRedo || previewMode} onClick={redo}>
-          <Redo2 size={15} />
-        </IconBtn>
-        <div className="mx-1 h-5 w-px" style={{ background: 'var(--ws-border)' }} />
-        <div className="ws-seg mr-1">
+      <div className="ws-toolbar-controls flex items-center gap-2">
+        {/* Tool Cluster 1: Pointer & Hand */}
+        <div className="flex items-center gap-0.5 rounded-full border border-[#E7E0EC] bg-white px-1 py-0.5 shadow-sm">
+          <button
+            type="button"
+            title="Selection tool (V)"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-[#6750A4] text-white shadow-sm"
+          >
+            <MousePointer2 size={13} />
+          </button>
+          <button
+            type="button"
+            title="Hand / Pan tool (H)"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[#49454F] transition hover:bg-[#F3EDF7]"
+          >
+            <Hand size={13} />
+          </button>
+        </div>
+
+        {/* Tool Cluster 2: Undo / Redo */}
+        <div className="flex items-center gap-0.5 rounded-full border border-[#E7E0EC] bg-white px-1 py-0.5 shadow-sm">
+          <IconBtn title="Undo (Ctrl+Z)" disabled={!canUndo || previewMode} onClick={undo}>
+            <Undo2 size={14} />
+          </IconBtn>
+          <IconBtn title="Redo (Ctrl+Shift+Z)" disabled={!canRedo || previewMode} onClick={redo}>
+            <Redo2 size={14} />
+          </IconBtn>
+        </div>
+
+        {/* Viewport Segment */}
+        <div className="ws-seg">
           {VIEWPORTS.map((v) => {
             const Icon = v.icon
             return (
@@ -252,12 +279,17 @@ export default function Toolbar() {
             )
           })}
         </div>
+
+        <IconBtn title="Add Section" onClick={() => insertElement('section')}>
+          <Plus size={14} />
+        </IconBtn>
+
         <IconBtn
           title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           active={darkMode}
           onClick={toggleDarkMode}
         >
-          {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+          {darkMode ? <Sun size={14} /> : <Moon size={14} />}
         </IconBtn>
       </div>
 

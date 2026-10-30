@@ -122,7 +122,7 @@ npm run preview
 
 ## 🧪 Regression Checks
 
-Two headless-Chrome scripts exercise the parts of the app that are easy to
+Two headless‑Chrome scripts exercise the parts of the app that are easy to
 break silently:
 
 ```bash
@@ -130,8 +130,12 @@ node scripts/.verify.mjs          # editor UI: tabs, block insert, prompt + expo
 node scripts/.verify-export.mjs   # generates a project with every block type, builds it, and renders it
 ```
 
+`scripts/.verify.mjs` now starts Chrome with the `--disable-web-security`
+flag, which allows the script to write to `localStorage` in headless mode.
+No additional setup is required.
+
 `.verify.mjs` drives a running dev server (pass a different base URL as the
-first argument). `.verify-export.mjs` is self-contained: it generates a React
+first argument). `.verify-export.mjs` is self‑contained: it generates a React
 project containing every block type, builds it with Vite, serves the result and
 asserts the rendered DOM has no nested anchors and no console errors.
 
@@ -146,6 +150,8 @@ asserts the rendered DOM has no nested anchors and no console errors.
    - **API Key:** Your provider API key
 3. Upload a reference screenshot or mock-up and provide prompt instructions.
 4. The builder will generate an interactive page structure that you can inspect, edit, and refine.
+
+   **Note:** If you don’t have an LLM provider or API key, you can simply skip the AI Builder step – the editor works entirely offline and all other features (drag‑and‑drop, theming, export) are fully functional without any external service.
 
 > **Security Note:** API keys are stored only in volatile browser memory during your active session and are never included in project files or exported packages.
 

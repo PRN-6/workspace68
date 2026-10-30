@@ -18,6 +18,7 @@ const chrome = spawn(
   [
     `--remote-debugging-port=${PORT}`,
     `--user-data-dir=${profileDir}`,
+    '--disable-web-security', // allow localStorage in headless mode
     '--headless=new',
     '--no-first-run',
     '--no-default-browser-check',

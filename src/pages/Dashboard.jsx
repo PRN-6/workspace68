@@ -176,7 +176,7 @@ export default function Dashboard() {
   ]
 
   return (
-    <div className="relative min-h-screen bg-ink-950 text-zinc-100">
+    <div className="relative min-h-screen overflow-x-hidden bg-ink-950 text-zinc-100">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute -top-32 right-0 h-96 w-96 rounded-full bg-crimson-600/15 blur-[130px]" />
       <div className="pointer-events-none absolute top-1/3 -left-40 h-96 w-96 rounded-full bg-crimson-800/10 blur-[130px]" />

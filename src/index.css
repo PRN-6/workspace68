@@ -7,10 +7,17 @@
 }
 
 html,
-body,
-#root {
-  height: 100%;
+body {
   margin: 0;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+#root {
+  min-height: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
@@ -30,48 +37,48 @@ body {
   color-scheme: light;
   background: var(--ws-bg);
   color: var(--ws-text);
-  --ws-bg: #eff4ed;
-  --ws-panel: #f7faf5;
-  --ws-panel-2: #e8eee6;
-  --ws-panel-3: #e1e9df;
-  --ws-border: #dce5dc;
-  --ws-border-strong: #c5d2c5;
-  --ws-text: #1d2a22;
-  --ws-text-2: #43564a;
-  --ws-text-3: #7b8c80;
-  --ws-accent: #e11d33;
-  --ws-accent-hover: #c81e36;
+  --ws-bg: #000000;
+  --ws-panel: #111111;
+  --ws-panel-2: #1a1a1a;
+  --ws-panel-3: #222222;
+  --ws-border: #333333;
+  --ws-border-strong: #444444;
+  --ws-text: #ffffff;
+  --ws-text-2: #dddddd;
+  --ws-text-3: #bbbbbb;
+  --ws-accent: #ff0000;
+  --ws-accent-hover: #cc0000;
   --ws-accent-text: #ffffff;
-  --ws-accent-soft: rgba(225, 29, 51, 0.1);
-  --ws-accent-ring: rgba(225, 29, 51, 0.28);
-  --ws-canvas: #eff4ed;
+  --ws-accent-soft: rgba(255,0,0,0.12);
+  --ws-accent-ring: rgba(255,0,0,0.35);
+  --ws-canvas: #f4f4f8;
   --ws-artboard: #ffffff;
-  --ws-shadow: 0 24px 70px -28px rgba(35, 55, 42, 0.24);
+  --ws-shadow: 0 20px 60px -25px rgba(103, 80, 164, 0.22);
   /* Translucent panel background for floating controls. Tailwind cannot apply
      an alpha modifier to a var(), so this is a pre-mixed token instead. */
-  --ws-panel-glass: rgba(247, 250, 245, 0.92);
+  --ws-panel-glass: rgba(255, 255, 255, 0.94);
 }
 
 .ws-app.ws-dark {
   color-scheme: dark;
-  --ws-bg: #111915;
-  --ws-panel: #18221b;
-  --ws-panel-2: #202d23;
-  --ws-panel-3: #28382c;
-  --ws-border: #304135;
-  --ws-border-strong: #425947;
-  --ws-text: #edf5ee;
-  --ws-text-2: #bdcdbf;
-  --ws-text-3: #899b8d;
-  --ws-accent: #ff5a6a;
-  --ws-accent-hover: #ff7180;
+  --ws-bg: #000000;
+  --ws-panel: #111111;
+  --ws-panel-2: #1a1a1a;
+  --ws-panel-3: #222222;
+  --ws-border: #333333;
+  --ws-border-strong: #444444;
+  --ws-text: #ffffff;
+  --ws-text-2: #dddddd;
+  --ws-text-3: #bbbbbb;
+  --ws-accent: #ff0000;
+  --ws-accent-hover: #cc0000;
   --ws-accent-text: #ffffff;
-  --ws-accent-soft: rgba(255, 90, 106, 0.14);
-  --ws-accent-ring: rgba(255, 90, 106, 0.32);
-  --ws-canvas: #121a15;
+  --ws-accent-soft: rgba(255,0,0,0.12);
+  --ws-accent-ring: rgba(255,0,0,0.35);
+  --ws-canvas: #f4f4f8;
   --ws-artboard: #ffffff;
   --ws-shadow: 0 28px 80px -30px rgba(0, 0, 0, 0.55);
-  --ws-panel-glass: rgba(24, 34, 27, 0.92);
+  --ws-panel-glass: rgba(255, 255, 255, 0.94);
 }
 
 /* ------------------------------------------------------------------ */
@@ -410,10 +417,17 @@ select.ws-input {
 }
 
 .ws-artboard-frame {
-  border: 7px solid #29302a;
-  border-radius: 28px;
+  border: 1px solid var(--ws-border);
+  border-radius: 24px;
   background: var(--ws-artboard);
-  box-shadow: 0 22px 50px rgba(36, 52, 40, 0.16);
+  box-shadow: 0 16px 48px -10px rgba(103, 80, 164, 0.14);
+}
+
+.ws-artboard-frame.ws-phone-frame {
+  border: 10px solid #2B2930;
+  border-radius: 46px;
+  box-shadow: 0 25px 70px -15px rgba(103, 80, 164, 0.32);
+  position: relative;
 }
 
 .ws-canvas-workspace {

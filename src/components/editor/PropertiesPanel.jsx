@@ -4,7 +4,24 @@ import { COMPONENTS } from '../../data/components'
 import { STYLE_GROUPS, ANIMATION_OPTIONS, EASING_OPTIONS, ACTION_TYPES } from '../../data/styleControls'
 import { TextField, SelectField, ColorField, SliderField, BoxField, RadiusField, AlignField, FontSizeField, ShadowField, Row } from './Field'
 import { iconFor } from './componentIcons'
-import { Copy, X, MousePointerClick, RotateCcw, Lock } from 'lucide-react'
+import {
+  Copy,
+  X,
+  MousePointerClick,
+  RotateCcw,
+  Lock,
+  PanelRightClose,
+  Check,
+  MoreVertical,
+  ArrowUp,
+  ArrowDown,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
+  Palette,
+  Type,
+  Plus,
+} from 'lucide-react'
 import * as T from '../../lib/tree'
 import { ANIM_STYLES } from '../../lib/style'
 
@@ -673,8 +690,8 @@ function PageSettings() {
 }
 
 const TABS = [
-  ['style', 'Style'],
-  ['action', 'Action'],
+  ['style', 'Design'],
+  ['action', 'Trigger'],
   ['animation', 'Animation'],
 ]
 
@@ -685,17 +702,29 @@ export default function PropertiesPanel() {
   const updateElement = useEditorStore((s) => s.updateElement)
   const removeElement = useEditorStore((s) => s.removeElement)
   const duplicateElement = useEditorStore((s) => s.duplicateElement)
+  const toggleRightSidebar = useEditorStore((s) => s.toggleRightSidebar)
   const root = useEditorStore((s) => s.currentPage().root)
 
   const element = selectedId ? T.findById(root, selectedId) : null
 
   return (
     <aside
-      className="ws-properties flex w-80 shrink-0 flex-col border-l"
+      className="ws-properties flex w-full h-full min-h-0 shrink-0 flex-col border-l"
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
       {!element ? (
         <div className="ws-scroll flex-1 overflow-y-auto p-4">
+          <div className="mb-3 flex items-center justify-between pb-2 border-b" style={{ borderColor: 'var(--ws-border)' }}>
+            <span className="text-sm font-semibold" style={{ color: 'var(--ws-text)' }}>Page & Project</span>
+            <button
+              type="button"
+              onClick={toggleRightSidebar}
+              title="Collapse panel"
+              className="ws-icon-btn shrink-0"
+            >
+              <PanelRightClose size={15} />
+            </button>
+          </div>
           <PageSettings />
         </div>
       ) : (
@@ -749,6 +778,14 @@ export default function PropertiesPanel() {
                 className="ws-icon-btn !h-7 !min-w-7 !p-0 hover:!text-crimson-400"
               >
                 <X size={13} />
+              </button>
+              <button
+                type="button"
+                title="Collapse panel"
+                onClick={toggleRightSidebar}
+                className="ws-icon-btn !h-7 !min-w-7 !p-0"
+              >
+                <PanelRightClose size={14} />
               </button>
             </div>
             <div className="ws-seg">

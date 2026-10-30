@@ -11,7 +11,7 @@ const WORKSPACES_KEY = 'workspace68.projects.v1'
 // Design tokens applied across the whole project. Kept on the project (not
 // the app) so every design carries its own look and can be exported.
 export const DEFAULT_THEME = {
-  seed: '#e11d33',
+  seed: '#ff0000',
   radius: '16px',
   font: 'Inter',
   scheme: 'light',
@@ -193,15 +193,16 @@ const useEditorStore = create((set, get) => ({
   selectedIds: [],
   hoveredId: null,
   editingId: null,
-  viewport: 'desktop', // desktop | tablet | mobile
+  viewport: 'mobile', // desktop | tablet | mobile
   zoom: 1,
   darkMode: false,
   previewMode: false,
+          gridVisible: false,
   previewPageId: null,
   rightTab: 'style', // style | action | animation
   leftTab: 'blocks', // screens | blocks | layers | flow | theme
   leftSidebarOpen: true,
-  rightSidebarOpen: false,
+  rightSidebarOpen: true,
   past: [],
   future: [],
 
@@ -235,9 +236,9 @@ const useEditorStore = create((set, get) => ({
         const ids = s.selectedIds.includes(id)
           ? s.selectedIds.filter((x) => x !== id)
           : [...s.selectedIds, id]
-        return { selectedIds: ids, selectedId: ids[ids.length - 1] ?? null, editingId: null }
+        return { selectedIds: ids, selectedId: ids[ids.length - 1] ?? null, editingId: null, rightSidebarOpen: true }
       }
-      return { selectedId: id, selectedIds: [id], editingId: null }
+      return { selectedId: id, selectedIds: [id], editingId: null, rightSidebarOpen: true }
     }),
   setHovered: (id) => set({ hoveredId: id }),
   setEditing: (id) => set({ editingId: id }),
@@ -258,6 +259,7 @@ const useEditorStore = create((set, get) => ({
       previewMode: !s.previewMode,
       previewPageId: s.previewMode ? null : s.currentPageId,
     })),
+      toggleGrid: () => set((s) => ({ gridVisible: !s.gridVisible })),
 
   setPreviewPage: (id) => set({ previewPageId: id }),
 
@@ -351,6 +353,7 @@ const useEditorStore = create((set, get) => ({
         hoveredId: null,
         editingId: null,
         previewMode: false,
+          gridVisible: false,
         previewPageId: null,
       }
     }),
@@ -368,6 +371,7 @@ const useEditorStore = create((set, get) => ({
         selectedId: null,
         editingId: null,
         previewMode: false,
+          gridVisible: false,
         previewPageId: null,
         past: [],
         future: [],
@@ -385,6 +389,7 @@ const useEditorStore = create((set, get) => ({
         selectedId: null,
         editingId: null,
         previewMode: false,
+          gridVisible: false,
         previewPageId: null,
         past: [],
         future: [],
@@ -403,6 +408,7 @@ const useEditorStore = create((set, get) => ({
         selectedId: null,
         editingId: null,
         previewMode: false,
+          gridVisible: false,
         previewPageId: null,
         past: [],
         future: [],
@@ -423,6 +429,7 @@ const useEditorStore = create((set, get) => ({
         selectedId: null,
         editingId: null,
         previewMode: false,
+          gridVisible: false,
         previewPageId: null,
         past: [],
         future: [],
@@ -471,6 +478,19 @@ const useEditorStore = create((set, get) => ({
         dest.splice(idx, 0, el)
       })
     })
+  },
+
+  reorderElement: (id, direction) => {
+    set((s) =>
+      withCurrentPage(s, (page) => {
+        const src = T.findContainerList(page.root, id)
+        if (!src) return
+        const targetIndex = direction === 'up' ? src.index - 1 : src.index + 1
+        if (targetIndex < 0 || targetIndex >= src.list.length) return
+        const [el] = src.list.splice(src.index, 1)
+        src.list.splice(targetIndex, 0, el)
+      })
+    )
   },
 
   updateProps: (id, patch) =>

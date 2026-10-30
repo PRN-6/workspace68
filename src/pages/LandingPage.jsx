@@ -228,10 +228,12 @@ function EditorMock() {
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-ink-950 text-zinc-200 selection:bg-crimson-600 selection:text-white">
+    <div className="relative min-h-screen overflow-x-hidden bg-ink-950 text-zinc-200 selection:bg-crimson-600 selection:text-white">
       {/* Ambient glow field */}
-      <div className="pointer-events-none absolute -top-40 left-1/4 h-[480px] w-[480px] rounded-full bg-crimson-700/15 blur-[150px]" />
-      <div className="pointer-events-none absolute top-[40%] -right-40 h-[420px] w-[420px] rounded-full bg-crimson-500/10 blur-[140px]" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 left-1/4 h-[480px] w-[480px] rounded-full bg-crimson-700/15 blur-[150px]" />
+        <div className="absolute top-[40%] -right-40 h-[420px] w-[420px] rounded-full bg-crimson-500/10 blur-[140px]" />
+      </div>
 
       {/* Sticky nav */}
       <nav className="sticky top-0 z-40 border-b border-ink-700/70 bg-ink-950/85 px-6 py-3.5 backdrop-blur-xl">

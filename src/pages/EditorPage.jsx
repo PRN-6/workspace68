@@ -5,6 +5,7 @@ import { useEditorStore } from '../store/editorStore'
 import Toolbar from '../components/editor/Toolbar'
 import LeftSidebar from '../components/editor/LeftSidebar'
 import Canvas from '../components/editor/Canvas'
+import PropertiesPanel from '../components/editor/PropertiesPanel'
 import { EditorDndProvider } from '../components/editor/EditorDndContext'
 import PublishModal from '../components/editor/PublishModal'
 import Shortcuts from '../components/editor/Shortcuts'
@@ -100,7 +101,7 @@ export default function EditorPage() {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-ink-950 text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-9 w-9 animate-spin rounded-full border-4 border-crimson-500 border-t-transparent" />
+          <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#6750A4] border-t-transparent" />
           <span className="font-display text-sm font-medium text-zinc-400">Loading your design…</span>
         </div>
       </div>
@@ -112,15 +113,15 @@ export default function EditorPage() {
       <Shortcuts />
 
       {/* Cloud Header / Status Bar */}
-      <div className="ws-savebar flex h-10 items-center justify-between border-b px-4 text-xs">
+      <div className="ws-savebar flex h-10 items-center justify-between border-b px-4 text-xs" style={{ borderColor: 'var(--ws-border)', background: 'var(--ws-panel)' }}>
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-1 font-medium text-zinc-400 transition hover:text-white"
+            className="flex items-center gap-1 font-medium text-[var(--ws-text-3)] transition hover:text-white"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Dashboard
           </button>
-          <div className="h-3.5 w-px bg-zinc-800" />
+          <div className="h-3.5 w-px bg-[var(--ws-border-strong)]" />
           <span className="ws-savebar-project font-display font-semibold">{project.name}</span>
         </div>
 
@@ -129,26 +130,26 @@ export default function EditorPage() {
           <div className="flex items-center gap-1.5 text-[11px]">
             {saveStatus === 'saving' && (
               <>
-                <Cloud className="h-3.5 w-3.5 animate-pulse text-crimson-400" />
-                <span className="text-zinc-400">Saving…</span>
+                <Cloud className="h-3.5 w-3.5 animate-pulse text-[var(--ws-accent)]" />
+                <span className="text-[var(--ws-text-3)]">Saving…</span>
               </>
             )}
             {saveStatus === 'saved' && (
               <>
                 {cloud ? (
-                  <CheckCircle2 className="h-3.5 w-3.5 text-crimson-500" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-[var(--ws-accent)]" />
                 ) : (
-                  <HardDrive className="h-3.5 w-3.5 text-crimson-500" />
+                  <HardDrive className="h-3.5 w-3.5 text-[var(--ws-accent)]" />
                 )}
-                <span className="text-zinc-400">
+                <span className="text-[var(--ws-text-3)]">
                   {cloud ? 'Synced' : 'Saved in this browser'}
                 </span>
               </>
             )}
             {saveStatus === 'error' && (
               <>
-                <AlertCircle className="h-3.5 w-3.5 text-crimson-400" />
-                <span className="text-crimson-400">Save failed</span>
+                <AlertCircle className="h-3.5 w-3.5 text-[var(--ws-accent)]" />
+                <span className="text-[var(--ws-accent)]">Save failed</span>
               </>
             )}
           </div>
@@ -157,7 +158,7 @@ export default function EditorPage() {
           {cloud ? (
             <button
               onClick={() => setPublishModalOpen(true)}
-              className="rounded-full bg-crimson-600 px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-glow-sm transition hover:bg-crimson-500 hover:shadow-glow active:scale-95"
+              className="rounded-full bg-[var(--ws-accent)] px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-glow-sm transition hover:bg-[var(--ws-accent-hover)] hover:shadow-glow active:scale-95"
             >
               <span className="flex items-center gap-1.5">
                 <Rocket size={12} /> Publish
@@ -167,7 +168,7 @@ export default function EditorPage() {
             <button
               onClick={() => navigate('/login')}
               title="Sign in to publish this design to a public URL"
-              className="rounded-full border border-zinc-700 px-3.5 py-1.5 text-[11px] font-semibold text-zinc-300 transition hover:border-crimson-600/60 hover:text-white"
+              className="rounded-full border border-[var(--ws-border-strong)] px-3.5 py-1.5 text-[11px] font-semibold text-[var(--ws-text-2)] transition hover:border-[var(--ws-accent)]/60 hover:text-white"
             >
               Sign in to publish
             </button>
@@ -209,6 +210,32 @@ export default function EditorPage() {
 
           {/* Canvas Workspace */}
           <Canvas />
+
+          {/* Floating Expand Right Sidebar Button (when collapsed) */}
+          {!previewMode && !rightSidebarOpen && (
+            <button
+              type="button"
+              onClick={toggleRightSidebar}
+              title="Expand Properties & Styles Panel"
+              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel-glass)] px-3.5 py-2 text-xs font-semibold text-[var(--ws-text-2)] shadow-panel backdrop-blur transition hover:text-[var(--ws-accent)] active:scale-95"
+            >
+              <span>Properties</span>
+              <span>◀</span>
+            </button>
+          )}
+
+          {/* Right Properties Sidebar (Collapsible) */}
+          {!previewMode && (
+            <div
+              className={`transition-all duration-300 ease-in-out shrink-0 overflow-hidden flex flex-col ${
+                rightSidebarOpen ? 'ws-sidebar-shell' : 'w-0'
+              }`}
+            >
+              <div className="ws-sidebar-shell-inner h-full flex flex-col">
+                <PropertiesPanel />
+              </div>
+            </div>
+          )}
 
         </div>
       </EditorDndProvider>

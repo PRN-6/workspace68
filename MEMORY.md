@@ -1,0 +1,1 @@
+- [Permissions‑Policy Fix (2026‑10‑30)](C:\Users\prins\.claude\projects\D--projects-workspace68\memory\permissions-policy-fix-2026-10-30.md) — hook
