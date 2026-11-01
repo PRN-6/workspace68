@@ -278,6 +278,369 @@ function ContentEditor({ element }) {
   )
 }
 
+function CollapsibleCard({ title, icon: Icon, children, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className="mb-3 rounded-2xl border border-[var(--ws-border)] bg-[var(--ws-panel)] shadow-sm overflow-hidden transition">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-[var(--ws-text)] transition hover:bg-[var(--ws-panel-2)]"
+      >
+        <span className="flex items-center gap-2">
+          {Icon && <Icon size={14} style={{ color: 'var(--ws-accent)' }} />}
+          <span>{title}</span>
+        </span>
+        {open ? <ChevronUp size={14} style={{ color: 'var(--ws-text-3)' }} /> : <ChevronDown size={14} style={{ color: 'var(--ws-text-3)' }} />}
+      </button>
+      {open && <div className="p-3 pt-0 border-t border-[var(--ws-border)]/50">{children}</div>}
+    </div>
+  )
+}
+
+function FastTextEditor({ element }) {
+  const updateProps = useEditorStore((s) => s.updateProps)
+  const propKey = element.props.text !== undefined ? 'text'
+    : element.props.label !== undefined ? 'label'
+    : element.props.title !== undefined ? 'title'
+    : element.props.brand !== undefined ? 'brand'
+    : null
+
+  if (!propKey) return null
+
+  const value = element.props[propKey] || ''
+
+  return (
+    <CollapsibleCard title="Text" icon={Type}>
+      <div className="mt-2 flex items-center gap-2 rounded-xl border border-[var(--ws-border-strong)] bg-[var(--ws-panel-2)] px-2.5 py-1.5 shadow-sm">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => updateProps(element.id, { [propKey]: e.target.value })}
+          placeholder="Edit text..."
+          className="flex-1 min-w-0 bg-transparent text-xs font-medium text-[var(--ws-text)] outline-none"
+        />
+        {value && (
+          <button
+            type="button"
+            title="Clear text"
+            onClick={() => updateProps(element.id, { [propKey]: '' })}
+            className="text-[var(--ws-text-3)] hover:text-[var(--ws-text)]"
+          >
+            <X size={13} />
+          </button>
+        )}
+      </div>
+    </CollapsibleCard>
+  )
+}
+
+function StylePresetsSection({ element }) {
+  const updateStyle = useEditorStore((s) => s.updateStyle)
+  const currentBg = element.style.backgroundColor || ''
+
+  const STYLES = [
+    {
+      id: 'filled',
+      label: 'Filled Crimson',
+      badge: 'bg-[var(--ws-accent)] text-white',
+      active: currentBg === 'var(--ws-accent)' || currentBg === '#e11d33' || currentBg.toLowerCase() === '#e11d33',
+      style: {
+        backgroundColor: 'var(--ws-accent)',
+        color: '#FFFFFF',
+        borderWidth: '0px',
+        borderStyle: 'none',
+        borderColor: 'transparent',
+        boxShadow: '0 2px 8px rgba(225, 29, 51, 0.35)',
+      },
+    },
+    {
+      id: 'tonal',
+      label: 'Tonal Soft Red',
+      badge: 'bg-[var(--ws-accent-soft)] text-[var(--ws-accent)]',
+      active: currentBg.includes('rgba(225') || currentBg === 'var(--ws-accent-soft)',
+      style: {
+        backgroundColor: 'rgba(225, 29, 51, 0.16)',
+        color: 'var(--ws-accent)',
+        borderWidth: '0px',
+        borderStyle: 'none',
+        borderColor: 'transparent',
+        boxShadow: 'none',
+      },
+    },
+    {
+      id: 'surface',
+      label: 'Dark Surface',
+      badge: 'bg-[var(--ws-panel-2)] text-[var(--ws-text)] border border-[var(--ws-border)]',
+      active: currentBg === 'var(--ws-panel-2)' || currentBg === '#1c1c1f',
+      style: {
+        backgroundColor: '#1c1c1f',
+        color: '#f2f2f4',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: '#2e2e32',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+      },
+    },
+    {
+      id: 'outlined',
+      label: 'Outlined Red',
+      badge: 'bg-transparent text-[var(--ws-accent)] border border-[var(--ws-accent)]',
+      active: element.style.borderStyle === 'solid' && element.style.borderWidth !== '0px',
+      style: {
+        backgroundColor: 'transparent',
+        color: 'var(--ws-accent)',
+        borderWidth: '1.5px',
+        borderStyle: 'solid',
+        borderColor: 'var(--ws-accent)',
+        boxShadow: 'none',
+      },
+    },
+    {
+      id: 'dashed',
+      label: 'Dashed Border',
+      badge: 'bg-transparent text-[var(--ws-text-2)] border border-dashed border-[var(--ws-border-strong)]',
+      active: element.style.borderStyle === 'dashed',
+      style: {
+        backgroundColor: 'transparent',
+        color: 'var(--ws-text-2)',
+        borderWidth: '1.5px',
+        borderStyle: 'dashed',
+        borderColor: 'var(--ws-border-strong)',
+        boxShadow: 'none',
+      },
+    },
+  ]
+
+  return (
+    <CollapsibleCard title="Style" icon={Palette}>
+      <div className="mt-2 flex items-center justify-between gap-1.5">
+        {STYLES.map((st) => (
+          <button
+            key={st.id}
+            type="button"
+            title={st.label}
+            onClick={() => updateStyle(element.id, st.style)}
+            className={`flex h-9 flex-1 items-center justify-center rounded-xl transition active:scale-95 ${st.badge} ${
+              st.active ? 'ring-2 ring-[var(--ws-accent)] ring-offset-1' : 'hover:opacity-90'
+            }`}
+          >
+            {st.active && <Check size={14} className="text-white" />}
+          </button>
+        ))}
+      </div>
+    </CollapsibleCard>
+  )
+}
+
+function SizePresetsSection({ element }) {
+  const updateStyle = useEditorStore((s) => s.updateStyle)
+  const rawWidth = parseInt(element.style.width, 10) || 120
+  const rawHeight = parseInt(element.style.height || element.style.minHeight, 10) || 48
+
+  return (
+    <CollapsibleCard title="Size" icon={SlidersHorizontal}>
+      <div className="mt-2 flex flex-col gap-3">
+        {/* Width Control */}
+        <div>
+          <div className="flex items-center justify-between text-[11px] font-medium text-[var(--ws-text-2)] mb-1">
+            <span>↔ Width</span>
+            <span className="font-mono text-[10px] text-[var(--ws-text-3)]">{element.style.width || 'auto'}</span>
+          </div>
+          <div className="flex items-center gap-2 mb-2">
+            <input
+              type="range"
+              min="40"
+              max="500"
+              step="4"
+              value={rawWidth}
+              onChange={(e) => updateStyle(element.id, { width: `${e.target.value}px`, maxWidth: '100%' })}
+              className="flex-1 accent-crimson-600"
+            />
+            <span className="w-10 text-right font-mono text-[11px] font-semibold text-[var(--ws-text)]">
+              {rawWidth}
+            </span>
+          </div>
+          <div className="grid grid-cols-4 gap-1">
+            {[
+              ['Auto', { width: 'auto', maxWidth: 'none' }],
+              ['Half', { width: '50%', maxWidth: '100%' }],
+              ['Standard', { width: '320px', maxWidth: '100%' }],
+              ['Full', { width: '100%', maxWidth: '100%' }],
+            ].map(([label, patch]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => updateStyle(element.id, patch)}
+                className="rounded-lg border border-[var(--ws-border)] bg-[var(--ws-panel-2)] py-1 text-[10px] font-semibold text-[var(--ws-text-2)] transition hover:bg-[var(--ws-accent)] hover:text-white"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Height Control */}
+        <div>
+          <div className="flex items-center justify-between text-[11px] font-medium text-[var(--ws-text-2)] mb-1">
+            <span>↕ Height & Padding</span>
+            <span className="font-mono text-[10px] text-[var(--ws-text-3)]">{rawHeight}px</span>
+          </div>
+          <div className="flex items-center gap-2 mb-2">
+            <input
+              type="range"
+              min="28"
+              max="140"
+              step="4"
+              value={rawHeight}
+              onChange={(e) => updateStyle(element.id, { minHeight: `${e.target.value}px`, height: `${e.target.value}px` })}
+              className="flex-1 accent-crimson-600"
+            />
+            <span className="w-10 text-right font-mono text-[11px] font-semibold text-[var(--ws-text)]">
+              {rawHeight}
+            </span>
+          </div>
+          <div className="grid grid-cols-5 gap-1">
+            {[
+              ['XS', { minHeight: '32px', height: '32px', padding: '4px 10px' }],
+              ['S', { minHeight: '40px', height: '40px', padding: '6px 14px' }],
+              ['M', { minHeight: '48px', height: '48px', padding: '10px 20px' }],
+              ['L', { minHeight: '56px', height: '56px', padding: '14px 24px' }],
+              ['XL', { minHeight: '64px', height: '64px', padding: '18px 28px' }],
+            ].map(([label, patch]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => updateStyle(element.id, patch)}
+                className="rounded-lg border border-[var(--ws-border)] bg-[var(--ws-panel-2)] py-1 text-[10px] font-semibold text-[var(--ws-text-2)] transition hover:bg-[var(--ws-accent)] hover:text-white"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </CollapsibleCard>
+  )
+}
+
+function AlignGridSection({ element }) {
+  const updateStyle = useEditorStore((s) => s.updateStyle)
+  const currentAlign = element.style.textAlign || 'left'
+
+  const DOTS = [
+    { row: 0, col: 0, label: 'Top Left', patch: { textAlign: 'left', alignSelf: 'flex-start', marginLeft: '0', marginRight: 'auto' } },
+    { row: 0, col: 1, label: 'Top Center', patch: { textAlign: 'center', alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' } },
+    { row: 0, col: 2, label: 'Top Right', patch: { textAlign: 'right', alignSelf: 'flex-end', marginLeft: 'auto', marginRight: '0' } },
+    { row: 1, col: 0, label: 'Middle Left', patch: { textAlign: 'left', alignSelf: 'flex-start', marginLeft: '0', marginRight: 'auto' } },
+    { row: 1, col: 1, label: 'Center', patch: { textAlign: 'center', alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' } },
+    { row: 1, col: 2, label: 'Middle Right', patch: { textAlign: 'right', alignSelf: 'flex-end', marginLeft: 'auto', marginRight: '0' } },
+    { row: 2, col: 0, label: 'Bottom Left', patch: { textAlign: 'left', alignSelf: 'flex-start', marginLeft: '0', marginRight: 'auto' } },
+    { row: 2, col: 1, label: 'Bottom Center', patch: { textAlign: 'center', alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' } },
+    { row: 2, col: 2, label: 'Bottom Right', patch: { textAlign: 'right', alignSelf: 'flex-end', marginLeft: 'auto', marginRight: '0' } },
+  ]
+
+  return (
+    <CollapsibleCard title="Align" icon={SlidersHorizontal}>
+      <div className="mt-2 flex flex-col items-center">
+        <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[var(--ws-border)] bg-[var(--ws-panel-2)] p-3">
+          {DOTS.map((dot, i) => (
+            <button
+              key={i}
+              type="button"
+              title={dot.label}
+              onClick={() => updateStyle(element.id, dot.patch)}
+              className="flex h-5 w-5 items-center justify-center rounded-full transition hover:scale-125"
+            >
+              <span
+                className={`h-2.5 w-2.5 rounded-full transition ${
+                  (dot.col === 0 && currentAlign === 'left') ||
+                  (dot.col === 1 && currentAlign === 'center') ||
+                  (dot.col === 2 && currentAlign === 'right')
+                    ? 'bg-[var(--ws-accent)] scale-125 shadow-sm'
+                    : 'bg-[var(--ws-border-strong)] hover:bg-[var(--ws-text-3)]'
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+    </CollapsibleCard>
+  )
+}
+
+function RoundnessSection({ element }) {
+  const updateStyle = useEditorStore((s) => s.updateStyle)
+  const rawRadius = parseInt(element.style.borderRadius, 10) || 0
+
+  return (
+    <CollapsibleCard title="Roundness" icon={SlidersHorizontal}>
+      <div className="mt-2 flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min="0"
+            max="48"
+            value={rawRadius > 48 ? 48 : rawRadius}
+            onChange={(e) => updateStyle(element.id, { borderRadius: `${e.target.value}px` })}
+            className="flex-1 accent-crimson-600"
+          />
+          <span className="w-10 text-right font-mono text-[11px] font-semibold text-[var(--ws-text)]">
+            {rawRadius}px
+          </span>
+        </div>
+        <div className="grid grid-cols-3 gap-1.5">
+          {[
+            ['Square', { borderRadius: '0px' }],
+            ['Rounded', { borderRadius: '16px' }],
+            ['Full', { borderRadius: '9999px' }],
+          ].map(([label, patch]) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => updateStyle(element.id, patch)}
+              className="rounded-lg border border-[var(--ws-border)] bg-[var(--ws-panel-2)] py-1 text-[10px] font-semibold text-[var(--ws-text-2)] transition hover:bg-[var(--ws-accent)] hover:text-white"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </CollapsibleCard>
+  )
+}
+
+function ColorPaletteSection({ element }) {
+  const updateStyle = useEditorStore((s) => s.updateStyle)
+  const PALETTES = [
+    { name: 'Crimson Red', bg: '#e11d33', text: '#FFFFFF' },
+    { name: 'Dark Burgundy', bg: '#8b0000', text: '#FFFFFF' },
+    { name: 'Jet Black', bg: '#0c0c0e', text: '#FFFFFF' },
+    { name: 'Charcoal', bg: '#1c1c1f', text: '#FFFFFF' },
+    { name: 'Pure White', bg: '#FFFFFF', text: '#1D1B20' },
+    { name: 'Amber Glow', bg: '#f59e0b', text: '#000000' },
+    { name: 'Emerald', bg: '#10b981', text: '#FFFFFF' },
+    { name: 'Royal Blue', bg: '#2563eb', text: '#FFFFFF' },
+  ]
+
+  return (
+    <CollapsibleCard title="Color Palette" icon={Palette}>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {PALETTES.map((c) => (
+          <button
+            key={c.name}
+            type="button"
+            title={`${c.name} theme`}
+            onClick={() => updateStyle(element.id, { backgroundColor: c.bg, color: c.text })}
+            className="h-6 w-6 rounded-full border border-white/20 shadow-sm transition hover:scale-110 active:scale-95"
+            style={{ backgroundColor: c.bg }}
+          />
+        ))}
+      </div>
+    </CollapsibleCard>
+  )
+}
+
 function StyleTab({ element }) {
   const updateStyle = useEditorStore((s) => s.updateStyle)
   const setElementLayout = useEditorStore((s) => s.setElementLayout)
@@ -364,28 +727,13 @@ function StyleTab({ element }) {
   ]
 
   return (
-    <div>
-      {/* Quick Fun Themes for buttons, cards, headings */}
-      {['button', 'heading', 'text', 'container'].includes(element.type) && (
-        <div className="mb-4">
-          <SectionTitle>Quick Fun Themes</SectionTitle>
-          <div className="grid grid-cols-2 gap-1.5">
-            {QUICK_THEMES.map((theme) => (
-              <button
-                key={theme.name}
-                type="button"
-                onClick={() => updateStyle(element.id, theme.style)}
-                className="rounded-2xl border p-2 text-left text-xs font-semibold transition hover:-translate-y-0.5 active:scale-95"
-                style={{ background: 'var(--ws-panel-2)', borderColor: 'var(--ws-border)', color: 'var(--ws-text-2)' }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ws-accent)')}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--ws-border)')}
-              >
-                {theme.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+    <div className="flex flex-col gap-1">
+      <FastTextEditor element={element} />
+      <StylePresetsSection element={element} />
+      <SizePresetsSection element={element} />
+      <AlignGridSection element={element} />
+      <RoundnessSection element={element} />
+      <ColorPaletteSection element={element} />
 
       {!isSection && (
         <div className="mb-4">
@@ -702,6 +1050,7 @@ export default function PropertiesPanel() {
   const updateElement = useEditorStore((s) => s.updateElement)
   const removeElement = useEditorStore((s) => s.removeElement)
   const duplicateElement = useEditorStore((s) => s.duplicateElement)
+  const reorderElement = useEditorStore((s) => s.reorderElement)
   const toggleRightSidebar = useEditorStore((s) => s.toggleRightSidebar)
   const root = useEditorStore((s) => s.currentPage().root)
 
@@ -765,7 +1114,23 @@ export default function PropertiesPanel() {
               </button>
               <button
                 type="button"
-                title="Duplicate"
+                title="Move up (Ctrl+↑)"
+                onClick={() => reorderElement(element.id, 'up')}
+                className="ws-icon-btn !h-7 !min-w-7 !p-0"
+              >
+                <ArrowUp size={13} />
+              </button>
+              <button
+                type="button"
+                title="Move down (Ctrl+↓)"
+                onClick={() => reorderElement(element.id, 'down')}
+                className="ws-icon-btn !h-7 !min-w-7 !p-0"
+              >
+                <ArrowDown size={13} />
+              </button>
+              <button
+                type="button"
+                title="Duplicate (Ctrl+D)"
                 onClick={() => duplicateElement(element.id)}
                 className="ws-icon-btn !h-7 !min-w-7 !p-0"
               >

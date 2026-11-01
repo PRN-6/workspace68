@@ -198,7 +198,7 @@ export default function Toolbar() {
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
       <div className="ws-toolbar-brand flex min-w-0 items-center gap-2.5">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#6750A4] font-display text-sm font-bold text-white shadow-sm">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl font-display text-sm font-bold text-white shadow-sm" style={{ background: 'var(--ws-accent)' }}>
           W
         </div>
         <span className="hidden font-display text-sm font-bold tracking-tight sm:block" style={{ color: 'var(--ws-text)' }}>
@@ -234,25 +234,27 @@ export default function Toolbar() {
 
       <div className="ws-toolbar-controls flex items-center gap-2">
         {/* Tool Cluster 1: Pointer & Hand */}
-        <div className="flex items-center gap-0.5 rounded-full border border-[#E7E0EC] bg-white px-1 py-0.5 shadow-sm">
+        <div className="flex items-center gap-0.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel)] px-1 py-0.5 shadow-sm">
           <button
             type="button"
             title="Selection tool (V)"
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-[#6750A4] text-white shadow-sm"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-white shadow-sm"
+            style={{ background: 'var(--ws-accent)' }}
           >
             <MousePointer2 size={13} />
           </button>
           <button
             type="button"
             title="Hand / Pan tool (H)"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-[#49454F] transition hover:bg-[#F3EDF7]"
+            className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-[var(--ws-panel-3)]"
+            style={{ color: 'var(--ws-text-2)' }}
           >
             <Hand size={13} />
           </button>
         </div>
 
         {/* Tool Cluster 2: Undo / Redo */}
-        <div className="flex items-center gap-0.5 rounded-full border border-[#E7E0EC] bg-white px-1 py-0.5 shadow-sm">
+        <div className="flex items-center gap-0.5 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel)] px-1 py-0.5 shadow-sm">
           <IconBtn title="Undo (Ctrl+Z)" disabled={!canUndo || previewMode} onClick={undo}>
             <Undo2 size={14} />
           </IconBtn>

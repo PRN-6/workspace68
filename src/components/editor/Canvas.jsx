@@ -631,6 +631,7 @@ function PagesBar() {
 function EditCanvas() {
   const page = useEditorStore((s) => s.currentPage())
   const viewport = useEditorStore((s) => s.viewport)
+  const setViewport = useEditorStore((s) => s.setViewport)
   const zoom = useEditorStore((s) => s.zoom)
   const zoomIn = useEditorStore((s) => s.zoomIn)
   const zoomOut = useEditorStore((s) => s.zoomOut)
@@ -659,6 +660,43 @@ function EditCanvas() {
 }
 `}</style>
       <PagesBar />
+
+      {/* Screen & Viewport Switcher Pill */}
+      <div className="flex justify-center pt-3 pb-1 shrink-0">
+        <div className="flex items-center gap-2 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel-glass)] px-3 py-1.5 shadow-sm backdrop-blur">
+          <div className="flex items-center gap-1 rounded-full bg-[var(--ws-panel-2)] p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewport('mobile')}
+              title="Phone frame"
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+                viewport === 'mobile'
+                  ? 'bg-[var(--ws-accent)] text-white shadow-sm'
+                  : 'text-[var(--ws-text-2)] hover:text-[var(--ws-text)]'
+              }`}
+            >
+              <Smartphone size={13} />
+              <span>Phone</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewport('desktop')}
+              title="Desktop frame"
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+                viewport === 'desktop'
+                  ? 'bg-[var(--ws-accent)] text-white shadow-sm'
+                  : 'text-[var(--ws-text-2)] hover:text-[var(--ws-text)]'
+              }`}
+            >
+              <Monitor size={13} />
+              <span>Desktop</span>
+            </button>
+          </div>
+          <span className="h-4 w-px bg-[var(--ws-border)]" />
+          <span className="text-xs font-semibold pr-1.5" style={{ color: 'var(--ws-text)' }}>{page.name || 'Home'}</span>
+        </div>
+      </div>
+
       <div
         className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 overflow-y-auto p-8"
         onClick={() => {
@@ -667,27 +705,30 @@ function EditCanvas() {
         }}
       >
         <div
-          className="ws-artboard-frame relative mx-auto min-h-[70vh] overflow-hidden"
+          className={`ws-artboard-frame ${viewport === 'mobile' ? 'ws-phone-frame' : ''} relative mx-auto min-h-[70vh] overflow-hidden`}
           style={{ width: widthFor(viewport), maxWidth: '100%', zoom }}
         >
+          {viewport === 'mobile' && (
+            <div className="mx-auto mt-2.5 h-3.5 w-24 rounded-full bg-[#1C1B1F] shrink-0 z-20 pointer-events-none" />
+          )}
           {gridVisible && (
-  <div
-    className="pointer-events-none absolute inset-0"
-    style={{
-      backgroundImage:
-        'linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px)',
-      backgroundSize: '20px 20px',
-      opacity: 0.5,
-      zIndex: 5,
-    }}
-  />
-)}
-<RootList page={page} />
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px)',
+                backgroundSize: '20px 20px',
+                opacity: 0.5,
+                zIndex: 5,
+              }}
+            />
+          )}
+          <RootList page={page} />
         </div>
       </div>
 
-      {/* Floating Element Action Bar (From reference image 4: [ ☱ Tidy ] [ ↑ ]) */}
-      <div className="absolute bottom-4 left-6 z-20 flex items-center gap-1 rounded-full border border-[#E7E0EC] bg-white/95 p-1 shadow-sm backdrop-blur">
+      {/* Floating Element Action Bar */}
+      <div className="absolute bottom-4 left-6 z-20 flex items-center gap-1 rounded-full border border-[var(--ws-border)] bg-[var(--ws-panel-glass)] p-1 shadow-md backdrop-blur">
         <button
           type="button"
           onClick={() => {
@@ -701,9 +742,10 @@ function EditCanvas() {
             }
           }}
           title={selectedId ? 'Tidy & Center selected element' : 'Reset view'}
-          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-[#1D1B20] transition hover:bg-[#F3EDF7] active:scale-95"
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition hover:bg-[var(--ws-panel-3)] active:scale-95"
+          style={{ color: 'var(--ws-text)' }}
         >
-          <SlidersHorizontal size={13} className="text-[#6750A4]" />
+          <SlidersHorizontal size={13} style={{ color: 'var(--ws-accent)' }} />
           <span>Tidy</span>
         </button>
 
@@ -713,7 +755,8 @@ function EditCanvas() {
               type="button"
               onClick={() => reorderElement(selectedId, 'up')}
               title="Move element up (Ctrl+↑)"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[#49454F] transition hover:bg-[#F3EDF7] hover:text-[#1D1B20] active:scale-95"
+              className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-[var(--ws-panel-3)] active:scale-95"
+              style={{ color: 'var(--ws-text-2)' }}
             >
               <ArrowUp size={13} />
             </button>
@@ -721,16 +764,18 @@ function EditCanvas() {
               type="button"
               onClick={() => reorderElement(selectedId, 'down')}
               title="Move element down (Ctrl+↓)"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[#49454F] transition hover:bg-[#F3EDF7] hover:text-[#1D1B20] active:scale-95"
+              className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-[var(--ws-panel-3)] active:scale-95"
+              style={{ color: 'var(--ws-text-2)' }}
             >
               <ArrowDown size={13} />
             </button>
-            <span className="h-4 w-px bg-[#E7E0EC]" />
+            <span className="h-4 w-px" style={{ background: 'var(--ws-border)' }} />
             <button
               type="button"
               onClick={() => duplicateElement(selectedId)}
               title="Duplicate element (Ctrl+D)"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[#49454F] transition hover:bg-[#F3EDF7] hover:text-[#1D1B20] active:scale-95"
+              className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-[var(--ws-panel-3)] active:scale-95"
+              style={{ color: 'var(--ws-text-2)' }}
             >
               <Copy size={13} />
             </button>
@@ -738,7 +783,8 @@ function EditCanvas() {
               type="button"
               onClick={() => removeElement(selectedId)}
               title="Delete element"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[#BA1A1A] transition hover:bg-[#FFEDEC] active:scale-95"
+              className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-[var(--ws-accent-soft)] active:scale-95"
+              style={{ color: 'var(--ws-accent)' }}
             >
               <Trash2 size={13} />
             </button>

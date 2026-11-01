@@ -390,7 +390,7 @@ function BlocksTab() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search blocks…"
-          className="ws-input !rounded-full !py-2 !pl-9 !pr-7 !text-xs !bg-[#F0F0F5] !border-transparent focus:!border-[#6750A4] focus:!bg-white"
+          className="ws-input !rounded-full !py-2 !pl-9 !pr-7 !text-xs !bg-[var(--ws-panel-2)] !border-[var(--ws-border)] focus:!border-[var(--ws-accent)] focus:!bg-[var(--ws-panel-3)]"
           style={{ paddingLeft: 30 }}
         />
         {query && (
@@ -462,7 +462,7 @@ export default function LeftSidebar() {
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
       <nav className="ws-sidebar-rail flex shrink-0 flex-col items-center gap-2 py-3">
-        <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-2xl bg-[#6750A4] text-sm font-bold text-white shadow-sm">
+        <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-2xl text-sm font-bold text-white shadow-sm" style={{ background: 'var(--ws-accent)' }}>
           W
         </div>
         {TABS.map((t) => {

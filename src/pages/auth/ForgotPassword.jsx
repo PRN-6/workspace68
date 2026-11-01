@@ -28,29 +28,29 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#F8F9FE] text-[#1D1B20] selection:bg-[#6750A4] selection:text-white flex flex-col justify-between overflow-x-hidden">
+    <div className="relative min-h-screen bg-ink-950 text-zinc-100 selection:bg-crimson-600 selection:text-white flex flex-col justify-between overflow-x-hidden">
       {/* Soft Ambient Radial Background Glows (Material 3 Expressive) */}
-      <div className="pointer-events-none absolute -top-40 left-1/3 h-[500px] w-[500px] rounded-full bg-[#EADDFF]/40 blur-[150px]" />
-      <div className="pointer-events-none absolute top-[40%] -right-40 h-[450px] w-[450px] rounded-full bg-[#6750A4]/10 blur-[150px]" />
+      <div className="pointer-events-none absolute -top-40 left-1/3 h-[500px] w-[500px] rounded-full bg-crimson-700/15 blur-[150px]" />
+      <div className="pointer-events-none absolute top-[40%] -right-40 h-[450px] w-[450px] rounded-full bg-crimson-500/10 blur-[150px]" />
 
       {/* Floating Top Nav Pill Header */}
       <header className="relative z-30 px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <Link
             to="/"
-            className="flex items-center gap-2.5 rounded-full border border-[#E7E0EC] bg-white/90 px-3.5 py-1.5 shadow-sm backdrop-blur transition hover:border-[#6750A4]/40"
+            className="flex items-center gap-2.5 rounded-full border border-ink-700 bg-ink-900/90 px-3.5 py-1.5 shadow-sm backdrop-blur transition hover:border-crimson-600/50"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-[#6750A4] to-[#4F378B] font-display text-xs font-bold text-white shadow-sm">
+            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-crimson-400 to-crimson-700 font-display text-xs font-bold text-white shadow-sm">
               W
             </span>
-            <span className="font-display text-sm font-bold tracking-tight text-[#1D1B20]">
+            <span className="font-display text-sm font-bold tracking-tight text-white">
               workspace68
             </span>
           </Link>
 
           <Link
             to="/login"
-            className="flex items-center gap-1.5 rounded-full border border-[#E7E0EC] bg-white/90 px-3.5 py-1.5 text-xs font-semibold text-[#49454F] shadow-sm backdrop-blur transition hover:bg-[#F3EDF7] hover:text-[#1D1B20]"
+            className="flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-900/90 px-3.5 py-1.5 text-xs font-semibold text-zinc-400 shadow-sm backdrop-blur transition hover:bg-ink-800 hover:text-white"
           >
             <ArrowLeft size={13} />
             <span>Back to Sign In</span>
@@ -60,15 +60,15 @@ export default function ForgotPassword() {
 
       {/* Main Content */}
       <main className="relative z-20 flex-1 px-4 sm:px-6 py-8 flex items-center justify-center">
-        <div className="w-full max-w-[440px] rounded-[32px] border border-[#E7E0EC] bg-white/95 p-8 sm:p-10 shadow-[0_20px_50px_-20px_rgba(103,80,164,0.15)] backdrop-blur-xl">
+        <div className="w-full max-w-[440px] rounded-[32px] border border-ink-700/80 bg-ink-900/90 p-8 sm:p-10 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] backdrop-blur-xl">
           <div className="mb-6">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EADDFF] text-[#6750A4] shadow-sm">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-crimson-600/15 text-crimson-400 shadow-sm">
               <Mail size={22} />
             </div>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-[#1D1B20]">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-white">
               Reset Password
             </h1>
-            <p className="mt-1 text-xs text-[#79747E]">
+            <p className="mt-1 text-xs text-zinc-500">
               Enter your email address and we will send you a password recovery link.
             </p>
           </div>
@@ -89,11 +89,11 @@ export default function ForgotPassword() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-xs font-semibold text-[#49454F] mb-1.5">
+              <label htmlFor="email" className="block text-xs font-semibold text-zinc-400 mb-1.5">
                 Email Address
               </label>
-              <div className="relative flex items-center rounded-2xl border border-[#CAC4D0] bg-[#FDFCFE] transition-all focus-within:border-[#6750A4] focus-within:ring-2 focus-within:ring-[#EADDFF]">
-                <Mail size={16} className="pointer-events-none absolute left-3.5 text-[#6750A4]" />
+              <div className="relative flex items-center rounded-2xl border border-ink-700 bg-ink-950/80 transition-all focus-within:border-crimson-500 focus-within:ring-2 focus-within:ring-crimson-500/20">
+                <Mail size={16} className="pointer-events-none absolute left-3.5 text-crimson-400" />
                 <input
                   type="email"
                   id="email"
@@ -101,7 +101,7 @@ export default function ForgotPassword() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-2xl bg-transparent py-3 pl-11 pr-4 text-xs font-medium text-[#1D1B20] placeholder-[#79747E] outline-none"
+                  className="w-full rounded-2xl bg-transparent py-3 pl-11 pr-4 text-xs font-medium text-white placeholder-zinc-500 outline-none"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@ export default function ForgotPassword() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 rounded-full bg-[#6750A4] py-3 px-6 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(103,80,164,0.25)] transition hover:bg-[#5B449A] hover:shadow-[0_6px_22px_rgba(103,80,164,0.35)] active:scale-[0.98] disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 rounded-full bg-crimson-600 py-3 px-6 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(225,29,51,0.3)] transition hover:bg-crimson-500 hover:shadow-[0_6px_22px_rgba(225,29,51,0.4)] active:scale-[0.98] disabled:opacity-60"
             >
               <Send size={15} />
               <span>{loading ? 'Sending link…' : 'Send Reset Link'}</span>
@@ -119,7 +119,7 @@ export default function ForgotPassword() {
           <div className="mt-6 text-center">
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6750A4] transition hover:text-[#5B449A] hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-crimson-400 transition hover:text-crimson-400 hover:underline"
             >
               <ArrowLeft size={13} />
               Back to Sign In
@@ -128,7 +128,7 @@ export default function ForgotPassword() {
         </div>
       </main>
 
-      <footer className="relative z-20 py-3 text-center text-[11px] text-[#79747E]">
+      <footer className="relative z-20 py-3 text-center text-[11px] text-zinc-500">
         Workspace68 · Material 3 Expressive Studio
       </footer>
     </div>

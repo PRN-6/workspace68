@@ -37,48 +37,46 @@ body {
   color-scheme: light;
   background: var(--ws-bg);
   color: var(--ws-text);
-  --ws-bg: #000000;
-  --ws-panel: #111111;
-  --ws-panel-2: #1a1a1a;
-  --ws-panel-3: #222222;
-  --ws-border: #333333;
-  --ws-border-strong: #444444;
-  --ws-text: #ffffff;
-  --ws-text-2: #dddddd;
-  --ws-text-3: #bbbbbb;
-  --ws-accent: #ff0000;
-  --ws-accent-hover: #cc0000;
+  --ws-bg: #0c0c0e;
+  --ws-panel: #141416;
+  --ws-panel-2: #1c1c1f;
+  --ws-panel-3: #252528;
+  --ws-border: #2e2e32;
+  --ws-border-strong: #3e3e44;
+  --ws-text: #f2f2f4;
+  --ws-text-2: #c4c4ca;
+  --ws-text-3: #8a8a94;
+  --ws-accent: #e11d33;
+  --ws-accent-hover: #c81a2e;
   --ws-accent-text: #ffffff;
-  --ws-accent-soft: rgba(255,0,0,0.12);
-  --ws-accent-ring: rgba(255,0,0,0.35);
-  --ws-canvas: #f4f4f8;
+  --ws-accent-soft: rgba(225, 29, 51, 0.14);
+  --ws-accent-ring: rgba(225, 29, 51, 0.35);
+  --ws-canvas: #111114;
   --ws-artboard: #ffffff;
-  --ws-shadow: 0 20px 60px -25px rgba(103, 80, 164, 0.22);
-  /* Translucent panel background for floating controls. Tailwind cannot apply
-     an alpha modifier to a var(), so this is a pre-mixed token instead. */
-  --ws-panel-glass: rgba(255, 255, 255, 0.94);
+  --ws-shadow: 0 20px 60px -25px rgba(225, 29, 51, 0.18);
+  --ws-panel-glass: rgba(20, 20, 22, 0.92);
 }
 
 .ws-app.ws-dark {
   color-scheme: dark;
-  --ws-bg: #000000;
-  --ws-panel: #111111;
-  --ws-panel-2: #1a1a1a;
-  --ws-panel-3: #222222;
-  --ws-border: #333333;
-  --ws-border-strong: #444444;
-  --ws-text: #ffffff;
-  --ws-text-2: #dddddd;
-  --ws-text-3: #bbbbbb;
-  --ws-accent: #ff0000;
-  --ws-accent-hover: #cc0000;
+  --ws-bg: #08080a;
+  --ws-panel: #101012;
+  --ws-panel-2: #181819;
+  --ws-panel-3: #202022;
+  --ws-border: #282830;
+  --ws-border-strong: #38383f;
+  --ws-text: #f2f2f4;
+  --ws-text-2: #bcbcc4;
+  --ws-text-3: #7a7a84;
+  --ws-accent: #ff3a4f;
+  --ws-accent-hover: #e6324a;
   --ws-accent-text: #ffffff;
-  --ws-accent-soft: rgba(255,0,0,0.12);
-  --ws-accent-ring: rgba(255,0,0,0.35);
-  --ws-canvas: #f4f4f8;
+  --ws-accent-soft: rgba(255, 58, 79, 0.16);
+  --ws-accent-ring: rgba(255, 58, 79, 0.38);
+  --ws-canvas: #0a0a0d;
   --ws-artboard: #ffffff;
-  --ws-shadow: 0 28px 80px -30px rgba(0, 0, 0, 0.55);
-  --ws-panel-glass: rgba(255, 255, 255, 0.94);
+  --ws-shadow: 0 28px 80px -30px rgba(0, 0, 0, 0.65);
+  --ws-panel-glass: rgba(16, 16, 18, 0.92);
 }
 
 /* ------------------------------------------------------------------ */
@@ -420,13 +418,13 @@ select.ws-input {
   border: 1px solid var(--ws-border);
   border-radius: 24px;
   background: var(--ws-artboard);
-  box-shadow: 0 16px 48px -10px rgba(103, 80, 164, 0.14);
+  box-shadow: 0 16px 48px -10px rgba(0, 0, 0, 0.35);
 }
 
 .ws-artboard-frame.ws-phone-frame {
-  border: 10px solid #2B2930;
+  border: 10px solid #1a1a1e;
   border-radius: 46px;
-  box-shadow: 0 25px 70px -15px rgba(103, 80, 164, 0.32);
+  box-shadow: 0 25px 70px -15px rgba(0, 0, 0, 0.5);
   position: relative;
 }
 
