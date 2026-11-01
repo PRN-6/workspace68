@@ -166,7 +166,7 @@ export default function Preview() {
   const page = pages.find((p) => p.id === (previewPageId || currentPageId)) || pages[0]
 
   return (
-    <div className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 overflow-y-auto p-8">
+    <div className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 min-h-0 overflow-y-auto p-8">
       <div
         className="ws-artboard-frame mx-auto overflow-hidden transition-all"
         style={{ maxWidth: widthFor(viewport) }}

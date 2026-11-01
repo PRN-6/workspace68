@@ -648,7 +648,7 @@ function EditCanvas() {
   const removeElement = useEditorStore((s) => s.removeElement)
 
   return (
-    <main className="ws-editor-canvas flex min-w-0 flex-1 flex-col">
+    <main className="ws-editor-canvas flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden relative">
       <style>{`
 .ws-canvas-workspace::-webkit-scrollbar {
   width: 12px;
@@ -698,7 +698,7 @@ function EditCanvas() {
       </div>
 
       <div
-        className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 overflow-y-auto p-8"
+        className="ws-canvas-workspace ws-canvas-grid ws-scroll flex-1 min-h-0 overflow-y-auto p-8 relative"
         onClick={() => {
           selectElement(null)
           setHovered(null)

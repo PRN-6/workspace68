@@ -458,10 +458,10 @@ export default function LeftSidebar() {
 
   return (
     <aside
-      className="ws-sidebar flex shrink-0 flex-row border-r"
+      className="ws-sidebar flex h-full min-h-0 shrink-0 flex-row border-r overflow-hidden"
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
-      <nav className="ws-sidebar-rail flex shrink-0 flex-col items-center gap-2 py-3">
+      <nav className="ws-sidebar-rail flex h-full shrink-0 flex-col items-center gap-2 py-3 overflow-y-auto ws-scroll">
         <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-2xl text-sm font-bold text-white shadow-sm" style={{ background: 'var(--ws-accent)' }}>
           W
         </div>
@@ -483,7 +483,7 @@ export default function LeftSidebar() {
         })}
       </nav>
 
-      <div className="ws-sidebar-content flex min-h-0 flex-1 flex-col">
+      <div className="ws-sidebar-content flex h-full min-h-0 flex-1 flex-col overflow-hidden">
         <div className="flex h-[54px] shrink-0 items-center justify-between border-b px-3" style={{ borderColor: 'var(--ws-border)' }}>
           <span className="text-sm font-semibold" style={{ color: 'var(--ws-text)' }}>
             {panelTitle}
@@ -498,7 +498,7 @@ export default function LeftSidebar() {
           </button>
         </div>
 
-        <div className="ws-scroll flex-1 overflow-y-auto p-3">
+        <div className="ws-scroll flex-1 min-h-0 overflow-y-auto p-3">
           {leftTab === 'screens' && <ScreensTab />}
 
           {leftTab === 'blocks' && <BlocksTab />}

@@ -1058,11 +1058,11 @@ export default function PropertiesPanel() {
 
   return (
     <aside
-      className="ws-properties flex w-full h-full min-h-0 shrink-0 flex-col border-l"
+      className="ws-properties flex w-full h-full min-h-0 shrink-0 flex-col border-l overflow-hidden"
       style={{ background: 'var(--ws-panel)', borderColor: 'var(--ws-border)' }}
     >
       {!element ? (
-        <div className="ws-scroll flex-1 overflow-y-auto p-4">
+        <div className="ws-scroll flex-1 min-h-0 overflow-y-auto p-4">
           <div className="mb-3 flex items-center justify-between pb-2 border-b" style={{ borderColor: 'var(--ws-border)' }}>
             <span className="text-sm font-semibold" style={{ color: 'var(--ws-text)' }}>Page & Project</span>
             <button
@@ -1167,7 +1167,7 @@ export default function PropertiesPanel() {
               ))}
             </div>
           </div>
-          <div className="ws-scroll flex-1 overflow-y-auto p-4">
+          <div className="ws-scroll flex-1 min-h-0 overflow-y-auto p-4">
             {rightTab === 'style' && <StyleTab element={element} />}
             {rightTab === 'action' && <ActionTab element={element} />}
             {rightTab === 'animation' && <AnimationTab element={element} />}

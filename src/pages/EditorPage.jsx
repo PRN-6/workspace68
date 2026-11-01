@@ -109,7 +109,7 @@ export default function EditorPage() {
   }
 
   return (
-    <div className={`ws-app flex h-full flex-col overflow-hidden${darkMode ? ' ws-dark' : ''}`}>
+    <div className={`ws-app fixed inset-0 flex h-screen h-[100dvh] w-full flex-col overflow-hidden select-none${darkMode ? ' ws-dark' : ''}`}>
       <Shortcuts />
 
       {/* Cloud Header / Status Bar */}
